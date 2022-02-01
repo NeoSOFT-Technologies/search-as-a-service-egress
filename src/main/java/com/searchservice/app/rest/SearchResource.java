@@ -17,13 +17,13 @@ import com.searchservice.app.infrastructure.adaptor.SolrSearchResult;
 
 @RestController
 @RequestMapping("/search")
-public class SolrSearchRecordsResource {
+public class SearchResource {
     /* Solr Search Records for given collection- Egress Service Resource */
-    private final Logger logger = LoggerFactory.getLogger(SolrSearchRecordsResource.class);
+    private final Logger logger = LoggerFactory.getLogger(SearchResource.class);
 
     private SolrSearchAdvanced solrSearchAdvanced;
 
-    public SolrSearchRecordsResource(
+    public SearchResource(
 
             SolrSearchAdvanced solrSearchAdvanced) {
         this.solrSearchAdvanced = solrSearchAdvanced;
@@ -33,7 +33,7 @@ public class SolrSearchRecordsResource {
     @Autowired
     SolrSearchResult solrSearchResult;
 
-    @GetMapping(value = "/{tableName}")
+    @GetMapping(value = "/api/v1/{tableName}")
     public ResponseEntity<SolrSearchResponseDTO> searchRecordsInGivenCollectionAdvanced(@PathVariable String tableName, @RequestParam(defaultValue = "name") String queryField,
             @RequestParam(defaultValue = "*") String searchTerm, @RequestParam(defaultValue = "0") String startRecord, @RequestParam(defaultValue = "5") String pageSize,
             @RequestParam(defaultValue = "id") String orderBy, @RequestParam(defaultValue = "asc") String order) {
