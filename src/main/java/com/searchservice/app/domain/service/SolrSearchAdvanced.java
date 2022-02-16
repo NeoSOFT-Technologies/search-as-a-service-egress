@@ -5,7 +5,7 @@ import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import com.searchservice.app.domain.dto.SolrSearchResponseDTO;
+import com.searchservice.app.domain.dto.SolrSearchResponse;
 import com.searchservice.app.domain.port.api.SolrSearchRecordsServicePort;
 
 @Service
@@ -18,7 +18,7 @@ public class SolrSearchAdvanced {
 		this.solrSearchRecordsServicePort = solrSearchRecordsServicePort;
 	}
 	
-	public SolrSearchResponseDTO search(
+	public SolrSearchResponse search(
 			String tableName, 
 			String queryField, 
 			String queryFieldSearchTerm, 

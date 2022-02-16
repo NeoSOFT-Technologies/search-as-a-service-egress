@@ -18,7 +18,7 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import com.searchservice.app.domain.dto.SolrSearchResponseDTO;
+import com.searchservice.app.domain.dto.SolrSearchResponse;
 import com.searchservice.app.domain.port.api.SolrSearchRecordsServicePort;
 import com.searchservice.app.infrastructure.adaptor.SolrAPIAdapter;
 import com.searchservice.app.infrastructure.adaptor.SolrSearchResult;
@@ -39,7 +39,7 @@ public class SolrSearchRecordsService implements SolrSearchRecordsServicePort {
 	//@Autowired
 	SolrSearchResult solrSearchResult = new SolrSearchResult();
 	//@Autowired
-	SolrSearchResponseDTO solrSearchResponseDTO = new SolrSearchResponseDTO();
+	SolrSearchResponse solrSearchResponseDTO = new SolrSearchResponse();
 	// call for solr client
 	@Autowired
 	SolrAPIAdapter solrSchemaAPIAdapter = new SolrAPIAdapter();
@@ -50,13 +50,13 @@ public class SolrSearchRecordsService implements SolrSearchRecordsServicePort {
 	
 	public SolrSearchRecordsService(
 			SolrSearchResult solrSearchResult, 
-			SolrSearchResponseDTO solrSearchResponseDTO) {
+			SolrSearchResponse solrSearchResponseDTO) {
 		this.solrSearchResult = solrSearchResult;
 		this.solrSearchResponseDTO = solrSearchResponseDTO;
 	}
 
 	@Override
-	public SolrSearchResponseDTO setUpSelectQueryUnfiltered(
+	public SolrSearchResponse setUpSelectQueryUnfiltered(
 											String collection) {
 		/* Egress API -- solr collection records -- UNFILTERED SEARCH */
 		logger.debug("Performing UNFILTERED solr search for given collection");
@@ -64,12 +64,12 @@ public class SolrSearchRecordsService implements SolrSearchRecordsServicePort {
 		SolrClient client = solrSchemaAPIAdapter.getSolrClient(solrUrl, collection);
 		SolrQuery query = new SolrQuery();
 		query.set("q", "*:*");
-		solrSearchResponseDTO = new SolrSearchResponseDTO();
+		solrSearchResponseDTO = new SolrSearchResponse();
 		try {
 			solrSearchResult = new SolrSearchResult();
 			QueryResponse response = client.query(query);
 			SolrDocumentList docs = response.getResults();
-			List<SolrDocument> solrDocuments = new ArrayList<>();
+			List<Object> solrDocuments = new ArrayList<>();
 			docs.forEach(solrDocuments::add);
 			response = client.query(query);
 			response.getDebugMap();
@@ -91,7 +91,7 @@ public class SolrSearchRecordsService implements SolrSearchRecordsServicePort {
 	}
 	
 	@Override
-	public SolrSearchResponseDTO setUpSelectQueryBasicSearch( 
+	public SolrSearchResponse setUpSelectQueryBasicSearch( 
 														String collection, 
 														String queryField, 
 														String searchTerm) {
@@ -101,13 +101,13 @@ public class SolrSearchRecordsService implements SolrSearchRecordsServicePort {
 		SolrClient client = solrSchemaAPIAdapter.getSolrClient(solrUrl, collection);
 		SolrQuery query = new SolrQuery();
 		query.set("q", queryField + ":" + searchTerm);
-		solrSearchResponseDTO = new SolrSearchResponseDTO();
+		solrSearchResponseDTO = new SolrSearchResponse();
 		try {
 			solrSearchResult = new SolrSearchResult();
 			QueryResponse response = client.query(query);
 			SolrDocumentList docs = response.getResults();
 			
-			List<SolrDocument> solrDocuments = new ArrayList<>();
+			List<Object> solrDocuments = new ArrayList<>();
 			docs.forEach(solrDocuments::add);
 			response = client.query(query);
 			response.getDebugMap();
@@ -129,7 +129,7 @@ public class SolrSearchRecordsService implements SolrSearchRecordsServicePort {
 	}
 
 	@Override
-	public SolrSearchResponseDTO setUpSelectQueryOrderedSearch(
+	public SolrSearchResponse setUpSelectQueryOrderedSearch(
 												String collection, 
 												String queryField, 
 												String searchTerm, 
@@ -143,12 +143,12 @@ public class SolrSearchRecordsService implements SolrSearchRecordsServicePort {
 		query.set("q", queryField + ":" + searchTerm);
 		SortClause sortClause = new SortClause(tag, order);
 		query.setSort(sortClause);
-		solrSearchResponseDTO = new SolrSearchResponseDTO();
+		solrSearchResponseDTO = new SolrSearchResponse();
 		try {
 			solrSearchResult = new SolrSearchResult();
 			QueryResponse response = client.query(query);
 			SolrDocumentList docs = response.getResults();
-			List<SolrDocument> solrDocuments = new ArrayList<>();
+			List<Object> solrDocuments = new ArrayList<>();
 			docs.forEach(solrDocuments::add);
 			response = client.query(query);
 			response.getDebugMap();
@@ -170,7 +170,7 @@ public class SolrSearchRecordsService implements SolrSearchRecordsServicePort {
 	}
 	
 	@Override
-	public SolrSearchResponseDTO setUpSelectQueryAdvancedSearch(	
+	public SolrSearchResponse setUpSelectQueryAdvancedSearch(	
 												String collection, 
 												String queryField, 
 												String searchTerm, 
@@ -189,12 +189,12 @@ public class SolrSearchRecordsService implements SolrSearchRecordsServicePort {
 		query.set("rows", pageSize);
 		SortClause sortClause = new SortClause(tag, order);
 		query.setSort(sortClause);
-		solrSearchResponseDTO = new SolrSearchResponseDTO();
+		solrSearchResponseDTO = new SolrSearchResponse();
 		try {
 			solrSearchResult = new SolrSearchResult();
 			QueryResponse response = client.query(query);
 			SolrDocumentList docs = response.getResults();
-			List<SolrDocument> solrDocuments = new ArrayList<>();
+			List<Object> solrDocuments = new ArrayList<>();
 			docs.forEach(solrDocuments::add);
 			response = client.query(query);
 			response.getDebugMap();
@@ -216,7 +216,7 @@ public class SolrSearchRecordsService implements SolrSearchRecordsServicePort {
 	}
 	
 	@Override
-	public SolrSearchResponseDTO setUpSelectQueryAdvancedSearchWithPagination(
+	public SolrSearchResponse setUpSelectQueryAdvancedSearchWithPagination(
 															String collection, 
 															String queryField, 
 															String searchTerm,
@@ -234,12 +234,12 @@ public class SolrSearchRecordsService implements SolrSearchRecordsServicePort {
 		query.set("rows", pageSize);
 		SortClause sortClause = new SortClause(tag, order);
 		query.setSort(sortClause);
-		solrSearchResponseDTO = new SolrSearchResponseDTO();
+		solrSearchResponseDTO = new SolrSearchResponse();
 		try {
 			solrSearchResult = new SolrSearchResult();
 			QueryResponse response = client.query(query);
 			SolrDocumentList docs = response.getResults();
-			List<SolrDocument> solrDocuments = new ArrayList<>();
+			List<Object> solrDocuments = new ArrayList<>();
 			docs.forEach(solrDocuments::add);
 			response = client.query(query);
 			response.getDebugMap();

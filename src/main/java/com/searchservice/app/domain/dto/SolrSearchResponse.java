@@ -10,12 +10,12 @@ import lombok.NoArgsConstructor;
 @Data
 @NoArgsConstructor
 @Component
-public class SolrSearchResponseDTO {
+public class SolrSearchResponse {
 	private int statusCode;
 	private String responseMessage;
 	private SolrSearchResult results;
 	
-	public SolrSearchResponseDTO(String responseMessage, SolrSearchResult solrSearchResultResponse) {
+	public SolrSearchResponse(String responseMessage, SolrSearchResult solrSearchResultResponse) {
 		this.responseMessage = responseMessage;
 		this.results = solrSearchResultResponse;
 	}

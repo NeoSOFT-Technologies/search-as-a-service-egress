@@ -1,24 +1,24 @@
 package com.searchservice.app.domain.port.api;
 
-import com.searchservice.app.domain.dto.SolrSearchResponseDTO;
+import com.searchservice.app.domain.dto.SolrSearchResponse;
 
 public interface SolrSearchRecordsServicePort {
-	SolrSearchResponseDTO setUpSelectQueryUnfiltered(	
+	SolrSearchResponse setUpSelectQueryUnfiltered(	
 										String collection);
 	
-	SolrSearchResponseDTO setUpSelectQueryBasicSearch(	
+	SolrSearchResponse setUpSelectQueryBasicSearch(	
 										String collection, 
 										String queryField, 
 										String searchTerm);
 	
-	SolrSearchResponseDTO setUpSelectQueryOrderedSearch(	
+	SolrSearchResponse setUpSelectQueryOrderedSearch(	
 										String collection, 
 										String queryField, 
 										String searchTerm, 
 										String tag, 
 										String order);
 	
-	SolrSearchResponseDTO setUpSelectQueryAdvancedSearch(	
+	SolrSearchResponse setUpSelectQueryAdvancedSearch(	
 										String collection, 
 										String queryField, 
 										String searchTerm, 
@@ -27,7 +27,7 @@ public interface SolrSearchRecordsServicePort {
 										String tag, 
 										String order);
 	
-	SolrSearchResponseDTO setUpSelectQueryAdvancedSearchWithPagination(	
+	SolrSearchResponse setUpSelectQueryAdvancedSearchWithPagination(	
 										String collection, 
 										String queryField, 
 										String searchTerm, 

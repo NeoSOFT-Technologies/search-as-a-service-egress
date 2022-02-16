@@ -7,7 +7,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
 
-import com.searchservice.app.domain.dto.SolrAPIAdapterResponseDTO;
+import com.searchservice.app.domain.dto.SolrAPIAdapterResponse;
 import com.searchservice.app.domain.port.spi.SolrAPIAdapterPort;
 import com.searchservice.app.domain.utils.SolrAPIAdapterUtil;
 
@@ -41,10 +41,10 @@ public class SolrAPIAdapter implements SolrAPIAdapterPort {
 	}
 
 	@Override
-	public SolrAPIAdapterResponseDTO getSolrClientAdapter(String urlString, String tableName) {
+	public SolrAPIAdapterResponse getSolrClientAdapter(String urlString, String tableName) {
 		log.debug("Getting Solr Client for collection/table: {}", tableName);
 		
-		SolrAPIAdapterResponseDTO responseDTO = new SolrAPIAdapterResponseDTO();
+		SolrAPIAdapterResponse responseDTO = new SolrAPIAdapterResponse();
 			SolrClient solrClient = new HttpSolrClient.Builder(urlString+"/"+tableName).build();
 			
 			boolean solrClientFound = SolrAPIAdapterUtil.isSolrClientFound(solrClient);

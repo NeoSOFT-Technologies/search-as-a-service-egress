@@ -11,7 +11,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
-import com.searchservice.app.domain.dto.SolrSearchResponseDTO;
+import com.searchservice.app.domain.dto.SolrSearchResponse;
 import com.searchservice.app.domain.service.SolrSearchAdvanced;
 import com.searchservice.app.infrastructure.adaptor.SolrSearchResult;
 
@@ -34,12 +34,12 @@ public class SearchResource {
     SolrSearchResult solrSearchResult;
 
     @GetMapping(value = "/v1/{clientId}/{tableName}")
-    public ResponseEntity<SolrSearchResponseDTO> searchRecordsInGivenCollectionAdvanced(@PathVariable int clientId, @PathVariable String tableName,
+    public ResponseEntity<SolrSearchResponse> searchRecordsInGivenCollectionAdvanced(@PathVariable int clientId, @PathVariable String tableName,
             @RequestParam(defaultValue = "name") String queryField, @RequestParam(defaultValue = "*") String searchTerm, @RequestParam(defaultValue = "0") String startRecord,
             @RequestParam(defaultValue = "5") String pageSize, @RequestParam(defaultValue = "id") String orderBy, @RequestParam(defaultValue = "asc") String order) {
         logger.debug("REST call for ADVANCED SEARCH search in the given collection");
         tableName = tableName + "_" + clientId;
-        SolrSearchResponseDTO solrSearchResponseDTO = solrSearchAdvanced.search(tableName, queryField, searchTerm, startRecord, pageSize, orderBy, order);
+        SolrSearchResponse solrSearchResponseDTO = solrSearchAdvanced.search(tableName, queryField, searchTerm, startRecord, pageSize, orderBy, order);
         if (solrSearchResponseDTO.getStatusCode() == 200) {
             return ResponseEntity.status(HttpStatus.OK).body(solrSearchResponseDTO);
         } else {

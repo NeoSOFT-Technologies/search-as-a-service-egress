@@ -11,7 +11,7 @@ import lombok.Data;
 @Component
 public class SolrSearchResult {
 	private Long numDocs;
-	private List<SolrDocument> data;
+	private List<Object> data;
 
 	@Override
 	public String toString() {
