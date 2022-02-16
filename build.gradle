@@ -90,6 +90,10 @@ dependencies {
 	annotationProcessor 'org.projectlombok:lombok:1.18.22'
 	testCompileOnly 'org.projectlombok:lombok:1.18.22'
 	testAnnotationProcessor 'org.projectlombok:lombok:1.18.22'
+	
+	// https://mvnrepository.com/artifact/joda-time/joda-time
+	implementation group: 'joda-time', name: 'joda-time', version: '2.10.13'
+	
 
 	//JSON
 	implementation group: 'org.json', name: 'json', version: '20200518'
