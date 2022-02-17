@@ -198,17 +198,13 @@ public class SolrSearchRecordsService implements SolrSearchRecordsServicePort {
 			solrSearchResult = new SolrSearchResult();
 			QueryResponse response = client.query(query);
 			SolrDocumentList docs = response.getResults();
+			
 			List<SolrDocument> solrDocuments = new ArrayList<>();
-			
-			// TESTing
-			List<SolrDocument> solrDocumentsTest = new ArrayList<>();
-			// Sync Table documents with soft deleted schema
-			solrDocumentsTest = tableService.syncTableDocumentsWithSoftDeletedSchema(
+			// Sync Table documents with soft deleted schema; add valid documents
+			solrDocuments = tableService.syncTableDocumentsWithSoftDeletedSchema(
 					docs, solrDocuments, validSchemaColumns);
-			logger.info("solr docs @@@ >>>>>> {}", solrDocumentsTest);
+			/** docs.forEach(solrDocuments::add);*/
 			
-			
-			docs.forEach(solrDocuments::add);
 			response = client.query(query);
 			response.getDebugMap();
 			long numDocs = docs.getNumFound();

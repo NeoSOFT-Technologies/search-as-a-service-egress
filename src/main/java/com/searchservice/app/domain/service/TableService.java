@@ -87,9 +87,10 @@ public class TableService {
 							solrDocs.add(d);
 					});
 				});
+		logger.info("after forEach $$$$$");
 				
 		
-		return null;
+		return new ArrayList<>();
 	}
 	
 

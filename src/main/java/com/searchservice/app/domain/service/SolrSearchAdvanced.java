@@ -57,8 +57,6 @@ public class SolrSearchAdvanced {
 		LoggerUtils.printlogger(loggersDTO,true,false);
 
 		List<String> currentTableSchema = tableService.getCurrentTableSchema(tableName.split("_")[0], clientId);
-		logger.info("curr table schema cols @@@ >>>>>>>>> {}", currentTableSchema);
-		
 		searchResponseDTO = solrSearchRecordsServicePort.setUpSelectQueryAdvancedSearch(
 				currentTableSchema, 
 				tableName, queryField,
