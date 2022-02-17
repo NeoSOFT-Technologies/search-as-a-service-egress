@@ -2,6 +2,7 @@ package com.searchservice.app.domain.service;
 
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.List;
 import java.util.Map;
 
@@ -28,6 +29,7 @@ import com.searchservice.app.domain.utils.SolrUtil;
 import com.searchservice.app.domain.utils.TableSchemaParser;
 import com.searchservice.app.domain.utils.TableUtil;
 import com.searchservice.app.infrastructure.adaptor.SolrAPIAdapter;
+import com.searchservice.app.infrastructure.adaptor.SolrSearchResult;
 
 @Service
 @Transactional
@@ -69,28 +71,38 @@ public class TableService {
 	
 	public List<SolrDocument> syncTableDocumentsWithSoftDeletedSchema(
 			SolrDocumentList docs, List<SolrDocument> solrDocs, List<String> validColumns) {
-		
 		logger.info("inside syncTable..... meth #####");
 		
 		logger.info("SolrDocsList >>>>> {}", docs);
+
 		
-		
-		docs.forEach(
-				d -> {
-					// logic
-					List<String> columnsNames = (List<String>)d.getFieldNames();
-					logger.info("fieldNames >>>>>>>>>>> {}", columnsNames);
-					
-					// Return only valid schema columns
-					columnsNames.forEach(col -> {
-						if(validColumns.contains(col))
-							solrDocs.add(d);
-					});
-				});
-		logger.info("after forEach $$$$$");
+		for(SolrDocument d: docs) {
+			
+			d.getChildDocuments();
+			// testing
+			logger.info("child docsw @@@@@@@ {}", d.getChildDocuments());
+			
+			// logic
+			Collection<String> columnNames = d.getFieldNames();
+			logger.info("fieldNames >>>>>>>>>>> {}", columnNames);
+
+			// Return only valid schema columns
+//			boolean allValid = true;
+//			for (String col : columnNames) {
+//				if (!validColumns.contains(col)) {
+//					logger.info("invalid col >>>>> {}", col);
+//					allValid = false;
+//					break;
+//				}
+//			}
+//			if (allValid)
+//				solrDocs.add(d);
+			solrDocs.add(d);
+		}
+		logger.info("solrDocs after validation >>>>>>>>> {}", solrDocs);
 				
 		
-		return new ArrayList<>();
+		return solrDocs;
 	}
 	
 
