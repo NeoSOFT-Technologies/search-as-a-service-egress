@@ -67,7 +67,7 @@ public class SearchResource {
 		loggersDTO.setIpaddress(loggersDTO.getIpaddress());
 		
         tableName = tableName + "_" + clientId;
-        SolrSearchResponseDTO solrSearchResponseDTO = solrSearchAdvanced.search(tableName, queryField, searchTerm, startRecord, pageSize, orderBy, order,loggersDTO);
+        SolrSearchResponseDTO solrSearchResponseDTO = solrSearchAdvanced.search(clientId, tableName, queryField, searchTerm, startRecord, pageSize, orderBy, order,loggersDTO);
 
         successMethod(nameofCurrMethod, loggersDTO);
 		

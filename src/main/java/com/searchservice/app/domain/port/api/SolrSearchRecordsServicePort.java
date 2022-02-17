@@ -1,5 +1,7 @@
 package com.searchservice.app.domain.port.api;
 
+import java.util.List;
+
 import com.searchservice.app.domain.dto.SolrSearchResponseDTO;
 
 public interface SolrSearchRecordsServicePort {
@@ -18,7 +20,8 @@ public interface SolrSearchRecordsServicePort {
 										String tag, 
 										String order);
 	
-	SolrSearchResponseDTO setUpSelectQueryAdvancedSearch(	
+	SolrSearchResponseDTO setUpSelectQueryAdvancedSearch(
+										List<String> validSchemaColumns, 
 										String collection, 
 										String queryField, 
 										String searchTerm, 

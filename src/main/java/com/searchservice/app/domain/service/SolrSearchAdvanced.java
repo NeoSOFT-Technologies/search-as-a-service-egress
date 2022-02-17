@@ -2,9 +2,11 @@ package com.searchservice.app.domain.service;
 
 import java.time.ZoneOffset;
 import java.time.ZonedDateTime;
+import java.util.List;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -24,6 +26,10 @@ public class SolrSearchAdvanced {
 
 	private String username = "Username";
 
+	// Table service
+	@Autowired
+	TableService tableService;
+	
 	private SolrSearchRecordsServicePort solrSearchRecordsServicePort;
 	private SolrSearchResponseDTO searchResponseDTO;
 
@@ -42,7 +48,7 @@ public class SolrSearchAdvanced {
 		loggersDTO.setUsername(username);
 	}
 	
-	public SolrSearchResponseDTO search(String tableName, String queryField, String queryFieldSearchTerm,
+	public SolrSearchResponseDTO search(int clientId, String tableName, String queryField, String queryFieldSearchTerm,
 			String startRecord, String pageSize, String sortTag, String sortOrder, LoggersDTO loggersDTO) {
 		logger.debug("Advanced search for the given table");
 
@@ -50,7 +56,12 @@ public class SolrSearchAdvanced {
 		requestMethod(loggersDTO,nameofCurrMethod);
 		LoggerUtils.printlogger(loggersDTO,true,false);
 
-		searchResponseDTO = solrSearchRecordsServicePort.setUpSelectQueryAdvancedSearch(tableName, queryField,
+		List<String> currentTableSchema = tableService.getCurrentTableSchema(tableName.split("_")[0], clientId);
+		logger.info("curr table schema cols @@@ >>>>>>>>> {}", currentTableSchema);
+		
+		searchResponseDTO = solrSearchRecordsServicePort.setUpSelectQueryAdvancedSearch(
+				currentTableSchema, 
+				tableName, queryField,
 				queryFieldSearchTerm, startRecord, pageSize, sortTag, sortOrder);
 		loggersDTO.setTimestamp(LoggerUtils.utcTime().toString());
 		if(searchResponseDTO != null) {

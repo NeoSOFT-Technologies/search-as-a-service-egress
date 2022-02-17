@@ -43,9 +43,12 @@ public class SolrSearchRecordsService implements SolrSearchRecordsServicePort {
 	// call for solr client
 	@Autowired
 	SolrAPIAdapter solrSchemaAPIAdapter = new SolrAPIAdapter();
+	// Table service
+	@Autowired
+	TableService tableService;
+	
 	
 	@Value("${base-solr-url}")
-	//	@Value("${base-solr-url}")
 	String solrUrl;
 	
 	public SolrSearchRecordsService(
@@ -170,7 +173,8 @@ public class SolrSearchRecordsService implements SolrSearchRecordsServicePort {
 	}
 	
 	@Override
-	public SolrSearchResponseDTO setUpSelectQueryAdvancedSearch(	
+	public SolrSearchResponseDTO setUpSelectQueryAdvancedSearch(
+												List<String> validSchemaColumns, 
 												String collection, 
 												String queryField, 
 												String searchTerm, 
@@ -195,6 +199,15 @@ public class SolrSearchRecordsService implements SolrSearchRecordsServicePort {
 			QueryResponse response = client.query(query);
 			SolrDocumentList docs = response.getResults();
 			List<SolrDocument> solrDocuments = new ArrayList<>();
+			
+			// TESTing
+			List<SolrDocument> solrDocumentsTest = new ArrayList<>();
+			// Sync Table documents with soft deleted schema
+			solrDocumentsTest = tableService.syncTableDocumentsWithSoftDeletedSchema(
+					docs, solrDocuments, validSchemaColumns);
+			logger.info("solr docs @@@ >>>>>> {}", solrDocumentsTest);
+			
+			
 			docs.forEach(solrDocuments::add);
 			response = client.query(query);
 			response.getDebugMap();
