@@ -57,9 +57,7 @@ public class TableService {
 		
 		List<Map<String, Object>> validSolrDocumentsList = new ArrayList<>();
 		docs.forEach(
-				d -> {
-					validSolrDocumentsList.add(getValidMapOfDocument(d.getFieldValueMap(), validColumns));
-				});
+				d -> validSolrDocumentsList.add(getValidMapOfDocument(d.getFieldValueMap(), validColumns)));
 		return validSolrDocumentsList;
 	}
 	

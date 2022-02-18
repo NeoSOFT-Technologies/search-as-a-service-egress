@@ -12,6 +12,8 @@ import com.searchservice.app.rest.errors.OperationIncompleteException;
 
 public class TableUtil {
 	
+	private TableUtil() {}
+	
 	@Value("${table-schema-attributes.delete-file-path}")
 	static String deleteSchemaAttributesFilePath;
 	
