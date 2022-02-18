@@ -70,9 +70,6 @@ public class GetCurrentSchemaUtil {
 		    List<String> currentSchemaColumnNames = new ArrayList<>();
 		    columns.forEach(col -> {
 		    	JSONObject obj = (JSONObject)col;
-		    	
-		    	// skip mandatory cols
-		    	
 		    	// add custom cols
 		    	currentSchemaColumnNames.add(obj.getString("name"));
 		    });
@@ -83,13 +80,5 @@ public class GetCurrentSchemaUtil {
 			log.error(err.toString());
 		}
 		return new ArrayList<>();
-	}
-
-	
-	public static boolean isColumnToBeSkipped(String columnName) {
-		Pattern pattern = Pattern.compile("^(_)+([a-zA-Z_$][a-zA-Z\\d_$]*)(_)+$");
-        Matcher matcher = pattern.matcher(columnName);
-
-		return matcher.matches() || columnName.equals("id");
 	}
 }
