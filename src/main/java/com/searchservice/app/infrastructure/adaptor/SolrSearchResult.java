@@ -1,8 +1,8 @@
 package com.searchservice.app.infrastructure.adaptor;
 
 import java.util.List;
+import java.util.Map;
 
-import org.apache.solr.common.SolrDocument;
 import org.springframework.stereotype.Component;
 import lombok.Data;
 
@@ -11,7 +11,7 @@ import lombok.Data;
 @Component
 public class SolrSearchResult {
 	private Long numDocs;
-	private List<SolrDocument> data;
+	private List<Map<String, Object>> data;
 
 	@Override
 	public String toString() {

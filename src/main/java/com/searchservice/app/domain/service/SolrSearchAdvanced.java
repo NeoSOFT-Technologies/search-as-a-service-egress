@@ -56,9 +56,10 @@ public class SolrSearchAdvanced {
 		requestMethod(loggersDTO,nameofCurrMethod);
 		LoggerUtils.printlogger(loggersDTO,true,false);
 
-		List<String> currentTableSchema = tableService.getCurrentTableSchema(tableName.split("_")[0], clientId);
+		// Get Current Table Schema (communicating with SAAS Microservice)
+		List<String> currentListOfColumnsOfTableSchema = tableService.getCurrentTableSchema(tableName.split("_")[0], clientId);
 		searchResponseDTO = solrSearchRecordsServicePort.setUpSelectQueryAdvancedSearch(
-				currentTableSchema, 
+				currentListOfColumnsOfTableSchema, 
 				tableName, queryField,
 				queryFieldSearchTerm, startRecord, pageSize, sortTag, sortOrder);
 		loggersDTO.setTimestamp(LoggerUtils.utcTime().toString());
