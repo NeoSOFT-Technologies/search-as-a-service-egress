@@ -32,14 +32,4 @@ public interface SolrSearchRecordsServicePort {
 										String pageSize, 
 										String tag, 
 										String order);
-	
-	SolrSearchResponseDTO setUpSelectQueryAdvancedSearchWithPagination(
-			List<String> validSchemaColumns, 
-			String collection, 
-			String queryField, 
-			String searchTerm, 
-			String startRecord, 
-			String pageSize, 
-			String tag, String order,
-			String startPage);
 }

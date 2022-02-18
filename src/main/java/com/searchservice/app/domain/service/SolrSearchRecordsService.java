@@ -135,32 +135,6 @@ public class SolrSearchRecordsService implements SolrSearchRecordsServicePort {
 	}
 	
 	
-	@Override
-	public SolrSearchResponseDTO setUpSelectQueryAdvancedSearchWithPagination(
-															List<String> validSchemaColumns, 
-															String collection, 
-															String queryField, 
-															String searchTerm,
-															String startRecord, 
-															String pageSize, 
-															String tag, String order, 
-															String startPage) {
-		/* Egress API -- solr collection records -- PAGINATED SEARCH */
-		logger.debug("Performing PAGINATED solr search for given collection");
-
-		SolrClient client = solrSchemaAPIAdapter.getSolrClient(solrUrl, collection);
-		SolrQuery query = new SolrQuery();
-		query.set("q", queryField + ":" + searchTerm);
-		query.set("start", startRecord);
-		query.set("rows", pageSize);
-		SortClause sortClause = new SortClause(tag, order);
-		query.setSort(sortClause);
-		solrSearchResponseDTO = processSearchQuery(client, query, validSchemaColumns);
-		
-		return solrSearchResponseDTO;
-	}
-	
-	
 	public SolrSearchResponseDTO processSearchQuery(SolrClient client, SolrQuery query, List<String> validSchemaColumns) {
 		try {
 			solrSearchResult = new SolrSearchResult();
