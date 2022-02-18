@@ -36,14 +36,10 @@ public class SolrSearchRecordsService implements SolrSearchRecordsServicePort {
 	private static final String SUCCESS_LOG = "Solr search operation is peformed successfully for given collection";
 	private static final String FAILURE_LOG = "An exception occured while performing Solr Search Operation! ";
 	
-	//@Autowired
 	SolrSearchResult solrSearchResult = new SolrSearchResult();
-	//@Autowired
 	SolrSearchResponseDTO solrSearchResponseDTO = new SolrSearchResponseDTO();
-	// call for solr client
 	@Autowired
 	SolrAPIAdapter solrSchemaAPIAdapter = new SolrAPIAdapter();
-	// Table service
 	@Autowired
 	TableService tableService;
 	
@@ -69,36 +65,8 @@ public class SolrSearchRecordsService implements SolrSearchRecordsServicePort {
 		SolrClient client = solrSchemaAPIAdapter.getSolrClient(solrUrl, collection);
 		SolrQuery query = new SolrQuery();
 		query.set("q", "*:*");
-		solrSearchResponseDTO = new SolrSearchResponseDTO();
-		try {
-			solrSearchResult = new SolrSearchResult();
-			QueryResponse response = client.query(query);
-			SolrDocumentList docs = response.getResults();
-
-			List<Map<String, Object>> solrDocuments = new ArrayList<>();
-			// Sync Table documents with soft deleted schema; add valid documents
-			if(validSchemaColumns.isEmpty())
-				docs.forEach(solrDocuments::add);
-			else
-				solrDocuments = tableService.getValidDocumentsList(
-					docs, validSchemaColumns);
-			
-			response = client.query(query);
-			response.getDebugMap();
-			long numDocs = docs.getNumFound();
-			solrSearchResult.setNumDocs(numDocs);
-			solrSearchResult.setData(solrDocuments);
-			// Prepare SolrSearchResponse
-			solrSearchResponseDTO.setStatusCode(200);	
-			solrSearchResponseDTO.setResponseMessage(SUCCESS_MSG);
-			solrSearchResponseDTO.setResults(solrSearchResult);
-			logger.debug(SUCCESS_LOG);
-			return solrSearchResponseDTO;
-		} catch (SolrServerException | IOException | NullPointerException e) {
-			solrSearchResponseDTO.setStatusCode(400);
-			solrSearchResponseDTO.setResponseMessage(FAILURE_MSG);
-			logger.error(FAILURE_LOG, e);
-		}
+		solrSearchResponseDTO = processSearchQuery(client, query, validSchemaColumns);
+		
 		return solrSearchResponseDTO;
 	}
 	
@@ -114,36 +82,8 @@ public class SolrSearchRecordsService implements SolrSearchRecordsServicePort {
 		SolrClient client = solrSchemaAPIAdapter.getSolrClient(solrUrl, collection);
 		SolrQuery query = new SolrQuery();
 		query.set("q", queryField + ":" + searchTerm);
-		solrSearchResponseDTO = new SolrSearchResponseDTO();
-		try {
-			solrSearchResult = new SolrSearchResult();
-			QueryResponse response = client.query(query);
-			SolrDocumentList docs = response.getResults();
-			
-			List<Map<String, Object>> solrDocuments = new ArrayList<>();
-			// Sync Table documents with soft deleted schema; add valid documents
-			if(validSchemaColumns.isEmpty())
-				docs.forEach(solrDocuments::add);
-			else
-				solrDocuments = tableService.getValidDocumentsList(
-					docs, validSchemaColumns);
-
-			response = client.query(query);
-			response.getDebugMap();
-			long numDocs = docs.getNumFound();
-			solrSearchResult.setNumDocs(numDocs);
-			solrSearchResult.setData(solrDocuments);
-			// Prepare SolrSearchResponse
-			solrSearchResponseDTO.setStatusCode(200);
-			solrSearchResponseDTO.setResponseMessage(SUCCESS_MSG);
-			solrSearchResponseDTO.setResults(solrSearchResult);
-			logger.debug(SUCCESS_LOG);
-			return solrSearchResponseDTO;
-		} catch (SolrServerException | IOException | NullPointerException e) {
-			solrSearchResponseDTO.setStatusCode(400);
-			solrSearchResponseDTO.setResponseMessage(FAILURE_MSG);
-			logger.error(FAILURE_LOG, e);
-		}
+		solrSearchResponseDTO = processSearchQuery(client, query, validSchemaColumns);
+		
 		return solrSearchResponseDTO;
 	}
 
@@ -163,36 +103,8 @@ public class SolrSearchRecordsService implements SolrSearchRecordsServicePort {
 		query.set("q", queryField + ":" + searchTerm);
 		SortClause sortClause = new SortClause(tag, order);
 		query.setSort(sortClause);
-		solrSearchResponseDTO = new SolrSearchResponseDTO();
-		try {
-			solrSearchResult = new SolrSearchResult();
-			QueryResponse response = client.query(query);
-			SolrDocumentList docs = response.getResults();
-
-			List<Map<String, Object>> solrDocuments = new ArrayList<>();
-			// Sync Table documents with soft deleted schema; add valid documents
-			if(validSchemaColumns.isEmpty())
-				docs.forEach(solrDocuments::add);
-			else
-				solrDocuments = tableService.getValidDocumentsList(
-					docs, validSchemaColumns);
-			
-			response = client.query(query);
-			response.getDebugMap();
-			long numDocs = docs.getNumFound();
-			solrSearchResult.setNumDocs(numDocs);
-			solrSearchResult.setData(solrDocuments);
-			// Prepare SolrSearchResponse
-			solrSearchResponseDTO.setStatusCode(200);
-			solrSearchResponseDTO.setResponseMessage(SUCCESS_MSG);
-			solrSearchResponseDTO.setResults(solrSearchResult);
-			logger.debug(SUCCESS_LOG);
-			return solrSearchResponseDTO;
-		} catch (SolrServerException | IOException | NullPointerException e) {
-			solrSearchResponseDTO.setStatusCode(400);
-			solrSearchResponseDTO.setResponseMessage(FAILURE_MSG);
-			logger.error(FAILURE_LOG, e);
-		}
+		solrSearchResponseDTO = processSearchQuery(client, query, validSchemaColumns);
+		
 		return solrSearchResponseDTO;
 	}
 	
@@ -212,42 +124,13 @@ public class SolrSearchRecordsService implements SolrSearchRecordsServicePort {
 
 		SolrClient client = solrSchemaAPIAdapter.getSolrClient(solrUrl, collection);
 		SolrQuery query = new SolrQuery();
-		
 		query.set("q", queryField + ":" + searchTerm);
 		query.set("start", startRecord);
 		query.set("rows", pageSize);
 		SortClause sortClause = new SortClause(tag, order);
 		query.setSort(sortClause);
-		solrSearchResponseDTO = new SolrSearchResponseDTO();
-		try {
-			solrSearchResult = new SolrSearchResult();
-			QueryResponse response = client.query(query);
-			SolrDocumentList docs = response.getResults();
-			
-			List<Map<String, Object>> solrDocuments = new ArrayList<>();
-			// Sync Table documents with soft deleted schema; add valid documents
-			if(validSchemaColumns.isEmpty())
-				docs.forEach(solrDocuments::add);
-			else
-				solrDocuments = tableService.getValidDocumentsList(
-					docs, validSchemaColumns);
-			
-			response = client.query(query);
-			response.getDebugMap();
-			long numDocs = docs.getNumFound();
-			solrSearchResult.setNumDocs(numDocs);
-			solrSearchResult.setData(solrDocuments);
-			// Prepare SolrSearchResponse
-			solrSearchResponseDTO.setStatusCode(200);
-			solrSearchResponseDTO.setResponseMessage(SUCCESS_MSG);
-			solrSearchResponseDTO.setResults(solrSearchResult);
-			logger.debug(SUCCESS_LOG);
-			return solrSearchResponseDTO;
-		} catch (SolrServerException | IOException | NullPointerException e) {
-			solrSearchResponseDTO.setStatusCode(400);
-			solrSearchResponseDTO.setResponseMessage(FAILURE_MSG);
-			logger.error(FAILURE_LOG, e);
-		}
+		solrSearchResponseDTO = processSearchQuery(client, query, validSchemaColumns);
+		
 		return solrSearchResponseDTO;
 	}
 	
@@ -272,7 +155,13 @@ public class SolrSearchRecordsService implements SolrSearchRecordsServicePort {
 		query.set("rows", pageSize);
 		SortClause sortClause = new SortClause(tag, order);
 		query.setSort(sortClause);
-		solrSearchResponseDTO = new SolrSearchResponseDTO();
+		solrSearchResponseDTO = processSearchQuery(client, query, validSchemaColumns);
+		
+		return solrSearchResponseDTO;
+	}
+	
+	
+	public SolrSearchResponseDTO processSearchQuery(SolrClient client, SolrQuery query, List<String> validSchemaColumns) {
 		try {
 			solrSearchResult = new SolrSearchResult();
 			QueryResponse response = client.query(query);
