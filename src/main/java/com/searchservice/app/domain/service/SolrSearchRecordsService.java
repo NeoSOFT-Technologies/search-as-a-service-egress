@@ -181,7 +181,7 @@ public class SolrSearchRecordsService implements SolrSearchRecordsServicePort {
 			solrSearchResult = new SolrSearchResult();
 			QueryResponse response = client.query(query);
 			SolrDocumentList docs = response.getResults();
-			
+
 			List<Map<String, Object>> solrDocuments = new ArrayList<>();
 			// Sync Table documents with soft deleted schema; add valid documents
 			if(validSchemaColumns.isEmpty())
@@ -189,7 +189,7 @@ public class SolrSearchRecordsService implements SolrSearchRecordsServicePort {
 			else
 				solrDocuments = tableService.getValidDocumentsList(
 					docs, validSchemaColumns);
-			
+
 			response = client.query(query);
 			response.getDebugMap();
 			long numDocs = docs.getNumFound();

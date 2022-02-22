@@ -13,7 +13,9 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
 import com.searchservice.app.domain.utils.GetCurrentSchemaUtil;
+import com.searchservice.app.domain.utils.SolrDocumentUtil;
 import com.searchservice.app.infrastructure.adaptor.SolrAPIAdapter;
 
 @Service
@@ -57,18 +59,26 @@ public class TableService {
 		
 		List<Map<String, Object>> validSolrDocumentsList = new ArrayList<>();
 		docs.forEach(
-				d -> validSolrDocumentsList.add(getValidMapOfDocument(d.getFieldValueMap(), validColumns)));
+				d -> {
+					try {
+						SolrDocumentUtil myDoc = new SolrDocumentUtil();
+						myDoc.putAll(d);
+						validSolrDocumentsList.add(getValidMapOfDocument(myDoc.getFieldValueMap(), validColumns));
+					} catch (JsonProcessingException e) {
+						e.printStackTrace();
+					}
+				});
 		return validSolrDocumentsList;
 	}
 	
 	
-	public Map<String, Object> getValidMapOfDocument(Map<String, Object> mapDoc, List<String> validColumns) {
+	public Map<String, Object> getValidMapOfDocument(Map<String, Object> mapDoc, List<String> validColumns) throws JsonProcessingException {
 		Map<String, Object> map = new HashMap<>();
-		// Iterating over entrySet() is not allowed by SolrDocument class
-		for(String col: mapDoc.keySet()) {
-			if(!map.containsKey(col) && validColumns.contains(col)) {
-				map.put(col, mapDoc.get(col));
-			}	
+		for(Map.Entry<String, Object> entry: mapDoc.entrySet()) {
+			String key = entry.getKey();
+			if(!map.containsKey(key) && validColumns.contains(key)) {
+				map.put(key, entry.getValue());
+			}
 		}
 		return map;
 	}
