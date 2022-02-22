@@ -65,7 +65,7 @@ public class TableService {
 						myDoc.putAll(d);
 						validSolrDocumentsList.add(getValidMapOfDocument(myDoc.getFieldValueMap(), validColumns));
 					} catch (JsonProcessingException e) {
-						e.printStackTrace();
+						logger.error("Error occurred while retrieving map of document with valid columns. ", e);
 					}
 				});
 		return validSolrDocumentsList;
