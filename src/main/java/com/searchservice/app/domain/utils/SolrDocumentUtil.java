@@ -234,154 +234,157 @@ public class SolrDocumentUtil extends SolrDocumentBase<Object, SolrDocument>
 	// JSTL Helpers
 	// -----------------------------------------------------------------------------------------
 
+	private Map<String, Collection<Object>> fieldValuesMapObject = new Map<String, Collection<Object>>() {
+		/** Get the field Value */
+		@Override
+		public Collection<Object> get(Object key) {
+			throw new UnsupportedOperationException();
+		}
+
+		// Easily Supported methods
+		@Override
+		public boolean containsKey(Object key) {
+			throw new UnsupportedOperationException();
+		}
+
+		@Override
+		public Set<String> keySet() {
+			throw new UnsupportedOperationException();
+		}
+
+		@Override
+		public int size() {
+			throw new UnsupportedOperationException();
+		}
+
+		@Override
+		public boolean isEmpty() {
+			throw new UnsupportedOperationException();
+		}
+
+		// Unsupported operations. These are not necessary for JSTL
+		@Override
+		public void clear() {
+			throw new UnsupportedOperationException();
+		}
+
+		@Override
+		public boolean containsValue(Object value) {
+			throw new UnsupportedOperationException();
+		}
+
+		@Override
+		public Set<java.util.Map.Entry<String, Collection<Object>>> entrySet() {
+			throw new UnsupportedOperationException();
+		}
+
+		@Override
+		public void putAll(Map<? extends String, ? extends Collection<Object>> t) {
+			throw new UnsupportedOperationException();
+		}
+
+		@Override
+		public Collection<Collection<Object>> values() {
+			throw new UnsupportedOperationException();
+		}
+
+		@Override
+		public Collection<Object> put(String key, Collection<Object> value) {
+			throw new UnsupportedOperationException();
+		}
+
+		@Override
+		public Collection<Object> remove(Object key) {
+			throw new UnsupportedOperationException();
+		}
+
+		@Override
+		public String toString() {
+			throw new UnsupportedOperationException();
+		}
+	};
+	private Map<String, Object> fieldValueMapObject = new Map<String, Object>() {
+		/** Get the field Value */
+		@Override
+		public Object get(Object key) {
+			return getFirstValue((String) key);
+		}
+
+		// Easily Supported methods
+		@Override
+		public boolean containsKey(Object key) {
+			return _fields.containsKey(key);
+		}
+
+		@Override
+		public Set<String> keySet() {
+			return _fields.keySet();
+		}
+
+		@Override
+		public int size() {
+			return _fields.size();
+		}
+
+		@Override
+		public boolean isEmpty() {
+			return _fields.isEmpty();
+		}
+
+		// Unsupported operations. These are not necessary for JSTL
+		@Override
+		public void clear() {
+			throw new UnsupportedOperationException();
+		}
+
+		@Override
+		public boolean containsValue(Object value) {
+			return this.containsValue(value);
+		}
+
+		@Override
+		public Set<java.util.Map.Entry<String, Object>> entrySet() {
+			return _fields.entrySet();
+		}
+
+		@Override
+		public void putAll(Map<? extends String, ? extends Object> t) {
+			this.putAll(t);
+		}
+
+		@Override
+		public Collection<Object> values() {
+			return this.values();
+		}
+
+		@Override
+		public Collection<Object> put(String key, Object value) {
+			return this.put(key, value);
+		}
+
+		@Override
+		public Collection<Object> remove(Object key) {
+			return this.remove(key);
+		}
+
+		@Override
+		public String toString() {
+			return _fields.toString();
+		}
+	};
+	
 	/**
 	 * Expose a Map interface to the solr field value collection.
 	 */
 	public Map<String, Collection<Object>> getFieldValuesMap() {
-		return new Map<String, Collection<Object>>() {
-			/** Get the field Value */
-			@Override
-			public Collection<Object> get(Object key) {
-				return getFieldValues((String) key);
-			}
-
-			// Easily Supported methods
-			@Override
-			public boolean containsKey(Object key) {
-				return _fields.containsKey(key);
-			}
-
-			@Override
-			public Set<String> keySet() {
-				return _fields.keySet();
-			}
-
-			@Override
-			public int size() {
-				return _fields.size();
-			}
-
-			@Override
-			public boolean isEmpty() {
-				return _fields.isEmpty();
-			}
-
-			// Unsupported operations. These are not necessary for JSTL
-			@Override
-			public void clear() {
-				throw new UnsupportedOperationException();
-			}
-
-			@Override
-			public boolean containsValue(Object value) {
-				throw new UnsupportedOperationException();
-			}
-
-			@Override
-			public Set<java.util.Map.Entry<String, Collection<Object>>> entrySet() {
-				return this.entrySet();
-			}
-
-			@Override
-			public void putAll(Map<? extends String, ? extends Collection<Object>> t) {
-				this.putAll(t);
-			}
-
-			@Override
-			public Collection<Collection<Object>> values() {
-				throw new UnsupportedOperationException();
-			}
-
-			@Override
-			public Collection<Object> put(String key, Collection<Object> value) {
-				throw new UnsupportedOperationException();
-			}
-
-			@Override
-			public Collection<Object> remove(Object key) {
-				throw new UnsupportedOperationException();
-			}
-
-			@Override
-			public String toString() {
-				return _fields.toString();
-			}
-		};
+		return fieldValuesMapObject;
 	}
 
 	/**
 	 * Expose a Map interface to the solr fields. This function is useful for JSTL
 	 */
 	public Map<String, Object> getFieldValueMap() {
-		return new Map<String, Object>() {
-			/** Get the field Value */
-			@Override
-			public Object get(Object key) {
-				return getFirstValue((String) key);
-			}
-
-			// Easily Supported methods
-			@Override
-			public boolean containsKey(Object key) {
-				return _fields.containsKey(key);
-			}
-
-			@Override
-			public Set<String> keySet() {
-				return _fields.keySet();
-			}
-
-			@Override
-			public int size() {
-				return _fields.size();
-			}
-
-			@Override
-			public boolean isEmpty() {
-				return _fields.isEmpty();
-			}
-
-			// Unsupported operations. These are not necessary for JSTL
-			@Override
-			public void clear() {
-				throw new UnsupportedOperationException();
-			}
-
-			@Override
-			public boolean containsValue(Object value) {
-				return this.containsValue(value);
-			}
-
-			@Override
-			public Set<java.util.Map.Entry<String, Object>> entrySet() {
-				return _fields.entrySet();
-			}
-
-			@Override
-			public void putAll(Map<? extends String, ? extends Object> t) {
-				this.putAll(t);
-			}
-
-			@Override
-			public Collection<Object> values() {
-				return this.values();
-			}
-
-			@Override
-			public Collection<Object> put(String key, Object value) {
-				return this.put(key, value);
-			}
-
-			@Override
-			public Collection<Object> remove(Object key) {
-				return this.remove(key);
-			}
-
-			@Override
-			public String toString() {
-				return _fields.toString();
-			}
-		};
+		return fieldValueMapObject;
 	}
 
 	// ---------------------------------------------------
