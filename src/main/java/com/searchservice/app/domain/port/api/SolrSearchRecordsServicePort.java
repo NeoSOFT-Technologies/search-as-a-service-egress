@@ -23,7 +23,7 @@ public interface SolrSearchRecordsServicePort {
 			String tag, 
 			String order);
 	
-	SolrSearchResponseDTO setUpSelectQueryMultiFieldSearch(
+	SolrSearchResponseDTO setUpSelectQueryMultifieldSearch(
 			List<String> validSchemaColumns, 
 			String collection, 
 			String queryField, 

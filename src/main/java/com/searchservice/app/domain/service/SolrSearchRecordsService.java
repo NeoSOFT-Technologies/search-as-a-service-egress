@@ -2,6 +2,7 @@ package com.searchservice.app.domain.service;
 
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
 
@@ -59,8 +60,8 @@ public class SolrSearchRecordsService implements SolrSearchRecordsServicePort {
 	public SolrSearchResponseDTO setUpSelectQueryUnfiltered(
 											List<String> validSchemaColumns,
 											String collection) {
-		/* Egress API -- solr collection records -- UNFILTERED SEARCH */
-		logger.debug("Performing UNFILTERED solr search for given collection");
+		/* Egress API -- table records -- UNFILTERED SEARCH */
+		logger.debug("Performing UNFILTERED search for given collection");
 		
 		SolrClient client = solrSchemaAPIAdapter.getSolrClient(solrUrl, collection);
 		SolrQuery query = new SolrQuery();
@@ -76,8 +77,8 @@ public class SolrSearchRecordsService implements SolrSearchRecordsServicePort {
 														String collection, 
 														String queryField, 
 														String searchTerm) {
-		/* Egress API -- solr collection records -- BASIC SEARCH (by QUERY FIELD) */
-		logger.debug("Performing BASIC solr search for given collection");
+		/* Egress API -- table records -- BASIC SEARCH (by QUERY FIELD) */
+		logger.debug("Performing BASIC search for given collection");
 
 		SolrClient client = solrSchemaAPIAdapter.getSolrClient(solrUrl, collection);
 		SolrQuery query = new SolrQuery();
@@ -95,12 +96,52 @@ public class SolrSearchRecordsService implements SolrSearchRecordsServicePort {
 												String searchTerm, 
 												String tag, 
 												String order) {
-		/* Egress API -- solr collection records -- ORDERED SEARCH */
-		logger.debug("Performing ORDERED solr search for given collection");
+		/* Egress API -- table records -- ORDERED SEARCH */
+		logger.debug("Performing ORDERED search for given collection");
 
 		SolrClient client = solrSchemaAPIAdapter.getSolrClient(solrUrl, collection);
 		SolrQuery query = new SolrQuery();
 		query.set("q", queryField + ":" + searchTerm);
+		SortClause sortClause = new SortClause(tag, order);
+		query.setSort(sortClause);
+		solrSearchResponseDTO = processSearchQuery(client, query, validSchemaColumns);
+		
+		return solrSearchResponseDTO;
+	}
+	
+	
+	@Override
+	public SolrSearchResponseDTO setUpSelectQueryMultifieldSearch(
+												List<String> validSchemaColumns, 
+												String collection, 
+												String queryField, // expected comma separated column names
+												String searchTerm, // expected comma separated column values
+												String startRecord, 
+												String pageSize,
+												String tag, 
+												String order) {
+		/* Egress API -- table records -- Multiple-field SEARCH */
+		logger.debug("Performing Multiple-field search for given collection");
+
+		SolrClient client = solrSchemaAPIAdapter.getSolrClient(solrUrl, collection);
+		SolrQuery query = new SolrQuery();
+		// Validate queryFields & searchTerms
+		// ######################
+		// Set up 'q'
+		List<String> queryFieldList = Arrays.asList(queryField.split(","));
+		List<String> searchTermList = Arrays.asList(searchTerm.split(","));
+		// Set up query
+		StringBuilder queryString = new StringBuilder();
+		if(!queryFieldList.isEmpty()) {
+			queryString.append(queryFieldList.get(0)+":"+searchTermList.get(0));
+			for(int i=1; i<queryFieldList.size(); i++) {
+				queryString.append(" OR "+queryFieldList.get(i)+":"+searchTermList.get(i));
+			}
+		}
+		
+		query.set("q", queryString.toString());
+		query.set("start", startRecord);
+		query.set("rows", pageSize);
 		SortClause sortClause = new SortClause(tag, order);
 		query.setSort(sortClause);
 		solrSearchResponseDTO = processSearchQuery(client, query, validSchemaColumns);
@@ -119,34 +160,8 @@ public class SolrSearchRecordsService implements SolrSearchRecordsServicePort {
 												String pageSize,
 												String tag, 
 												String order) {
-		/* Egress API -- solr collection records -- ADVANCED SEARCH */
-		logger.debug("Performing ADVANCED solr search for given collection");
-
-		SolrClient client = solrSchemaAPIAdapter.getSolrClient(solrUrl, collection);
-		SolrQuery query = new SolrQuery();
-		query.set("q", queryField + ":" + searchTerm);
-		query.set("start", startRecord);
-		query.set("rows", pageSize);
-		SortClause sortClause = new SortClause(tag, order);
-		query.setSort(sortClause);
-		solrSearchResponseDTO = processSearchQuery(client, query, validSchemaColumns);
-		
-		return solrSearchResponseDTO;
-	}
-	
-
-	@Override
-	public SolrSearchResponseDTO setUpSelectQueryMultiFieldSearch(
-												List<String> validSchemaColumns, 
-												String collection, 
-												String queryField, // expected comma separated column names
-												String searchTerm, // expected comma separated column values
-												String startRecord, 
-												String pageSize,
-												String tag, 
-												String order) {
-		/* Egress API -- solr collection records -- ADVANCED SEARCH */
-		logger.debug("Performing ADVANCED solr search for given collection");
+		/* Egress API -- table records -- ADVANCED SEARCH */
+		logger.debug("Performing ADVANCED search for given collection");
 
 		SolrClient client = solrSchemaAPIAdapter.getSolrClient(solrUrl, collection);
 		SolrQuery query = new SolrQuery();
