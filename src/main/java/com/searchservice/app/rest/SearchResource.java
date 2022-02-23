@@ -14,11 +14,13 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
+import com.searchservice.app.domain.dto.ResponseMessages;
 import com.searchservice.app.domain.dto.SolrSearchResponseDTO;
 import com.searchservice.app.domain.dto.logger.LoggersDTO;
 import com.searchservice.app.domain.service.SolrSearchAdvanced;
 import com.searchservice.app.domain.utils.LoggerUtils;
 import com.searchservice.app.infrastructure.adaptor.SolrSearchResult;
+import com.searchservice.app.rest.errors.BadRequestOccurredException;
 
 @RestController
 @RequestMapping("/search/api")
@@ -71,12 +73,21 @@ public class SearchResource {
 
         successMethod(nameofCurrMethod, loggersDTO);
 		
-        if (solrSearchResponseDTO.getStatusCode() == 200) {
-        	LoggerUtils.printlogger(loggersDTO,false,false);
-            return ResponseEntity.status(HttpStatus.OK).body(solrSearchResponseDTO);
-        } else {
-        	LoggerUtils.printlogger(loggersDTO,false,true);
-            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(solrSearchResponseDTO);
-        }
+        if(solrSearchResponseDTO == null){
+			throw new BadRequestOccurredException(404, ResponseMessages.NULL_RESPONSE_MESSAGE);
+		}
+		 else if (solrSearchResponseDTO.getStatusCode() == 200) {
+			LoggerUtils.printlogger(loggersDTO, false, false);
+			solrSearchResponseDTO.setResponseMessage("Table Information retrieved successfully");
+			return ResponseEntity.status(HttpStatus.OK).body(solrSearchResponseDTO);
+		}
+		
+		 else{
+			solrSearchResponseDTO.setStatusCode(400);
+			LoggerUtils.printlogger(loggersDTO, false, true);
+			solrSearchResponseDTO.setResponseMessage(ResponseMessages.BAD_REQUEST_MSG);
+			throw new BadRequestOccurredException(400,"REST operation couldn't be performed");
+		} 
+
     }
 }
