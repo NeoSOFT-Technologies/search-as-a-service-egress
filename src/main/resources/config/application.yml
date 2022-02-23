@@ -34,7 +34,6 @@ logging:
     org.springframework.web: "error"
     org.hibernate: "error"
     org: "error"
-    com.searchclient.clientwrapper.*: DEBUG
 
 #================================================================
 #Swagger
@@ -123,3 +122,18 @@ base-configset: _default
 basic-auth:
   username: solr
   password: SolrRocks
+  
+
+#================================================================
+#Table schema soft delete sync
+table-schema-attributes:
+  delete-file-path: src\\main\\resources\\SchemaDeleteRecord.txt
+#================================================================
+
+
+#================================================================
+#Sync with soft delete schema in microservice
+base-microservice-url: http://localhost:8080
+microservice-url:
+  get-table: /api/v1/manage/table
+#================================================================

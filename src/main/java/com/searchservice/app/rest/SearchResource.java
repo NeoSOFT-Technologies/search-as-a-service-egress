@@ -55,15 +55,14 @@ public class SearchResource {
 		loggersDTO.setTimestamp(timestamp);
 	}
 
-	@GetMapping(value = "/v1/{clientId}/{tableName}")
-	public ResponseEntity<SolrSearchResponseDTO> searchRecordsInGivenCollectionAdvanced(@PathVariable int clientId,
-			@PathVariable String tableName, @RequestParam(defaultValue = "name") String queryField,
-			@RequestParam(defaultValue = "*") String searchTerm, @RequestParam(defaultValue = "0") String startRecord,
-			@RequestParam(defaultValue = "5") String pageSize, @RequestParam(defaultValue = "id") String orderBy,
-			@RequestParam(defaultValue = "asc") String order) {
-		logger.debug("REST call for ADVANCED SEARCH search in the given collection");
+    
+    @GetMapping(value = "/v1/{clientId}/{tableName}")
+    public ResponseEntity<SolrSearchResponseDTO> searchRecordsInGivenCollectionAdvanced(@PathVariable int clientId, @PathVariable String tableName,
+            @RequestParam(defaultValue = "*") String queryField, @RequestParam(defaultValue = "*") String searchTerm, @RequestParam(defaultValue = "0") String startRecord,
+            @RequestParam(defaultValue = "5") String pageSize, @RequestParam(defaultValue = "id") String orderBy, @RequestParam(defaultValue = "asc") String order) {
+        logger.debug("REST call for ADVANCED SEARCH search in the given collection");
 
-		String nameofCurrMethod = new Throwable().getStackTrace()[0].getMethodName();
+        String nameofCurrMethod = new Throwable().getStackTrace()[0].getMethodName();
 		String timestamp = LoggerUtils.utcTime().toString();
 		LoggersDTO loggersDTO = LoggerUtils.getRequestLoggingInfo(servicename, username, nameofCurrMethod, timestamp);
 		LoggerUtils.printlogger(loggersDTO, true, false);
