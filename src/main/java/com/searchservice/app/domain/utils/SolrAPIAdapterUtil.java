@@ -5,6 +5,8 @@ import org.apache.solr.client.solrj.SolrQuery;
 
 public class SolrAPIAdapterUtil {
 	
+	private SolrAPIAdapterUtil() {}
+	
 	public static boolean isSolrClientFound(SolrClient solrClient) {
 		try {
 			SolrQuery query = new SolrQuery();
