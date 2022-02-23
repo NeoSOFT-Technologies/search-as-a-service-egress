@@ -79,4 +79,17 @@ public class GetCurrentSchemaUtil {
 		}
 		return new ArrayList<>();
 	}
+	
+	public JSONArray getCurrentSchemaDetails(String response) {
+		try {
+		    JSONObject jsonObject = new JSONObject(response);	
+		    JSONObject data = (JSONObject) jsonObject.get("data");
+		    
+			return (JSONArray) data.get("columns");
+		     
+		}catch (Exception err){
+			log.error(err.toString());
+		}
+		return new JSONArray();
+	}
 }

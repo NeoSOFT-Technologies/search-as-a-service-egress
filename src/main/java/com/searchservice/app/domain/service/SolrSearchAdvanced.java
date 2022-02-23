@@ -57,7 +57,7 @@ public class SolrSearchAdvanced {
 		LoggerUtils.printlogger(loggersDTO,true,false);
 
 		// Get Current Table Schema (communicating with SAAS Microservice)
-		List<String> currentListOfColumnsOfTableSchema = tableService.getCurrentTableSchema(tableName.split("_")[0], clientId);
+		List<String> currentListOfColumnsOfTableSchema = tableService.getCurrentTableSchemaColumns(tableName.split("_")[0], clientId);
 		searchResponseDTO = solrSearchRecordsServicePort.setUpSelectQueryAdvancedSearch(
 				currentListOfColumnsOfTableSchema, 
 				tableName, queryField,

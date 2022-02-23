@@ -18,6 +18,7 @@ import com.searchservice.app.domain.dto.SolrSearchResponseDTO;
 import com.searchservice.app.domain.dto.logger.LoggersDTO;
 import com.searchservice.app.domain.service.SolrSearchAdvanced;
 import com.searchservice.app.domain.service.SolrSearchMultifield;
+import com.searchservice.app.domain.service.SolrSearchMultifieldAndMultivalue;
 import com.searchservice.app.domain.utils.LoggerUtils;
 import com.searchservice.app.infrastructure.adaptor.SolrSearchResult;
 
@@ -35,11 +36,15 @@ public class SearchResource {
 
     private SolrSearchAdvanced solrSearchAdvanced;
     private SolrSearchMultifield solrSearchMultifield;
+    private SolrSearchMultifieldAndMultivalue solrSearchMultifieldAndMultivalue;
 
     public SearchResource(
-            SolrSearchAdvanced solrSearchAdvanced, SolrSearchMultifield solrSearchMultifield) {
+            SolrSearchAdvanced solrSearchAdvanced, 
+            SolrSearchMultifield solrSearchMultifield, 
+            SolrSearchMultifieldAndMultivalue solrSearchMultifieldAndMultivalue) {
         this.solrSearchAdvanced = solrSearchAdvanced;
         this.solrSearchMultifield = solrSearchMultifield;
+        this.solrSearchMultifieldAndMultivalue = solrSearchMultifieldAndMultivalue;
 
     }
 
@@ -59,7 +64,7 @@ public class SearchResource {
     public ResponseEntity<SolrSearchResponseDTO> searchRecordsInGivenTableMultifield(@PathVariable int clientId, @PathVariable String tableName,
             @RequestParam(defaultValue = "*") String queryField, @RequestParam(defaultValue = "*") String searchTerm, @RequestParam(defaultValue = "0") String startRecord,
             @RequestParam(defaultValue = "5") String pageSize, @RequestParam(defaultValue = "id") String orderBy, @RequestParam(defaultValue = "asc") String order) {
-        logger.debug("REST call for ADVANCED SEARCH search in the given collection");
+        logger.debug("REST call for MULTIFIELD SEARCH search in the given collection");
 
         String nameofCurrMethod = new Throwable().getStackTrace()[0].getMethodName();
 		String timestamp = LoggerUtils.utcTime().toString();
@@ -70,6 +75,36 @@ public class SearchResource {
 		
         tableName = tableName + "_" + clientId;
         SolrSearchResponseDTO solrSearchResponseDTO = solrSearchMultifield.search(clientId, tableName, queryField, searchTerm, startRecord, pageSize, orderBy, order,loggersDTO);
+
+        successMethod(nameofCurrMethod, loggersDTO);
+		
+        if (solrSearchResponseDTO.getStatusCode() == 200) {
+        	LoggerUtils.printlogger(loggersDTO,false,false);
+            return ResponseEntity.status(HttpStatus.OK).body(solrSearchResponseDTO);
+        } else {
+        	LoggerUtils.printlogger(loggersDTO,false,true);
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(solrSearchResponseDTO);
+        }
+    }
+    
+    @GetMapping(value = "multifield-multivalue/{clientId}/{tableName}")
+    public ResponseEntity<SolrSearchResponseDTO> searchRecordsInGivenTableMultifieldAndMultivalue(
+    		@PathVariable int clientId, 
+    		@PathVariable String tableName,
+            @RequestParam(defaultValue = "*") String queryField, @RequestParam(defaultValue = "*") String searchTerm, @RequestParam(defaultValue = "0") String startRecord,
+            @RequestParam(defaultValue = "5") String pageSize, @RequestParam(defaultValue = "id") String orderBy, @RequestParam(defaultValue = "asc") String order) {
+        logger.debug("REST call for MULTIFIELD & MULTIVALUE SEARCH search in the given collection");
+
+        String nameofCurrMethod = new Throwable().getStackTrace()[0].getMethodName();
+		String timestamp = LoggerUtils.utcTime().toString();
+		LoggersDTO loggersDTO = LoggerUtils.getRequestLoggingInfo(servicename, username,nameofCurrMethod,timestamp);
+		LoggerUtils.printlogger(loggersDTO,true,false);
+		loggersDTO.setCorrelationid(loggersDTO.getCorrelationid());
+		loggersDTO.setIpaddress(loggersDTO.getIpaddress());
+		
+        tableName = tableName + "_" + clientId;
+        SolrSearchResponseDTO solrSearchResponseDTO = solrSearchMultifieldAndMultivalue.search(
+        		clientId, tableName, queryField, searchTerm, startRecord, pageSize, orderBy, order,loggersDTO);
 
         successMethod(nameofCurrMethod, loggersDTO);
 		

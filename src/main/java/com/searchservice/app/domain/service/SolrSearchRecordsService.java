@@ -3,6 +3,7 @@ package com.searchservice.app.domain.service;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -12,6 +13,7 @@ import org.apache.solr.client.solrj.SolrQuery.SortClause;
 import org.apache.solr.client.solrj.SolrServerException;
 import org.apache.solr.client.solrj.response.QueryResponse;
 import org.apache.solr.common.SolrDocumentList;
+import org.json.JSONArray;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -21,6 +23,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import com.searchservice.app.domain.dto.SolrSearchResponseDTO;
 import com.searchservice.app.domain.port.api.SolrSearchRecordsServicePort;
+import com.searchservice.app.domain.utils.SearchUtil;
 import com.searchservice.app.infrastructure.adaptor.SolrAPIAdapter;
 import com.searchservice.app.infrastructure.adaptor.SolrSearchResult;
 
@@ -130,6 +133,72 @@ public class SolrSearchRecordsService implements SolrSearchRecordsServicePort {
 		// Set up 'q'
 		List<String> queryFieldList = Arrays.asList(queryField.split(","));
 		List<String> searchTermList = Arrays.asList(searchTerm.split(","));
+		// Set up query
+		StringBuilder queryString = new StringBuilder();
+		if(!queryFieldList.isEmpty()) {
+			queryString.append(queryFieldList.get(0)+":"+searchTermList.get(0));
+			for(int i=1; i<queryFieldList.size(); i++) {
+				queryString.append(" OR "+queryFieldList.get(i)+":"+searchTermList.get(i));
+			}
+		}
+		
+		query.set("q", queryString.toString());
+		query.set("start", startRecord);
+		query.set("rows", pageSize);
+		SortClause sortClause = new SortClause(tag, order);
+		query.setSort(sortClause);
+		solrSearchResponseDTO = processSearchQuery(client, query, validSchemaColumns);
+		
+		return solrSearchResponseDTO;
+	}
+	
+	
+	@Override
+	public SolrSearchResponseDTO setUpSelectQueryMultifieldAndMultivalueSearch(
+												List<String> validSchemaColumns, 
+												JSONArray currentTableSchema, 
+												String collection, 
+												String queryField, // expected comma separated column names
+												String searchTerm, // expected comma separated column values
+												String startRecord, 
+												String pageSize,
+												String tag, 
+												String order) {
+		/* Egress API -- table records -- Multiple-field SEARCH */
+		logger.debug("Performing Multiple-field search for given collection");
+
+		SolrClient client = solrSchemaAPIAdapter.getSolrClient(solrUrl, collection);
+		SolrQuery query = new SolrQuery();
+
+		// Set up 'q'
+		List<String> queryFieldList = Arrays.asList(queryField.split(","));
+		List<String> searchTermList = Arrays.asList(searchTerm.split(","));
+		
+		// Validate queryFields & searchTerms: multifield
+		// If MultivalueFields could not be validated; microservice is down, then DO STANDARDIZED VALIDATION
+		// Expect same no. of <comma separated values> in queryField & searchTerm
+		boolean isSearchQueryValidated = (queryFieldList.size() == searchTermList.size());
+		
+		
+		// Check if Multivalue queryField is present
+		Map<Integer, String> multiValuedQueryFieldsMap = new HashMap<>();
+		if(!currentTableSchema.isEmpty())
+			multiValuedQueryFieldsMap = SearchUtil.getMultivaluedQueryFields(queryFieldList, currentTableSchema);
+		// Validate queryFields & searchTerms: multivalue --> array of searchTerms
+		boolean isMultivalueSearchTermValidated = false;
+		if(!multiValuedQueryFieldsMap.isEmpty()) {
+			for(Integer idx: multiValuedQueryFieldsMap.keySet()) {
+				isMultivalueSearchTermValidated = SearchUtil.isArrayOfStrings(searchTermList.get(idx));
+				if(!isMultivalueSearchTermValidated)
+					break;
+			}
+		} else if(!currentTableSchema.isEmpty())
+			isMultivalueSearchTermValidated = true;
+		
+
+		
+		logger.info("isMultivFieldvalidated ????? {}", isMultivalueSearchTermValidated);
+		
 		// Set up query
 		StringBuilder queryString = new StringBuilder();
 		if(!queryFieldList.isEmpty()) {
