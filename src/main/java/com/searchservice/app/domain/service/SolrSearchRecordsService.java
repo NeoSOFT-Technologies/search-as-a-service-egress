@@ -3,9 +3,10 @@ package com.searchservice.app.domain.service;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.HashMap;
+import java.util.Collection;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 import org.apache.solr.client.solrj.SolrClient;
 import org.apache.solr.client.solrj.SolrQuery;
@@ -26,6 +27,7 @@ import com.searchservice.app.domain.port.api.SolrSearchRecordsServicePort;
 import com.searchservice.app.domain.utils.SearchUtil;
 import com.searchservice.app.infrastructure.adaptor.SolrAPIAdapter;
 import com.searchservice.app.infrastructure.adaptor.SolrSearchResult;
+import com.searchservice.app.rest.errors.OperationNotAllowedException;
 
 
 @Service
@@ -174,37 +176,62 @@ public class SolrSearchRecordsService implements SolrSearchRecordsServicePort {
 		List<String> queryFieldList = Arrays.asList(queryField.split(","));
 		List<String> searchTermList = Arrays.asList(searchTerm.split(","));
 		
-		// Validate queryFields & searchTerms: multifield
-		// If MultivalueFields could not be validated; microservice is down, then DO STANDARDIZED VALIDATION
-		// Expect same no. of <comma separated values> in queryField & searchTerm
-		boolean isSearchQueryValidated = (queryFieldList.size() == searchTermList.size());
-		
-		
-		// Check if Multivalue queryField is present
-		Map<Integer, String> multiValuedQueryFieldsMap = new HashMap<>();
-		if(!currentTableSchema.isEmpty())
-			multiValuedQueryFieldsMap = SearchUtil.getMultivaluedQueryFields(queryFieldList, currentTableSchema);
-		// Validate queryFields & searchTerms: multivalue --> array of searchTerms
-		boolean isMultivalueSearchTermValidated = false;
-		if(!multiValuedQueryFieldsMap.isEmpty()) {
-			for(Integer idx: multiValuedQueryFieldsMap.keySet()) {
-				isMultivalueSearchTermValidated = SearchUtil.isArrayOfStrings(searchTermList.get(idx));
-				if(!isMultivalueSearchTermValidated)
-					break;
-			}
-		} else if(!currentTableSchema.isEmpty())
-			isMultivalueSearchTermValidated = true;
-		
+		// VALIDATE queryField & searchTerm
+		boolean isSearchQueryInputsValidated = SearchUtil.validateSearchQueryInputs(
+				currentTableSchema, queryFieldList, searchTermList);
+		if(!isSearchQueryInputsValidated)
+			throw new OperationNotAllowedException(
+					406, 
+					"Search query input validation unsuccessful. Please provide inputs in correct format");
 
-		
-		logger.info("isMultivFieldvalidated ????? {}", isMultivalueSearchTermValidated);
-		
 		// Set up query
 		StringBuilder queryString = new StringBuilder();
 		if(!queryFieldList.isEmpty()) {
-			queryString.append(queryFieldList.get(0)+":"+searchTermList.get(0));
-			for(int i=1; i<queryFieldList.size(); i++) {
-				queryString.append(" OR "+queryFieldList.get(i)+":"+searchTermList.get(i));
+			// Get Multivalue queryFields
+			Map<Integer, String> multivalueQueryFieldsMap = SearchUtil.getMultivaluedQueryFields(queryFieldList, currentTableSchema);
+			Map<Integer, List<String>> searchTermArrayValuesMap = SearchUtil.getMultivaluedSearchTerms(
+					queryFieldList, currentTableSchema, searchTermList);
+			for(int i=0; i<queryFieldList.size(); i++) {
+				String currentQueryField = queryFieldList.get(i);
+				if(i>0) {
+					if(!multivalueQueryFieldsMap.containsKey(i))
+						queryString.append(" AND "+currentQueryField+":"+searchTermList.get(i));
+					else {
+						// It's multivalue queryField
+						queryString.append(") AND (");
+
+						List<String> currentSearchTermArrayValues = searchTermArrayValuesMap.get(i); 
+						int counter = 0;
+						for (String val : currentSearchTermArrayValues) {
+							if (counter == 0)
+								queryString.append(currentQueryField + ":" + val);
+							else
+								queryString.append(" OR " + currentQueryField + ":" + val);
+							counter++;
+						}
+						
+						queryString.append(")");
+					}
+				} else {
+					queryString.append("(");
+					if(!multivalueQueryFieldsMap.containsKey(i))
+						queryString.append(currentQueryField+":"+searchTermList.get(i));
+					else {
+						List<String> currentSearchTermArrayValues = searchTermArrayValuesMap.get(i); 
+						int counter = 0;
+						for (String val : currentSearchTermArrayValues) {
+							if (counter == 0)
+								queryString.append(currentQueryField + ":" + val);
+							else
+								queryString.append(" OR " + currentQueryField + ":" + val);
+							counter++;
+						}
+						
+						queryString.append(")");
+					}
+				}
+				if(i == queryFieldList.size()-1 && !multivalueQueryFieldsMap.containsKey(i))
+					queryString.append(")");
 			}
 		}
 		

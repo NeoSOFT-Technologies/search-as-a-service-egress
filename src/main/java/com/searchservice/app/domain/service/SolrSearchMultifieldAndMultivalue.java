@@ -61,15 +61,11 @@ public class SolrSearchMultifieldAndMultivalue {
 		boolean isMicroserviceDown = false;
 		List<String> currentListOfColumnsOfTableSchema = tableService.getCurrentTableSchemaColumns(tableName.split("_")[0], clientId);
 		JSONArray currentTableSchema = tableService.getCurrentTableSchema(tableName.split("_")[0], clientId);
-		// Search documents
-		
-		// testing
-		logger.info("test currtableSchema cols @@@@@@ {}", currentListOfColumnsOfTableSchema);
-		logger.info("test currtableSchema @@@@@@ {}", currentTableSchema);
-		
+
 		if(currentTableSchema.isEmpty())
 			isMicroserviceDown = true;
 		
+		// Search documents
 		searchResponseDTO = solrSearchRecordsServicePort.setUpSelectQueryMultifieldAndMultivalueSearch(
 				currentListOfColumnsOfTableSchema, 
 				currentTableSchema, 
@@ -78,7 +74,7 @@ public class SolrSearchMultifieldAndMultivalue {
 		if(isMicroserviceDown)
 			searchResponseDTO.setResponseMessage(
 					searchResponseDTO.getResponseMessage()
-					+". Microservice is down, so multivalue search can't be allowed(validation is incomplete)");
+					+". Microservice is down");
 		
 		loggersDTO.setTimestamp(LoggerUtils.utcTime().toString());
 		if(searchResponseDTO != null) {

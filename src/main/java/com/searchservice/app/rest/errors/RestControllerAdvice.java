@@ -24,6 +24,14 @@ public class RestControllerAdvice {
 	}
 	
 	
+	@ExceptionHandler(OperationNotAllowedException.class)
+	public ResponseEntity<Object> handleOperationNotAllowed(
+			OperationNotAllowedException exception) {
+		return frameRestApiException(new RestApiError(
+										HttpStatus.NOT_ACCEPTABLE, 
+										exception.getExceptionMessage()));
+	}
+	
 	
 	@ExceptionHandler(NullPointerOccurredException.class)
 	public ResponseEntity<Object> handleNullPointerOccurredException(
@@ -32,6 +40,7 @@ public class RestControllerAdvice {
 										HttpStatus.NOT_FOUND, 
 										exception.getExceptionMessage()));
 	}
+	
 
 	@ExceptionHandler(Exception.class)
 	public ResponseEntity<Object> handleUncaughtException(
@@ -39,7 +48,7 @@ public class RestControllerAdvice {
 		log.error("Uncaught Error Occured: {}", exception.getMessage());
 		return frameRestApiException(new RestApiError(
 										HttpStatus.BAD_REQUEST, 
-										exception.getMessage()));
+										"Uncaught error occurred. "+exception.getMessage()));
 	}
 	
 	
