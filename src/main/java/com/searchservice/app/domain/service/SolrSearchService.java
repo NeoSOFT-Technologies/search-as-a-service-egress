@@ -134,9 +134,11 @@ public class SolrSearchService implements SolrSearchServicePort {
 		SolrQuery query = new SolrQuery();
 
 		// Set up 'q'
-		List<String> queryFieldList = Arrays.stream(queryField.split(",")).map(String::trim).toList();
-		List<String> searchTermList = Arrays.stream(searchTerm.split(",")).map(String::trim).toList();
-		
+		List<String> queryFieldList = Arrays.asList(queryField.split(","));
+		List<String> searchTermList = Arrays.asList(searchTerm.split(","));
+		queryFieldList.forEach(String::trim);
+		searchTermList.forEach(String::trim);
+
 		// VALIDATE queryField & searchTerm
 		boolean isSearchQueryInputsValidated = SearchUtil.validateSearchQueryInputs(
 				currentTableSchema, queryFieldList, searchTermList);

@@ -120,7 +120,9 @@ public class SearchUtil {
 		multivaluedQueryFieldsIndxs.forEach(
 				idx -> {
 					String arrayData = searchTerms.get(idx).substring(1, searchTerms.get(idx).length()-1);
-					List<String> listOfMultvalSearchTerms = Arrays.stream(arrayData.split(";")).map(String::trim).toList();
+					String [] searchTermsArray = arrayData.split(";");
+					List<String> listOfMultvalSearchTerms = Arrays.asList(searchTermsArray);
+					listOfMultvalSearchTerms.forEach(val -> val.trim());
 					multivaluedSearchTermsMap.put(idx, listOfMultvalSearchTerms);
 				});
 
