@@ -13,7 +13,7 @@ import org.springframework.transaction.annotation.Transactional;
 import com.searchservice.app.domain.dto.ResponseMessages;
 import com.searchservice.app.domain.dto.SolrSearchResponseDTO;
 import com.searchservice.app.domain.dto.logger.LoggersDTO;
-import com.searchservice.app.domain.port.api.SolrSearchRecordsServicePort;
+import com.searchservice.app.domain.port.api.SolrSearchServicePort;
 import com.searchservice.app.domain.utils.LoggerUtils;
 import com.searchservice.app.rest.errors.BadRequestOccurredException;
 import com.searchservice.app.rest.errors.NullPointerOccurredException;
@@ -33,10 +33,10 @@ public class SolrSearchAdvanced {
 	@Autowired
 	TableService tableService;
 	
-	private SolrSearchRecordsServicePort solrSearchRecordsServicePort;
+	private SolrSearchServicePort solrSearchRecordsServicePort;
 	private SolrSearchResponseDTO searchResponseDTO;
 
-	public SolrSearchAdvanced(SolrSearchRecordsServicePort solrSearchRecordsServicePort,
+	public SolrSearchAdvanced(SolrSearchServicePort solrSearchRecordsServicePort,
 			SolrSearchResponseDTO searchResponseDTO) {
 		this.solrSearchRecordsServicePort = solrSearchRecordsServicePort;
 		this.searchResponseDTO = searchResponseDTO;

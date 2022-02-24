@@ -6,7 +6,7 @@ import org.json.JSONArray;
 
 import com.searchservice.app.domain.dto.SolrSearchResponseDTO;
 
-public interface SolrSearchRecordsServicePort {
+public interface SolrSearchServicePort {
 	SolrSearchResponseDTO setUpSelectQueryUnfiltered(
 			List<String> validSchemaColumns, 
 			String collection);

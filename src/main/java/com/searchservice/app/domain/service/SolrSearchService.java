@@ -21,7 +21,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import com.searchservice.app.domain.dto.SolrSearchResponseDTO;
-import com.searchservice.app.domain.port.api.SolrSearchRecordsServicePort;
+import com.searchservice.app.domain.port.api.SolrSearchServicePort;
 import com.searchservice.app.domain.utils.SearchUtil;
 import com.searchservice.app.infrastructure.adaptor.SolrAPIAdapter;
 import com.searchservice.app.infrastructure.adaptor.SolrSearchResult;
@@ -30,7 +30,7 @@ import com.searchservice.app.rest.errors.OperationNotAllowedException;
 
 @Service
 @Transactional
-public class SolrSearchService implements SolrSearchRecordsServicePort {
+public class SolrSearchService implements SolrSearchServicePort {
 	/*
 	 * Solr Search Records for given collection- Egress Service
 	 */  

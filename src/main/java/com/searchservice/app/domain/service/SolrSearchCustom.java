@@ -13,7 +13,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import com.searchservice.app.domain.dto.SolrSearchResponseDTO;
 import com.searchservice.app.domain.dto.logger.LoggersDTO;
-import com.searchservice.app.domain.port.api.SolrSearchRecordsServicePort;
+import com.searchservice.app.domain.port.api.SolrSearchServicePort;
 import com.searchservice.app.domain.utils.LoggerUtils;
 
 @Service
@@ -31,10 +31,10 @@ public class SolrSearchCustom {
 	@Autowired
 	TableService tableService;
 	
-	private SolrSearchRecordsServicePort solrSearchRecordsServicePort;
+	private SolrSearchServicePort solrSearchRecordsServicePort;
 	private SolrSearchResponseDTO searchResponseDTO;
 
-	public SolrSearchCustom(SolrSearchRecordsServicePort solrSearchRecordsServicePort,
+	public SolrSearchCustom(SolrSearchServicePort solrSearchRecordsServicePort,
 			SolrSearchResponseDTO searchResponseDTO) {
 		this.solrSearchRecordsServicePort = solrSearchRecordsServicePort;
 		this.searchResponseDTO = searchResponseDTO;
