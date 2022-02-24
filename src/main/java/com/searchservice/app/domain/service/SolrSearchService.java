@@ -30,11 +30,11 @@ import com.searchservice.app.rest.errors.OperationNotAllowedException;
 
 @Service
 @Transactional
-public class SolrSearchRecordsService implements SolrSearchRecordsServicePort {
+public class SolrSearchService implements SolrSearchRecordsServicePort {
 	/*
 	 * Solr Search Records for given collection- Egress Service
 	 */  
-	private final Logger logger = LoggerFactory.getLogger(SolrSearchRecordsService.class); 
+	private final Logger logger = LoggerFactory.getLogger(SolrSearchService.class); 
 	private static final String SUCCESS_MSG = "Records fetched successfully";
 	private static final String FAILURE_MSG = "Records couldn't be fetched for given collection";
 	private static final String SUCCESS_LOG = "Solr search operation is peformed successfully for given collection";
@@ -51,7 +51,7 @@ public class SolrSearchRecordsService implements SolrSearchRecordsServicePort {
 	@Value("${base-solr-url}")
 	String solrUrl;
 	
-	public SolrSearchRecordsService(
+	public SolrSearchService(
 			SolrSearchResult solrSearchResult, 
 			SolrSearchResponseDTO solrSearchResponseDTO) {
 		this.solrSearchResult = solrSearchResult;
@@ -74,6 +74,7 @@ public class SolrSearchRecordsService implements SolrSearchRecordsServicePort {
 		return solrSearchResponseDTO;
 	}
 	
+	
 	@Override
 	public SolrSearchResponseDTO setUpSelectQueryBasicSearch(
 														List<String> validSchemaColumns,
@@ -91,6 +92,7 @@ public class SolrSearchRecordsService implements SolrSearchRecordsServicePort {
 		return solrSearchResponseDTO;
 	}
 
+	
 	@Override
 	public SolrSearchResponseDTO setUpSelectQueryOrderedSearch(
 												List<String> validSchemaColumns, 
@@ -114,135 +116,6 @@ public class SolrSearchRecordsService implements SolrSearchRecordsServicePort {
 	
 	
 	@Override
-	public SolrSearchResponseDTO setUpSelectQueryMultifieldSearch(
-												List<String> validSchemaColumns, 
-												String collection, 
-												String queryField, // expected comma separated column names
-												String searchTerm, // expected comma separated column values
-												String startRecord, 
-												String pageSize,
-												String tag, 
-												String order) {
-		/* Egress API -- table records -- Multiple-field SEARCH */
-		logger.debug("Performing Multiple-field search for given collection");
-
-		SolrClient client = solrSchemaAPIAdapter.getSolrClient(solrUrl, collection);
-		SolrQuery query = new SolrQuery();
-		// Validate queryFields & searchTerms
-		// ######################
-		// Set up 'q'
-		List<String> queryFieldList = Arrays.asList(queryField.split(","));
-		List<String> searchTermList = Arrays.asList(searchTerm.split(","));
-		// Set up query
-		StringBuilder queryString = new StringBuilder();
-		if(!queryFieldList.isEmpty()) {
-			queryString.append(queryFieldList.get(0)+":"+searchTermList.get(0));
-			for(int i=1; i<queryFieldList.size(); i++) {
-				queryString.append(" OR "+queryFieldList.get(i)+":"+searchTermList.get(i));
-			}
-		}
-		
-		query.set("q", queryString.toString());
-		query.set("start", startRecord);
-		query.set("rows", pageSize);
-		SortClause sortClause = new SortClause(tag, order);
-		query.setSort(sortClause);
-		solrSearchResponseDTO = processSearchQuery(client, query, validSchemaColumns);
-		
-		return solrSearchResponseDTO;
-	}
-	
-	
-	@Override
-	public SolrSearchResponseDTO setUpSelectQueryMultifieldAndMultivalueSearch(
-												List<String> validSchemaColumns, 
-												JSONArray currentTableSchema, 
-												String collection, 
-												String queryField, // expected comma separated column names
-												String searchTerm, // expected comma separated column values
-												String startRecord, 
-												String pageSize,
-												String tag, 
-												String order) {
-		/* Egress API -- table records -- Multiple-field SEARCH */
-		logger.debug("Performing Multiple-field search for given collection");
-
-		SolrClient client = solrSchemaAPIAdapter.getSolrClient(solrUrl, collection);
-		SolrQuery query = new SolrQuery();
-
-		// Set up 'q'
-		List<String> queryFieldList = Arrays.asList(queryField.split(","));
-		List<String> searchTermList = Arrays.asList(searchTerm.split(","));
-		
-		// VALIDATE queryField & searchTerm
-		boolean isSearchQueryInputsValidated = SearchUtil.validateSearchQueryInputs(
-				currentTableSchema, queryFieldList, searchTermList);
-		if(!isSearchQueryInputsValidated)
-			throw new OperationNotAllowedException(
-					406, 
-					"Search query input validation unsuccessful. Please provide inputs in correct format");
-
-		// Set up query
-		StringBuilder queryString = new StringBuilder();
-		if(!queryFieldList.isEmpty()) {
-			// Get Multivalue queryFields
-			Map<Integer, String> multivalueQueryFieldsMap = SearchUtil.getMultivaluedQueryFields(queryFieldList, currentTableSchema);
-			Map<Integer, List<String>> searchTermArrayValuesMap = SearchUtil.getMultivaluedSearchTerms(
-					queryFieldList, currentTableSchema, searchTermList);
-			for(int i=0; i<queryFieldList.size(); i++) {
-				String currentQueryField = queryFieldList.get(i);
-				if(i>0) {
-					if(!multivalueQueryFieldsMap.containsKey(i))
-						queryString.append(" AND ("+currentQueryField+":"+searchTermList.get(i)+")");
-					else {
-						// It's multivalue queryField
-						queryString.append(" AND (");
-
-						List<String> currentSearchTermArrayValues = searchTermArrayValuesMap.get(i); 
-						int counter = 0;
-						for (String val : currentSearchTermArrayValues) {
-							if (counter == 0)
-								queryString.append(currentQueryField + ":" + val);
-							else
-								queryString.append(" OR " + currentQueryField + ":" + val);
-							counter++;
-						}
-						
-						queryString.append(")");
-					}
-				} else {
-					queryString.append("(");
-					if(!multivalueQueryFieldsMap.containsKey(i))
-						queryString.append(currentQueryField+":"+searchTermList.get(i)+")");
-					else {
-						List<String> currentSearchTermArrayValues = searchTermArrayValuesMap.get(i); 
-						int counter = 0;
-						for (String val : currentSearchTermArrayValues) {
-							if (counter == 0)
-								queryString.append(currentQueryField + ":" + val);
-							else
-								queryString.append(" OR " + currentQueryField + ":" + val);
-							counter++;
-						}
-						
-						queryString.append(")");
-					}
-				}
-			}
-		}
-		
-		query.set("q", queryString.toString());
-		query.set("start", startRecord);
-		query.set("rows", pageSize);
-		SortClause sortClause = new SortClause(tag, order);
-		query.setSort(sortClause);
-		solrSearchResponseDTO = processSearchQuery(client, query, validSchemaColumns);
-		
-		return solrSearchResponseDTO;
-	}
-	
-	
-	@Override
 	public SolrSearchResponseDTO setUpSelectQuery(
 												List<String> validSchemaColumns, 
 												JSONArray currentTableSchema, 
@@ -255,14 +128,14 @@ public class SolrSearchRecordsService implements SolrSearchRecordsServicePort {
 												String tag, 
 												String order) {
 		/* Egress API -- table records -- Multiple-field SEARCH */
-		logger.debug("Performing records search for given table");
+		logger.debug("Performing records-search for given table");
 
 		SolrClient client = solrSchemaAPIAdapter.getSolrClient(solrUrl, collection);
 		SolrQuery query = new SolrQuery();
 
 		// Set up 'q'
-		List<String> queryFieldList = Arrays.asList(queryField.split(","));
-		List<String> searchTermList = Arrays.asList(searchTerm.split(","));
+		List<String> queryFieldList = Arrays.stream(queryField.split(",")).map(String::trim).toList();
+		List<String> searchTermList = Arrays.stream(searchTerm.split(",")).map(String::trim).toList();
 		
 		// VALIDATE queryField & searchTerm
 		boolean isSearchQueryInputsValidated = SearchUtil.validateSearchQueryInputs(
@@ -279,45 +152,19 @@ public class SolrSearchRecordsService implements SolrSearchRecordsServicePort {
 			Map<Integer, String> multivalueQueryFieldsMap = SearchUtil.getMultivaluedQueryFields(queryFieldList, currentTableSchema);
 			Map<Integer, List<String>> searchTermArrayValuesMap = SearchUtil.getMultivaluedSearchTerms(
 					queryFieldList, currentTableSchema, searchTermList);
+
 			for(int i=0; i<queryFieldList.size(); i++) {
 				String currentQueryField = queryFieldList.get(i);
-				if(i>0) {
-					if(!multivalueQueryFieldsMap.containsKey(i))
-						queryString.append(" "+searchOperator+" ("+currentQueryField+":"+searchTermList.get(i)+")");
-					else {
-						// It's multivalue queryField
-						queryString.append(" "+searchOperator+" (");
-
-						List<String> currentSearchTermArrayValues = searchTermArrayValuesMap.get(i); 
-						int counter = 0;
-						for (String val : currentSearchTermArrayValues) {
-							if (counter == 0)
-								queryString.append(currentQueryField + ":" + val);
-							else
-								queryString.append(" OR " + currentQueryField + ":" + val);
-							counter++;
-						}
-						
-						queryString.append(")");
-					}
-				} else {
-					queryString.append("(");
-					if(!multivalueQueryFieldsMap.containsKey(i))
-						queryString.append(currentQueryField+":"+searchTermList.get(i)+")");
-					else {
-						List<String> currentSearchTermArrayValues = searchTermArrayValuesMap.get(i); 
-						int counter = 0;
-						for (String val : currentSearchTermArrayValues) {
-							if (counter == 0)
-								queryString.append(currentQueryField + ":" + val);
-							else
-								queryString.append(" OR " + currentQueryField + ":" + val);
-							counter++;
-						}
-						
-						queryString.append(")");
-					}
-				}
+				
+				// if i>0:
+				if(i>0)
+					SearchUtil.setQueryForOtherThanFirstQueryField(
+							i, currentQueryField, searchTermList, multivalueQueryFieldsMap, searchTermArrayValuesMap, queryString, 
+							searchOperator);
+				else
+					SearchUtil.setQueryForFirstQueryField(
+							i, currentQueryField, searchTermList, multivalueQueryFieldsMap, searchTermArrayValuesMap, 
+							queryString);
 			}
 		}
 		
@@ -358,6 +205,7 @@ public class SolrSearchRecordsService implements SolrSearchRecordsServicePort {
 	}
 	
 	
+	// Auxiliary methods
 	public SolrSearchResponseDTO processSearchQuery(SolrClient client, SolrQuery query, List<String> validSchemaColumns) {
 		try {
 			solrSearchResult = new SolrSearchResult();

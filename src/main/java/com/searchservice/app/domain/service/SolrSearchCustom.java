@@ -4,6 +4,7 @@ import java.time.ZoneOffset;
 import java.time.ZonedDateTime;
 import java.util.List;
 
+import org.json.JSONArray;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -17,8 +18,8 @@ import com.searchservice.app.domain.utils.LoggerUtils;
 
 @Service
 @Transactional
-public class SolrSearchMultifield {
-	private final Logger logger = LoggerFactory.getLogger(SolrSearchMultifield.class);
+public class SolrSearchCustom {
+	private final Logger logger = LoggerFactory.getLogger(SolrSearchCustom.class);
 
 	ZonedDateTime utc = ZonedDateTime.now(ZoneOffset.UTC);
 
@@ -33,7 +34,7 @@ public class SolrSearchMultifield {
 	private SolrSearchRecordsServicePort solrSearchRecordsServicePort;
 	private SolrSearchResponseDTO searchResponseDTO;
 
-	public SolrSearchMultifield(SolrSearchRecordsServicePort solrSearchRecordsServicePort,
+	public SolrSearchCustom(SolrSearchRecordsServicePort solrSearchRecordsServicePort,
 			SolrSearchResponseDTO searchResponseDTO) {
 		this.solrSearchRecordsServicePort = solrSearchRecordsServicePort;
 		this.searchResponseDTO = searchResponseDTO;
@@ -48,7 +49,7 @@ public class SolrSearchMultifield {
 		loggersDTO.setUsername(username);
 	}
 	
-	public SolrSearchResponseDTO search(int clientId, String tableName, String queryField, String queryFieldSearchTerm,
+	public SolrSearchResponseDTO search(int clientId, String tableName, String queryField, String queryFieldSearchTerm, String searchOperator,
 			String startRecord, String pageSize, String sortTag, String sortOrder, LoggersDTO loggersDTO) {
 		logger.debug("Multifield search for the given table");
 
@@ -57,11 +58,26 @@ public class SolrSearchMultifield {
 		LoggerUtils.printlogger(loggersDTO,true,false);
 
 		// Get Current Table Schema (communicating with SAAS Microservice)
+		boolean isMicroserviceDown = false;
 		List<String> currentListOfColumnsOfTableSchema = tableService.getCurrentTableSchemaColumns(tableName.split("_")[0], clientId);
-		searchResponseDTO = solrSearchRecordsServicePort.setUpSelectQueryMultifieldSearch(
+		JSONArray currentTableSchema = tableService.getCurrentTableSchema(tableName.split("_")[0], clientId);
+
+		if(currentTableSchema.isEmpty())
+			isMicroserviceDown = true;
+		
+		// Search documents
+		searchResponseDTO = solrSearchRecordsServicePort.setUpSelectQuery(
 				currentListOfColumnsOfTableSchema, 
+				currentTableSchema, 
 				tableName, queryField,
-				queryFieldSearchTerm, startRecord, pageSize, sortTag, sortOrder);
+				queryFieldSearchTerm, 
+				searchOperator, 
+				startRecord, pageSize, sortTag, sortOrder);
+		if(isMicroserviceDown)
+			searchResponseDTO.setResponseMessage(
+					searchResponseDTO.getResponseMessage()
+					+". Microservice is down");
+		
 		loggersDTO.setTimestamp(LoggerUtils.utcTime().toString());
 		if(searchResponseDTO != null) {
 			LoggerUtils.printlogger(loggersDTO, false, false);

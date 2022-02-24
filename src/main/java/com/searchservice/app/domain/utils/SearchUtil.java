@@ -5,7 +5,6 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
-import java.util.stream.Stream;
 
 import org.json.JSONArray;
 import org.json.JSONObject;
@@ -13,10 +12,8 @@ import org.json.JSONObject;
 import com.searchservice.app.rest.errors.OperationNotAllowedException;
 
 import lombok.Data;
-import lombok.extern.slf4j.Slf4j;
 
 @Data
-@Slf4j
 public class SearchUtil {
 	
 	private SearchUtil() {}
@@ -123,9 +120,7 @@ public class SearchUtil {
 		multivaluedQueryFieldsIndxs.forEach(
 				idx -> {
 					String arrayData = searchTerms.get(idx).substring(1, searchTerms.get(idx).length()-1);
-					String [] multivaluedSearchTermValues = arrayData.split(";");
-					List<String> listOfMultvalSearchTerms = Arrays.asList(multivaluedSearchTermValues);
-					listOfMultvalSearchTerms.stream().map(String::trim);
+					List<String> listOfMultvalSearchTerms = Arrays.stream(arrayData.split(";")).map(String::trim).toList();
 					multivaluedSearchTermsMap.put(idx, listOfMultvalSearchTerms);
 				});
 
@@ -140,6 +135,52 @@ public class SearchUtil {
 	
 	public static boolean isNotArrayOfStrings(String data) {
 		return (!data.substring(0, 1).equals("[") && !data.substring(data.length()-1, data.length()).equals("]"));
+	}
+	
+	
+	public static void setQueryForFirstQueryField(
+			int i, String currentQueryField, List<String> searchTermList, Map<Integer, String> multivalueQueryFieldsMap, Map<Integer, List<String>> searchTermArrayValuesMap, 
+			StringBuilder queryString) {
+		queryString.append("(");
+		if(!multivalueQueryFieldsMap.containsKey(i))
+			queryString.append(currentQueryField+":"+searchTermList.get(i)+")");
+		else {
+			List<String> currentSearchTermArrayValues = searchTermArrayValuesMap.get(i); 
+			int counter = 0;
+			for (String val : currentSearchTermArrayValues) {
+				if (counter == 0)
+					queryString.append(currentQueryField + ":" + val);
+				else
+					queryString.append(" OR " + currentQueryField + ":" + val);
+				counter++;
+			}
+			
+			queryString.append(")");
+		}
+	}
+	
+	
+	public static void setQueryForOtherThanFirstQueryField(
+			int i, String currentQueryField, List<String> searchTermList, Map<Integer, String> multivalueQueryFieldsMap, Map<Integer, List<String>> searchTermArrayValuesMap, 
+			StringBuilder queryString, String searchOperator) {
+		if(!multivalueQueryFieldsMap.containsKey(i))
+			queryString.append(" "+searchOperator+" ("+currentQueryField+":"+searchTermList.get(i)+")");
+		else {
+			// It's multivalue queryField
+			queryString.append(" "+searchOperator+" (");
+
+			List<String> currentSearchTermArrayValues = searchTermArrayValuesMap.get(i); 
+			int counter = 0;
+			for (String val : currentSearchTermArrayValues) {
+				if (counter == 0)
+					queryString.append(currentQueryField + ":" + val);
+				else
+					queryString.append(" OR " + currentQueryField + ":" + val);
+				counter++;
+			}
+			
+			queryString.append(")");
+		}
 	}
 	
 }
