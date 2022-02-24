@@ -1,5 +1,6 @@
 package com.searchservice.app.domain.utils;
 
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
@@ -12,8 +13,10 @@ import org.json.JSONObject;
 import com.searchservice.app.rest.errors.OperationNotAllowedException;
 
 import lombok.Data;
+import lombok.extern.slf4j.Slf4j;
 
 @Data
+@Slf4j
 public class SearchUtil {
 	
 	private SearchUtil() {}
@@ -184,4 +187,14 @@ public class SearchUtil {
 		}
 	}
 	
+	
+	public static List<String> getTrimmedListOfStrings(List<String> list) {
+		List<String> trimmedList = new ArrayList<>();
+		for(String str: list) {
+			str = str.trim();
+			trimmedList.add(str);
+		}
+		
+		return trimmedList;
+	}
 }
