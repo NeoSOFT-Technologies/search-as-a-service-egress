@@ -195,10 +195,10 @@ public class SolrSearchRecordsService implements SolrSearchRecordsServicePort {
 				String currentQueryField = queryFieldList.get(i);
 				if(i>0) {
 					if(!multivalueQueryFieldsMap.containsKey(i))
-						queryString.append(" AND "+currentQueryField+":"+searchTermList.get(i));
+						queryString.append(" AND ("+currentQueryField+":"+searchTermList.get(i)+")");
 					else {
 						// It's multivalue queryField
-						queryString.append(") AND (");
+						queryString.append(" AND (");
 
 						List<String> currentSearchTermArrayValues = searchTermArrayValuesMap.get(i); 
 						int counter = 0;
@@ -215,7 +215,7 @@ public class SolrSearchRecordsService implements SolrSearchRecordsServicePort {
 				} else {
 					queryString.append("(");
 					if(!multivalueQueryFieldsMap.containsKey(i))
-						queryString.append(currentQueryField+":"+searchTermList.get(i));
+						queryString.append(currentQueryField+":"+searchTermList.get(i)+")");
 					else {
 						List<String> currentSearchTermArrayValues = searchTermArrayValuesMap.get(i); 
 						int counter = 0;
@@ -230,8 +230,8 @@ public class SolrSearchRecordsService implements SolrSearchRecordsServicePort {
 						queryString.append(")");
 					}
 				}
-				if(i == queryFieldList.size()-1 && !multivalueQueryFieldsMap.containsKey(i))
-					queryString.append(")");
+//				if(i == queryFieldList.size()-1 && !multivalueQueryFieldsMap.containsKey(i))
+//					queryString.append(")");
 			}
 		}
 		
