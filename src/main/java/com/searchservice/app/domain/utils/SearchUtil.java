@@ -133,7 +133,13 @@ public class SearchUtil {
 	
 	
 	public static boolean isArrayOfStrings(String data) {
-		return (data.substring(0, 1).equals("[") && data.substring(data.length()-1, data.length()).equals("]"));
+		
+		boolean isValidSeparator = isAlphaNumeric(data) || Arrays.asList(data.split("")).contains(";");
+		if(!isValidSeparator)
+			throw new OperationNotAllowedException(406, "Only ';' separator is allowed for multivalued search term array. Please provide valid separator");
+		return (data.substring(0, 1).equals("[")
+				&& data.substring(data.length()-1, data.length()).equals("]")
+				&& isValidSeparator);
 	}
 	
 	
@@ -196,5 +202,11 @@ public class SearchUtil {
 		}
 		
 		return trimmedList;
+	}
+	
+	
+	public static boolean isAlphaNumeric(String charSequence) {
+	    String pattern= "^[a-zA-Z0-9]*$";
+	    return charSequence.matches(pattern);
 	}
 }
