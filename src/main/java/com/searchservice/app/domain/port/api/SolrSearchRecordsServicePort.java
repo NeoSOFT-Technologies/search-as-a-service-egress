@@ -46,13 +46,25 @@ public interface SolrSearchRecordsServicePort {
 			String tag, 
 			String order);
 	
+	SolrSearchResponseDTO setUpSelectQuery(
+			List<String> validSchemaColumns, 
+			JSONArray currentTableSchema, 
+			String collection, 
+			String queryField, 
+			String searchTerm, 
+			String searchOperator, 
+			String startRecord, 
+			String pageSize, 
+			String tag, 
+			String order);
+	
 	SolrSearchResponseDTO setUpSelectQueryAdvancedSearch(
-										List<String> validSchemaColumns, 
-										String collection, 
-										String queryField, 
-										String searchTerm, 
-										String startRecord, 
-										String pageSize, 
-										String tag, 
-										String order);
+			List<String> validSchemaColumns, 
+			String collection, 
+			String queryField, 
+			String searchTerm,
+			String startRecord, 
+			String pageSize, 
+			String tag, 
+			String order);
 }

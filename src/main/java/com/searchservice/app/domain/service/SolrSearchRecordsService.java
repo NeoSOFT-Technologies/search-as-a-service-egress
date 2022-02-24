@@ -3,10 +3,8 @@ package com.searchservice.app.domain.service;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.Collection;
 import java.util.List;
 import java.util.Map;
-import java.util.Set;
 
 import org.apache.solr.client.solrj.SolrClient;
 import org.apache.solr.client.solrj.SolrQuery;
@@ -230,8 +228,96 @@ public class SolrSearchRecordsService implements SolrSearchRecordsServicePort {
 						queryString.append(")");
 					}
 				}
-//				if(i == queryFieldList.size()-1 && !multivalueQueryFieldsMap.containsKey(i))
-//					queryString.append(")");
+			}
+		}
+		
+		query.set("q", queryString.toString());
+		query.set("start", startRecord);
+		query.set("rows", pageSize);
+		SortClause sortClause = new SortClause(tag, order);
+		query.setSort(sortClause);
+		solrSearchResponseDTO = processSearchQuery(client, query, validSchemaColumns);
+		
+		return solrSearchResponseDTO;
+	}
+	
+	
+	@Override
+	public SolrSearchResponseDTO setUpSelectQuery(
+												List<String> validSchemaColumns, 
+												JSONArray currentTableSchema, 
+												String collection, 
+												String queryField, // expected comma separated column names
+												String searchTerm, // expected comma separated column values
+												String searchOperator, 
+												String startRecord, 
+												String pageSize,
+												String tag, 
+												String order) {
+		/* Egress API -- table records -- Multiple-field SEARCH */
+		logger.debug("Performing records search for given table");
+
+		SolrClient client = solrSchemaAPIAdapter.getSolrClient(solrUrl, collection);
+		SolrQuery query = new SolrQuery();
+
+		// Set up 'q'
+		List<String> queryFieldList = Arrays.asList(queryField.split(","));
+		List<String> searchTermList = Arrays.asList(searchTerm.split(","));
+		
+		// VALIDATE queryField & searchTerm
+		boolean isSearchQueryInputsValidated = SearchUtil.validateSearchQueryInputs(
+				currentTableSchema, queryFieldList, searchTermList);
+		if(!isSearchQueryInputsValidated)
+			throw new OperationNotAllowedException(
+					406, 
+					"Search query input validation unsuccessful. Please provide inputs in correct format");
+
+		// Set up query
+		StringBuilder queryString = new StringBuilder();
+		if(!queryFieldList.isEmpty()) {
+			// Get Multivalue queryFields
+			Map<Integer, String> multivalueQueryFieldsMap = SearchUtil.getMultivaluedQueryFields(queryFieldList, currentTableSchema);
+			Map<Integer, List<String>> searchTermArrayValuesMap = SearchUtil.getMultivaluedSearchTerms(
+					queryFieldList, currentTableSchema, searchTermList);
+			for(int i=0; i<queryFieldList.size(); i++) {
+				String currentQueryField = queryFieldList.get(i);
+				if(i>0) {
+					if(!multivalueQueryFieldsMap.containsKey(i))
+						queryString.append(" "+searchOperator+" ("+currentQueryField+":"+searchTermList.get(i)+")");
+					else {
+						// It's multivalue queryField
+						queryString.append(" "+searchOperator+" (");
+
+						List<String> currentSearchTermArrayValues = searchTermArrayValuesMap.get(i); 
+						int counter = 0;
+						for (String val : currentSearchTermArrayValues) {
+							if (counter == 0)
+								queryString.append(currentQueryField + ":" + val);
+							else
+								queryString.append(" OR " + currentQueryField + ":" + val);
+							counter++;
+						}
+						
+						queryString.append(")");
+					}
+				} else {
+					queryString.append("(");
+					if(!multivalueQueryFieldsMap.containsKey(i))
+						queryString.append(currentQueryField+":"+searchTermList.get(i)+")");
+					else {
+						List<String> currentSearchTermArrayValues = searchTermArrayValuesMap.get(i); 
+						int counter = 0;
+						for (String val : currentSearchTermArrayValues) {
+							if (counter == 0)
+								queryString.append(currentQueryField + ":" + val);
+							else
+								queryString.append(" OR " + currentQueryField + ":" + val);
+							counter++;
+						}
+						
+						queryString.append(")");
+					}
+				}
 			}
 		}
 		
