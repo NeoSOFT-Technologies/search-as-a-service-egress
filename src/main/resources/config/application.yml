@@ -133,7 +133,7 @@ table-schema-attributes:
 
 #================================================================
 #Sync with soft delete schema in microservice
-base-microservice-url: http://localhost:8080
+base-microservice-url: http://localhost:8081
 microservice-url:
   get-table: /api/v1/manage/table
 #================================================================
