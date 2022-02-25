@@ -13,10 +13,8 @@ import org.json.JSONObject;
 import com.searchservice.app.rest.errors.OperationNotAllowedException;
 
 import lombok.Data;
-import lombok.extern.slf4j.Slf4j;
 
 @Data
-@Slf4j
 public class SearchUtil {
 	
 	private SearchUtil() {}
@@ -52,7 +50,7 @@ public class SearchUtil {
 		} else {
 			// Check if Multivalue queryField is present
 			Map<Integer, String> multiValuedQueryFieldsMap = SearchUtil.getMultivaluedQueryFields(queryFieldList, currentTableSchema);
-			// Validate queryFields & searchTerms: multivalue --> array of searchTerms
+			// Validate queryFields & searchTerms: multi-value --> array of searchTerms
 			boolean isMultivalueSearchTermValidated = true;
 			boolean isNonMultivalueSearchTermValidated = true;
 			if(!multiValuedQueryFieldsMap.isEmpty()) {
