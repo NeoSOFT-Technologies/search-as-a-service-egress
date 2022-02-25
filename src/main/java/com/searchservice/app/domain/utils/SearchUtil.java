@@ -132,7 +132,10 @@ public class SearchUtil {
 	
 	public static boolean isArrayOfStrings(String data) {
 		
-		boolean isValidSeparator = isAlphaNumeric(data) || Arrays.asList(data.split("")).contains(";");
+		boolean isValidSeparator
+				= isAlphaNumeric(data)
+				|| Arrays.asList(data.split("")).contains(";")
+				|| Arrays.asList(data.split("")).contains("\"");	// For string data type
 		if(!isValidSeparator)
 			throw new OperationNotAllowedException(406, "Only ';' separator is allowed for multivalued search term array. Please provide valid separator");
 		return (data.substring(0, 1).equals("[")
