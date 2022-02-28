@@ -6,6 +6,7 @@ import java.util.List;
 import java.util.Map;
 
 import org.apache.solr.common.SolrDocumentList;
+import org.json.JSONArray;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -33,7 +34,7 @@ public class TableService {
 	SolrAPIAdapter solrAPIAdapter = new SolrAPIAdapter();
 
 	
-	public List<String> getCurrentTableSchema(String tableName, int clientId) {
+	public List<String> getCurrentTableSchemaColumns(String tableName, int clientId) {
 		logger.debug("Get current table schema from Ingress microservice");
 		
 		GetCurrentSchemaUtil getCurrentSchemaUtil = extracted(tableName, clientId);
@@ -41,6 +42,17 @@ public class TableService {
 		String responseString = response.getResponseString();
 		
 		return getCurrentSchemaUtil.getCurrentSchemaColumns(responseString);
+	}
+	
+	
+	public JSONArray getCurrentTableSchema(String tableName, int clientId) {
+		logger.debug("Get current table schema from Ingress microservice");
+		
+		GetCurrentSchemaUtil getCurrentSchemaUtil = extracted(tableName, clientId);
+		GetCurrentSchemaUtil.GetCurrentSchemaUtilResponse response = getCurrentSchemaUtil.get();
+		String responseString = response.getResponseString();
+		
+		return getCurrentSchemaUtil.getCurrentSchemaDetails(responseString);
 	}
 	
 
