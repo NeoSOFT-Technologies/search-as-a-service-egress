@@ -30,8 +30,7 @@ public interface SolrSearchServicePort {
 			JSONArray currentTableSchema, 
 			String collection, 
 			String queryField, 
-			String searchTerm, 
-			String searchOperator, 
+			String searchTerm, 			
 			String startRecord, 
 			String pageSize, 
 			String tag, 
@@ -46,4 +45,7 @@ public interface SolrSearchServicePort {
 			String pageSize, 
 			String tag, 
 			String order);
+
+	SolrSearchResponseDTO setUpSelectQuerysearch(List<String> validSchemaColumns, JSONArray currentTableSchema,
+			String collection, String queryField, String startRecord, String pageSize, String tag, String order);
 }

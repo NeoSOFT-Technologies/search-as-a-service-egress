@@ -111,6 +111,7 @@ public class SearchUtil {
 		return multiValuedQueryFieldsMap;
 	}
 	
+
 	
 	public static Map<Integer, List<String>> getMultivaluedSearchTerms(
 			List<String> queryFields, JSONArray currentTableSchema, List<String> searchTerms) {
@@ -121,7 +122,7 @@ public class SearchUtil {
 		multivaluedQueryFieldsIndxs.forEach(
 				idx -> {
 					String arrayData = searchTerms.get(idx).substring(1, searchTerms.get(idx).length()-1);
-					List<String> listOfMultvalSearchTerms = Arrays.asList(arrayData.split(";"));
+					List<String> listOfMultvalSearchTerms = Arrays.asList(arrayData.split(","));
 					listOfMultvalSearchTerms.forEach(String::trim);
 					multivaluedSearchTermsMap.put(idx, listOfMultvalSearchTerms);
 				});
@@ -134,10 +135,10 @@ public class SearchUtil {
 		
 		boolean isValidSeparator
 				= isAlphaNumeric(data)
-				|| Arrays.asList(data.split("")).contains(";")
+				|| Arrays.asList(data.split("")).contains(",")
 				|| Arrays.asList(data.split("")).contains("\"");	// For string data type
 		if(!isValidSeparator)
-			throw new OperationNotAllowedException(406, "Only ';' separator is allowed for multivalued search term array. Please provide valid separator");
+			throw new OperationNotAllowedException(406, "Only ',' separator is allowed for multivalued search term array. Please provide valid separator");
 		return (data.substring(0, 1).equals("[")
 				&& data.substring(data.length()-1, data.length()).equals("]")
 				&& isValidSeparator);
@@ -205,9 +206,14 @@ public class SearchUtil {
 		return trimmedList;
 	}
 	
+	public static String getTrimmedListOfStrings(String queryField) {
+		
+		return queryField;
+	}
 	
 	public static boolean isAlphaNumeric(String charSequence) {
 	    String pattern= "^[a-zA-Z0-9]*$";
 	    return charSequence.matches(pattern);
 	}
+	
 }

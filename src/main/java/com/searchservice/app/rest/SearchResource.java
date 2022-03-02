@@ -57,8 +57,8 @@ public class SearchResource {
     public ResponseEntity<SolrSearchResponseDTO> searchRecords(
     		@PathVariable int clientId, 
     		@PathVariable String tableName, 
-            @RequestParam(defaultValue = "*") String queryField, @RequestParam(defaultValue = "*") String searchTerm, 
-            @RequestParam(defaultValue = "AND") String searchOperator, 
+            @RequestParam(defaultValue = "*") String queryField, 
+            @RequestParam(defaultValue = "*") String searchTerm,          
             @RequestParam(defaultValue = "0") String startRecord,
             @RequestParam(defaultValue = "5") String pageSize, 
             @RequestParam(defaultValue = "id") String orderBy, @RequestParam(defaultValue = "asc") String order) {
@@ -69,17 +69,10 @@ public class SearchResource {
 		LoggersDTO loggersDTO = LoggerUtils.getRequestLoggingInfo(servicename, username,nameofCurrMethod,timestamp);
 		LoggerUtils.printlogger(loggersDTO,true,false);
 		loggersDTO.setCorrelationid(loggersDTO.getCorrelationid());
-		loggersDTO.setIpaddress(loggersDTO.getIpaddress());
-		
-		// Parse searchOperator
-		searchOperator = searchOperator.toUpperCase().trim();
-		// Validate searchOperator
-		if(!searchOperator.equals("AND") && !searchOperator.equals("OR"))
-			throw new OperationNotAllowedException(406, "Only 'or/OR' & 'and/AND' search operators are acceptable. Please try again with one of those");
-		
+		loggersDTO.setIpaddress(loggersDTO.getIpaddress());		
         tableName = tableName + "_" + clientId;
         SolrSearchResponseDTO solrSearchResponseDTO = solrSearch.search(
-        		clientId, tableName, queryField, searchTerm, searchOperator, startRecord, pageSize, orderBy, order,loggersDTO);
+        		clientId, tableName, queryField, searchTerm,  startRecord, pageSize, orderBy, order,loggersDTO);
 
         successMethod(nameofCurrMethod, loggersDTO);
 		
@@ -92,4 +85,34 @@ public class SearchResource {
         }
     }
     
+    @GetMapping(value = "/query/{clientId}/{tableName}")
+    public ResponseEntity<SolrSearchResponseDTO> searchQueryRecords(
+    		@PathVariable int clientId, 
+    		@PathVariable String tableName, 
+            @RequestParam(defaultValue = "*") String queryField,                    
+            @RequestParam(defaultValue = "0") String startRecord,
+            @RequestParam(defaultValue = "5") String pageSize, 
+            @RequestParam(defaultValue = "id") String orderBy, @RequestParam(defaultValue = "asc") String order) {
+        logger.debug("REST call for records-search in the given collection");
+
+        String nameofCurrMethod = new Throwable().getStackTrace()[0].getMethodName();
+		String timestamp = LoggerUtils.utcTime().toString();
+		LoggersDTO loggersDTO = LoggerUtils.getRequestLoggingInfo(servicename, username,nameofCurrMethod,timestamp);
+		LoggerUtils.printlogger(loggersDTO,true,false);
+		loggersDTO.setCorrelationid(loggersDTO.getCorrelationid());
+		loggersDTO.setIpaddress(loggersDTO.getIpaddress());		
+        tableName = tableName + "_" + clientId;
+        SolrSearchResponseDTO solrSearchResponseDTO = solrSearch.searchQuery(
+        		clientId, tableName, queryField, startRecord, pageSize, orderBy, order,loggersDTO);
+
+        successMethod(nameofCurrMethod, loggersDTO);
+		
+        if (solrSearchResponseDTO.getStatusCode() == 200) {
+        	LoggerUtils.printlogger(loggersDTO,false,false);
+            return ResponseEntity.status(HttpStatus.OK).body(solrSearchResponseDTO);
+        } else {
+        	LoggerUtils.printlogger(loggersDTO,false,true);
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(solrSearchResponseDTO);
+        }
+    }
 }

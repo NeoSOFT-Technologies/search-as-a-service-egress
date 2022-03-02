@@ -39,7 +39,7 @@ public class SolrSearchService implements SolrSearchServicePort {
 	private static final String FAILURE_MSG = "Records couldn't be fetched for given collection";
 	private static final String SUCCESS_LOG = "Solr search operation is peformed successfully for given collection";
 	private static final String FAILURE_LOG = "An exception occured while performing Solr Search Operation! ";
-	
+	private static final String searchOperator = "AND";
 	SolrSearchResult solrSearchResult = new SolrSearchResult();
 	SolrSearchResponseDTO solrSearchResponseDTO = new SolrSearchResponseDTO();
 	@Autowired
@@ -122,7 +122,7 @@ public class SolrSearchService implements SolrSearchServicePort {
 												String collection, 
 												String queryField, // expected comma separated column names
 												String searchTerm, // expected comma separated column values
-												String searchOperator, 
+												
 												String startRecord, 
 												String pageSize,
 												String tag, 
@@ -134,8 +134,8 @@ public class SolrSearchService implements SolrSearchServicePort {
 		SolrQuery query = new SolrQuery();
 
 		// Set up 'q'
-		List<String> queryFieldList = SearchUtil.getTrimmedListOfStrings(Arrays.asList(queryField.split(",")));
-		List<String> searchTermList = SearchUtil.getTrimmedListOfStrings(Arrays.asList(searchTerm.split(",")));
+		List<String> queryFieldList = SearchUtil.getTrimmedListOfStrings(Arrays.asList(queryField));
+		List<String> searchTermList = SearchUtil.getTrimmedListOfStrings(Arrays.asList(searchTerm));
 		
 		// VALIDATE queryField & searchTerm
 		boolean isSearchQueryInputsValidated = SearchUtil.validateSearchQueryInputs(
@@ -195,6 +195,32 @@ public class SolrSearchService implements SolrSearchServicePort {
 		SolrClient client = solrSchemaAPIAdapter.getSolrClient(solrUrl, collection);
 		SolrQuery query = new SolrQuery();
 		query.set("q", queryField + ":" + searchTerm);
+		query.set("start", startRecord);
+		query.set("rows", pageSize);
+		SortClause sortClause = new SortClause(tag, order);
+		query.setSort(sortClause);
+		solrSearchResponseDTO = processSearchQuery(client, query, validSchemaColumns);
+		
+		return solrSearchResponseDTO;
+	}
+	
+
+	@Override
+	public SolrSearchResponseDTO setUpSelectQuerysearch(
+			List<String> validSchemaColumns, 
+			JSONArray currentTableSchema, 
+			String collection, 
+			String queryField, // expected comma separated column names			
+			String startRecord, 
+			String pageSize,
+			String tag, 
+			String order)  {
+		/* Egress API -- table records -- ADVANCED SEARCH */
+		logger.debug("Performing ADVANCED search for given collection");
+
+		SolrClient client = solrSchemaAPIAdapter.getSolrClient(solrUrl, collection);
+		SolrQuery query = new SolrQuery();
+		query.set("q", queryField);
 		query.set("start", startRecord);
 		query.set("rows", pageSize);
 		SortClause sortClause = new SortClause(tag, order);
