@@ -14,15 +14,16 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
-import com.searchservice.app.domain.dto.SolrSearchResponseDTO;
+import com.searchservice.app.domain.dto.SearchResponseDTO;
 import com.searchservice.app.domain.dto.logger.LoggersDTO;
-import com.searchservice.app.domain.service.SolrSearchCustom;
+import com.searchservice.app.domain.service.SearchAdvanced;
+import com.searchservice.app.domain.service.SearchViaQuery;
 import com.searchservice.app.domain.utils.LoggerUtils;
 import com.searchservice.app.infrastructure.adaptor.SolrSearchResult;
-import com.searchservice.app.rest.errors.OperationNotAllowedException;
 
 @RestController
-@RequestMapping("/search/api/v1")
+@RequestMapping("${base-url.api-endpoint.home}")
+//@RequestMapping("/search/api/v1")
 public class SearchResource {
     /* Solr Search Records for given collection- Egress Service Resource */
     private final Logger logger = LoggerFactory.getLogger(SearchResource.class);
@@ -33,11 +34,14 @@ public class SearchResource {
     
     private String username = "Username";  
 
-    private SolrSearchCustom solrSearch;
+    private SearchAdvanced solrSearchAdvanced;
+    private SearchViaQuery solrSearchViaQuery;
 
     public SearchResource(
-            SolrSearchCustom solrSearch) {
-        this.solrSearch = solrSearch;
+            SearchAdvanced solrSearchAdvanced, 
+            SearchViaQuery solrSearchViaQuery) {
+        this.solrSearchAdvanced = solrSearchAdvanced;
+        this.solrSearchViaQuery = solrSearchViaQuery;
     }
 
     @Autowired
@@ -53,6 +57,77 @@ public class SearchResource {
 	}
     
     
+    @GetMapping(value = "/{clientId}/{tableName}")
+    public ResponseEntity<SearchResponseDTO> searchRecordsBasic(
+    		@PathVariable int clientId, 
+    		@PathVariable String tableName, 
+            @RequestParam(defaultValue = "*") String queryField, @RequestParam(defaultValue = "*") String searchTerm, 
+            @RequestParam(defaultValue = "0") String startRecord,
+            @RequestParam(defaultValue = "5") String pageSize, 
+            @RequestParam(defaultValue = "id") String orderBy, @RequestParam(defaultValue = "asc") String order) {
+        logger.debug("REST call for records-search in the given table");
+
+        String nameofCurrMethod = new Throwable().getStackTrace()[0].getMethodName();
+		String timestamp = LoggerUtils.utcTime().toString();
+		LoggersDTO loggersDTO = LoggerUtils.getRequestLoggingInfo(servicename, username,nameofCurrMethod,timestamp);
+		LoggerUtils.printlogger(loggersDTO,true,false);
+		loggersDTO.setCorrelationid(loggersDTO.getCorrelationid());
+		loggersDTO.setIpaddress(loggersDTO.getIpaddress());
+				
+        tableName = tableName + "_" + clientId;
+        SearchResponseDTO solrSearchResponseDTO = solrSearchAdvanced.search(
+        		clientId, tableName, 
+        		queryField, searchTerm, 
+        		startRecord, pageSize, orderBy, order,loggersDTO);
+
+        successMethod(nameofCurrMethod, loggersDTO);
+		
+        if (solrSearchResponseDTO.getStatusCode() == 200) {
+        	LoggerUtils.printlogger(loggersDTO,false,false);
+            return ResponseEntity.status(HttpStatus.OK).body(solrSearchResponseDTO);
+        } else {
+        	LoggerUtils.printlogger(loggersDTO,false,true);
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(solrSearchResponseDTO);
+        }
+    }
+    
+    
+    @GetMapping(value = "/query/{clientId}/{tableName}")
+    public ResponseEntity<SearchResponseDTO> searchRecordsViaQuery(
+    		@PathVariable int clientId, 
+    		@PathVariable String tableName, 
+            @RequestParam(defaultValue = "*") String searchQuery, 
+            @RequestParam(defaultValue = "0") String startRecord,
+            @RequestParam(defaultValue = "5") String pageSize, 
+            @RequestParam(defaultValue = "id") String orderBy, @RequestParam(defaultValue = "asc") String order) {
+        logger.debug("REST call for records-search in the given table");
+
+        String nameofCurrMethod = new Throwable().getStackTrace()[0].getMethodName();
+		String timestamp = LoggerUtils.utcTime().toString();
+		LoggersDTO loggersDTO = LoggerUtils.getRequestLoggingInfo(servicename, username,nameofCurrMethod,timestamp);
+		LoggerUtils.printlogger(loggersDTO,true,false);
+		loggersDTO.setCorrelationid(loggersDTO.getCorrelationid());
+		loggersDTO.setIpaddress(loggersDTO.getIpaddress());
+				
+        tableName = tableName + "_" + clientId;
+        SearchResponseDTO solrSearchResponseDTO = solrSearchViaQuery.search(
+        		clientId, tableName, 
+        		searchQuery, 
+        		startRecord, pageSize, orderBy, order,loggersDTO);
+        
+        successMethod(nameofCurrMethod, loggersDTO);
+		
+        if (solrSearchResponseDTO.getStatusCode() == 200) {
+        	LoggerUtils.printlogger(loggersDTO,false,false);
+            return ResponseEntity.status(HttpStatus.OK).body(solrSearchResponseDTO);
+        } else {
+        	LoggerUtils.printlogger(loggersDTO,false,true);
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(solrSearchResponseDTO);
+        }
+    }
+    
+    
+    /*
     @GetMapping(value = "/{clientId}/{tableName}")
     public ResponseEntity<SolrSearchResponseDTO> searchRecords(
     		@PathVariable int clientId, 
@@ -91,5 +166,6 @@ public class SearchResource {
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(solrSearchResponseDTO);
         }
     }
+    */
     
 }

@@ -137,3 +137,12 @@ base-microservice-url: http://localhost:8081
 microservice-url:
   get-table: /api/v1/manage/table
 #================================================================
+
+
+#================================================================
+#base-urls
+base-url:
+  api-endpoint:
+    home: /search/api/v1
+    
+#================================================================

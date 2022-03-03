@@ -4,20 +4,20 @@ import java.util.List;
 
 import org.json.JSONArray;
 
-import com.searchservice.app.domain.dto.SolrSearchResponseDTO;
+import com.searchservice.app.domain.dto.SearchResponseDTO;
 
-public interface SolrSearchServicePort {
-	SolrSearchResponseDTO setUpSelectQueryUnfiltered(
+public interface SearchServicePort {
+	SearchResponseDTO setUpSelectQueryUnfiltered(
 			List<String> validSchemaColumns, 
 			String collection);
 
-	SolrSearchResponseDTO setUpSelectQueryBasicSearch(
+	SearchResponseDTO setUpSelectQueryBasicSearch(
 			List<String> validSchemaColumns, 
 			String collection, 
 			String queryField, 
 			String searchTerm);
 
-	SolrSearchResponseDTO setUpSelectQueryOrderedSearch(
+	SearchResponseDTO setUpSelectQueryOrderedSearch(
 			List<String> validSchemaColumns, 
 			String collection, 
 			String queryField, 
@@ -25,7 +25,7 @@ public interface SolrSearchServicePort {
 			String tag, 
 			String order);
 	
-	SolrSearchResponseDTO setUpSelectQuery(
+	SearchResponseDTO setUpSelectQuery(
 			List<String> validSchemaColumns, 
 			JSONArray currentTableSchema, 
 			String collection, 
@@ -37,11 +37,20 @@ public interface SolrSearchServicePort {
 			String tag, 
 			String order);
 	
-	SolrSearchResponseDTO setUpSelectQueryAdvancedSearch(
+	SearchResponseDTO setUpSelectQueryAdvancedSearch(
 			List<String> validSchemaColumns, 
 			String collection, 
 			String queryField, 
 			String searchTerm,
+			String startRecord, 
+			String pageSize, 
+			String tag, 
+			String order);
+	
+	SearchResponseDTO setUpSelectQuerySearchViaQuery(
+			List<String> validSchemaColumns, 
+			String collection, 
+			String searchQuery, 
 			String startRecord, 
 			String pageSize, 
 			String tag, 

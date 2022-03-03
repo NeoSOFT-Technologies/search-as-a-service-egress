@@ -4,26 +4,28 @@ import java.time.ZoneOffset;
 import java.time.ZonedDateTime;
 import java.util.List;
 
-import org.json.JSONArray;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import com.searchservice.app.domain.dto.SolrSearchResponseDTO;
+import com.searchservice.app.domain.dto.ResponseMessages;
+import com.searchservice.app.domain.dto.SearchResponseDTO;
 import com.searchservice.app.domain.dto.logger.LoggersDTO;
-import com.searchservice.app.domain.port.api.SolrSearchServicePort;
+import com.searchservice.app.domain.port.api.SearchServicePort;
 import com.searchservice.app.domain.utils.LoggerUtils;
+import com.searchservice.app.rest.errors.BadRequestOccurredException;
+import com.searchservice.app.rest.errors.NullPointerOccurredException;
 
 @Service
 @Transactional
-public class SolrSearchCustom {
-	private final Logger logger = LoggerFactory.getLogger(SolrSearchCustom.class);
+public class SearchViaQuery {
+	private final Logger logger = LoggerFactory.getLogger(SearchViaQuery.class);
 
 	ZonedDateTime utc = ZonedDateTime.now(ZoneOffset.UTC);
 
-	private String servicename = "Search_Multifield_Service";
+	private String servicename = "Search_Via_Query_Service";
 
 	private String username = "Username";
 
@@ -31,11 +33,11 @@ public class SolrSearchCustom {
 	@Autowired
 	TableService tableService;
 	
-	private SolrSearchServicePort solrSearchRecordsServicePort;
-	private SolrSearchResponseDTO searchResponseDTO;
+	private SearchServicePort solrSearchRecordsServicePort;
+	private SearchResponseDTO searchResponseDTO;
 
-	public SolrSearchCustom(SolrSearchServicePort solrSearchRecordsServicePort,
-			SolrSearchResponseDTO searchResponseDTO) {
+	public SearchViaQuery(SearchServicePort solrSearchRecordsServicePort,
+			SearchResponseDTO searchResponseDTO) {
 		this.solrSearchRecordsServicePort = solrSearchRecordsServicePort;
 		this.searchResponseDTO = searchResponseDTO;
 	}
@@ -49,44 +51,35 @@ public class SolrSearchCustom {
 		loggersDTO.setUsername(username);
 	}
 	
-	public SolrSearchResponseDTO search(int clientId, String tableName, String queryField, String queryFieldSearchTerm, String searchOperator,
+	public SearchResponseDTO search(
+			int clientId, String tableName, 
+			String searchQuery, 
 			String startRecord, String pageSize, String sortTag, String sortOrder, LoggersDTO loggersDTO) {
-		logger.debug("Multifield search for the given table");
+		logger.debug("Query search for the given table");
 
 		String nameofCurrMethod = new Throwable().getStackTrace()[0].getMethodName();
 		requestMethod(loggersDTO,nameofCurrMethod);
 		LoggerUtils.printlogger(loggersDTO,true,false);
 
 		// Get Current Table Schema (communicating with SAAS Microservice)
-		boolean isMicroserviceDown = false;
 		List<String> currentListOfColumnsOfTableSchema = tableService.getCurrentTableSchemaColumns(tableName.split("_")[0], clientId);
-		JSONArray currentTableSchema = tableService.getCurrentTableSchema(tableName.split("_")[0], clientId);
-
-		if(currentTableSchema.isEmpty())
-			isMicroserviceDown = true;
-		
-		// Search documents
-		searchResponseDTO = solrSearchRecordsServicePort.setUpSelectQuery(
+		searchResponseDTO = solrSearchRecordsServicePort.setUpSelectQuerySearchViaQuery(
 				currentListOfColumnsOfTableSchema, 
-				currentTableSchema, 
-				tableName, queryField,
-				queryFieldSearchTerm, 
-				searchOperator, 
+				tableName, 
+				searchQuery, 
 				startRecord, pageSize, sortTag, sortOrder);
-		if(isMicroserviceDown)
-			searchResponseDTO.setResponseMessage(
-					searchResponseDTO.getResponseMessage()
-					+". Microservice is down");
-		
 		loggersDTO.setTimestamp(LoggerUtils.utcTime().toString());
-		if(searchResponseDTO != null) {
+		if (searchResponseDTO == null) {
+			LoggerUtils.printlogger(loggersDTO, false, true);
+			throw new NullPointerOccurredException(404, ResponseMessages.NULL_RESPONSE_MESSAGE);
+		} else if (searchResponseDTO.getStatusCode() == 200) {
 			LoggerUtils.printlogger(loggersDTO, false, false);
 			return searchResponseDTO;
-		}
-		else {
-			LoggerUtils.printlogger(loggersDTO,false,true);
+		} else {
+			searchResponseDTO.setStatusCode(400);
+			LoggerUtils.printlogger(loggersDTO, false, true);
+			//throw new BadRequestOccurredException(400, ResponseMessages.BAD_REQUEST_MSG);
 			return searchResponseDTO;
 		}
-		
 	}
 }
