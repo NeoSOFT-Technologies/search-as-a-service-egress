@@ -20,11 +20,11 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import com.searchservice.app.domain.dto.SearchResponseDTO;
+import com.searchservice.app.domain.dto.SearchResponse;
 import com.searchservice.app.domain.port.api.SearchServicePort;
 import com.searchservice.app.domain.utils.SearchUtil;
-import com.searchservice.app.infrastructure.adaptor.SolrAPIAdapter;
-import com.searchservice.app.infrastructure.adaptor.SolrSearchResult;
+import com.searchservice.app.infrastructure.adaptor.SolrClientAdapter;
+import com.searchservice.app.infrastructure.adaptor.SearchResult;
 import com.searchservice.app.rest.errors.OperationNotAllowedException;
 
 
@@ -40,10 +40,10 @@ public class SearchService implements SearchServicePort {
 	private static final String SUCCESS_LOG = "Solr search operation is peformed successfully for given collection";
 	private static final String FAILURE_LOG = "An exception occured while performing Solr Search Operation! ";
 	
-	SolrSearchResult solrSearchResult = new SolrSearchResult();
-	SearchResponseDTO solrSearchResponseDTO = new SearchResponseDTO();
+	SearchResult solrSearchResult = new SearchResult();
+	SearchResponse solrSearchResponseDTO = new SearchResponse();
 	@Autowired
-	SolrAPIAdapter solrSchemaAPIAdapter = new SolrAPIAdapter();
+	SolrClientAdapter solrSchemaAPIAdapter = new SolrClientAdapter();
 	@Autowired
 	TableService tableService;
 	
@@ -52,15 +52,15 @@ public class SearchService implements SearchServicePort {
 	String solrUrl;
 	
 	public SearchService(
-			SolrSearchResult solrSearchResult, 
-			SearchResponseDTO solrSearchResponseDTO) {
+			SearchResult solrSearchResult, 
+			SearchResponse solrSearchResponseDTO) {
 		this.solrSearchResult = solrSearchResult;
 		this.solrSearchResponseDTO = solrSearchResponseDTO;
 	}
 
 	
 	@Override
-	public SearchResponseDTO setUpSelectQueryUnfiltered(
+	public SearchResponse setUpSelectQueryUnfiltered(
 											List<String> validSchemaColumns,
 											String collection) {
 		/* Egress API -- table records -- UNFILTERED SEARCH */
@@ -76,7 +76,7 @@ public class SearchService implements SearchServicePort {
 	
 	
 	@Override
-	public SearchResponseDTO setUpSelectQueryBasicSearch(
+	public SearchResponse setUpSelectQueryBasicSearch(
 														List<String> validSchemaColumns,
 														String collection, 
 														String queryField, 
@@ -94,7 +94,7 @@ public class SearchService implements SearchServicePort {
 
 	
 	@Override
-	public SearchResponseDTO setUpSelectQueryOrderedSearch(
+	public SearchResponse setUpSelectQueryOrderedSearch(
 												List<String> validSchemaColumns, 
 												String collection, 
 												String queryField, 
@@ -116,7 +116,7 @@ public class SearchService implements SearchServicePort {
 	
 	
 	@Override
-	public SearchResponseDTO setUpSelectQuery(
+	public SearchResponse setUpSelectQuery(
 												List<String> validSchemaColumns, 
 												JSONArray currentTableSchema, 
 												String collection, 
@@ -180,7 +180,7 @@ public class SearchService implements SearchServicePort {
 	
 	
 	@Override
-	public SearchResponseDTO setUpSelectQueryAdvancedSearch(
+	public SearchResponse setUpSelectQueryAdvancedSearch(
 												List<String> validSchemaColumns, 
 												String collection, 
 												String queryField, 
@@ -206,7 +206,7 @@ public class SearchService implements SearchServicePort {
 	
 
 	@Override
-	public SearchResponseDTO setUpSelectQuerySearchViaQuery(
+	public SearchResponse setUpSelectQuerySearchViaQuery(
 			List<String> validSchemaColumns,
 			String collection, 
 			String searchQuery, 
@@ -229,9 +229,9 @@ public class SearchService implements SearchServicePort {
 	
 	
 	// Auxiliary methods
-	public SearchResponseDTO processSearchQuery(SolrClient client, SolrQuery query, List<String> validSchemaColumns) {
+	public SearchResponse processSearchQuery(SolrClient client, SolrQuery query, List<String> validSchemaColumns) {
 		try {
-			solrSearchResult = new SolrSearchResult();
+			solrSearchResult = new SearchResult();
 			QueryResponse response = client.query(query);
 			
 			SolrDocumentList docs = response.getResults();

@@ -4,26 +4,28 @@ import java.time.ZoneOffset;
 import java.time.ZonedDateTime;
 import java.util.List;
 
-import org.json.JSONArray;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import com.searchservice.app.domain.dto.SearchResponseDTO;
-import com.searchservice.app.domain.dto.logger.LoggersDTO;
+import com.searchservice.app.domain.dto.ResponseMessages;
+import com.searchservice.app.domain.dto.SearchResponse;
+import com.searchservice.app.domain.dto.logger.Loggers;
 import com.searchservice.app.domain.port.api.SearchServicePort;
 import com.searchservice.app.domain.utils.LoggerUtils;
+import com.searchservice.app.rest.errors.BadRequestOccurredException;
+import com.searchservice.app.rest.errors.NullPointerOccurredException;
 
 @Service
 @Transactional
-public class SearchCustom {
-	private final Logger logger = LoggerFactory.getLogger(SearchCustom.class);
+public class SearchViaQueryField {
+	private final Logger logger = LoggerFactory.getLogger(SearchViaQueryField.class);
 
 	ZonedDateTime utc = ZonedDateTime.now(ZoneOffset.UTC);
 
-	private String servicename = "Search_Multifield_Service";
+	private String servicename = "Search_Advanced_Service";
 
 	private String username = "Username";
 
@@ -32,15 +34,15 @@ public class SearchCustom {
 	TableService tableService;
 	
 	private SearchServicePort solrSearchRecordsServicePort;
-	private SearchResponseDTO searchResponseDTO;
+	private SearchResponse searchResponseDTO;
 
-	public SearchCustom(SearchServicePort solrSearchRecordsServicePort,
-			SearchResponseDTO searchResponseDTO) {
+	public SearchViaQueryField(SearchServicePort solrSearchRecordsServicePort,
+			SearchResponse searchResponseDTO) {
 		this.solrSearchRecordsServicePort = solrSearchRecordsServicePort;
 		this.searchResponseDTO = searchResponseDTO;
 	}
 
-	private void requestMethod(LoggersDTO loggersDTO, String nameofCurrMethod) {
+	private void requestMethod(Loggers loggersDTO, String nameofCurrMethod) {
 
 		String timestamp = LoggerUtils.utcTime().toString();
 		loggersDTO.setNameofmethod(nameofCurrMethod);
@@ -49,43 +51,30 @@ public class SearchCustom {
 		loggersDTO.setUsername(username);
 	}
 	
-	public SearchResponseDTO search(int clientId, String tableName, String queryField, String queryFieldSearchTerm, String searchOperator,
-			String startRecord, String pageSize, String sortTag, String sortOrder, LoggersDTO loggersDTO) {
-		logger.debug("Multifield search for the given table");
+	public SearchResponse search(int clientId, String tableName, String queryField, String queryFieldSearchTerm,
+			String startRecord, String pageSize, String sortTag, String sortOrder, Loggers loggersDTO) {
+		logger.debug("Advanced search for the given table");
 
 		String nameofCurrMethod = new Throwable().getStackTrace()[0].getMethodName();
 		requestMethod(loggersDTO,nameofCurrMethod);
 		LoggerUtils.printlogger(loggersDTO,true,false);
 
 		// Get Current Table Schema (communicating with SAAS Microservice)
-		boolean isMicroserviceDown = false;
 		List<String> currentListOfColumnsOfTableSchema = tableService.getCurrentTableSchemaColumns(tableName.split("_")[0], clientId);
-		JSONArray currentTableSchema = tableService.getCurrentTableSchema(tableName.split("_")[0], clientId);
-
-		if(currentTableSchema.isEmpty())
-			isMicroserviceDown = true;
-		
-		// Search documents
-		searchResponseDTO = solrSearchRecordsServicePort.setUpSelectQuery(
+		searchResponseDTO = solrSearchRecordsServicePort.setUpSelectQueryAdvancedSearch(
 				currentListOfColumnsOfTableSchema, 
-				currentTableSchema, 
 				tableName, queryField,
-				queryFieldSearchTerm, 
-				searchOperator, 
-				startRecord, pageSize, sortTag, sortOrder);
-		if(isMicroserviceDown)
-			searchResponseDTO.setResponseMessage(
-					searchResponseDTO.getResponseMessage()
-					+". Microservice is down");
-		
+				queryFieldSearchTerm, startRecord, pageSize, sortTag, sortOrder);
 		loggersDTO.setTimestamp(LoggerUtils.utcTime().toString());
-		if(searchResponseDTO != null) {
+		if (searchResponseDTO == null)
+			throw new NullPointerOccurredException(404, ResponseMessages.NULL_RESPONSE_MESSAGE);
+		else if (searchResponseDTO.getStatusCode() == 200) {
 			LoggerUtils.printlogger(loggersDTO, false, false);
 			return searchResponseDTO;
-		}
-		else {
-			LoggerUtils.printlogger(loggersDTO,false,true);
-			return searchResponseDTO;
+		} else {
+			searchResponseDTO.setStatusCode(400);
+			LoggerUtils.printlogger(loggersDTO, false, true);
+			throw new BadRequestOccurredException(400, ResponseMessages.BAD_REQUEST_MSG);
 		}
 		
 	}

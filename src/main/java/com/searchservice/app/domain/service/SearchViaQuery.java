@@ -11,8 +11,8 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import com.searchservice.app.domain.dto.ResponseMessages;
-import com.searchservice.app.domain.dto.SearchResponseDTO;
-import com.searchservice.app.domain.dto.logger.LoggersDTO;
+import com.searchservice.app.domain.dto.SearchResponse;
+import com.searchservice.app.domain.dto.logger.Loggers;
 import com.searchservice.app.domain.port.api.SearchServicePort;
 import com.searchservice.app.domain.utils.LoggerUtils;
 import com.searchservice.app.rest.errors.BadRequestOccurredException;
@@ -34,15 +34,15 @@ public class SearchViaQuery {
 	TableService tableService;
 	
 	private SearchServicePort solrSearchRecordsServicePort;
-	private SearchResponseDTO searchResponseDTO;
+	private SearchResponse searchResponseDTO;
 
 	public SearchViaQuery(SearchServicePort solrSearchRecordsServicePort,
-			SearchResponseDTO searchResponseDTO) {
+			SearchResponse searchResponseDTO) {
 		this.solrSearchRecordsServicePort = solrSearchRecordsServicePort;
 		this.searchResponseDTO = searchResponseDTO;
 	}
 
-	private void requestMethod(LoggersDTO loggersDTO, String nameofCurrMethod) {
+	private void requestMethod(Loggers loggersDTO, String nameofCurrMethod) {
 
 		String timestamp = LoggerUtils.utcTime().toString();
 		loggersDTO.setNameofmethod(nameofCurrMethod);
@@ -51,10 +51,10 @@ public class SearchViaQuery {
 		loggersDTO.setUsername(username);
 	}
 	
-	public SearchResponseDTO search(
+	public SearchResponse search(
 			int clientId, String tableName, 
 			String searchQuery, 
-			String startRecord, String pageSize, String sortTag, String sortOrder, LoggersDTO loggersDTO) {
+			String startRecord, String pageSize, String sortTag, String sortOrder, Loggers loggersDTO) {
 		logger.debug("Query search for the given table");
 
 		String nameofCurrMethod = new Throwable().getStackTrace()[0].getMethodName();

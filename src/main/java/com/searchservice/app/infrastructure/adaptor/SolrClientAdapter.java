@@ -7,15 +7,15 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
 
-import com.searchservice.app.domain.dto.SolrAPIAdapterResponseDTO;
-import com.searchservice.app.domain.port.spi.SolrAPIAdapterPort;
-import com.searchservice.app.domain.utils.SolrAPIAdapterUtil;
+import com.searchservice.app.domain.dto.SolrClientAdapterResponse;
+import com.searchservice.app.domain.port.spi.SolrClientAdapterPort;
+import com.searchservice.app.domain.utils.SolrClientAdapterUtil;
 
 @SuppressWarnings("deprecation")
 @Service
-public class SolrAPIAdapter implements SolrAPIAdapterPort {
+public class SolrClientAdapter implements SolrClientAdapterPort {
 
-	private final Logger log = LoggerFactory.getLogger(SolrAPIAdapter.class);
+	private final Logger log = LoggerFactory.getLogger(SolrClientAdapter.class);
 
 	@Override
 	public SolrClient getSolrClient(String urlString, String tableName) {
@@ -41,13 +41,13 @@ public class SolrAPIAdapter implements SolrAPIAdapterPort {
 	}
 
 	@Override
-	public SolrAPIAdapterResponseDTO getSolrClientAdapter(String urlString, String tableName) {
+	public SolrClientAdapterResponse getSolrClientAdapter(String urlString, String tableName) {
 		log.debug("Getting Solr Client for collection/table: {}", tableName);
 		
-		SolrAPIAdapterResponseDTO responseDTO = new SolrAPIAdapterResponseDTO();
+		SolrClientAdapterResponse responseDTO = new SolrClientAdapterResponse();
 			SolrClient solrClient = new HttpSolrClient.Builder(urlString+"/"+tableName).build();
 			
-			boolean solrClientFound = SolrAPIAdapterUtil.isSolrClientFound(solrClient);
+			boolean solrClientFound = SolrClientAdapterUtil.isSolrClientFound(solrClient);
 			if(solrClientFound) {
 				responseDTO.setStatusCode(200);
 				responseDTO.setSolrClient(solrClient);

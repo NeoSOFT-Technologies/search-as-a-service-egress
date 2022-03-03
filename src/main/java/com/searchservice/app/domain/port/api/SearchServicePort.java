@@ -4,20 +4,20 @@ import java.util.List;
 
 import org.json.JSONArray;
 
-import com.searchservice.app.domain.dto.SearchResponseDTO;
+import com.searchservice.app.domain.dto.SearchResponse;
 
 public interface SearchServicePort {
-	SearchResponseDTO setUpSelectQueryUnfiltered(
+	SearchResponse setUpSelectQueryUnfiltered(
 			List<String> validSchemaColumns, 
 			String collection);
 
-	SearchResponseDTO setUpSelectQueryBasicSearch(
+	SearchResponse setUpSelectQueryBasicSearch(
 			List<String> validSchemaColumns, 
 			String collection, 
 			String queryField, 
 			String searchTerm);
 
-	SearchResponseDTO setUpSelectQueryOrderedSearch(
+	SearchResponse setUpSelectQueryOrderedSearch(
 			List<String> validSchemaColumns, 
 			String collection, 
 			String queryField, 
@@ -25,7 +25,7 @@ public interface SearchServicePort {
 			String tag, 
 			String order);
 	
-	SearchResponseDTO setUpSelectQuery(
+	SearchResponse setUpSelectQuery(
 			List<String> validSchemaColumns, 
 			JSONArray currentTableSchema, 
 			String collection, 
@@ -37,7 +37,7 @@ public interface SearchServicePort {
 			String tag, 
 			String order);
 	
-	SearchResponseDTO setUpSelectQueryAdvancedSearch(
+	SearchResponse setUpSelectQueryAdvancedSearch(
 			List<String> validSchemaColumns, 
 			String collection, 
 			String queryField, 
@@ -47,7 +47,7 @@ public interface SearchServicePort {
 			String tag, 
 			String order);
 	
-	SearchResponseDTO setUpSelectQuerySearchViaQuery(
+	SearchResponse setUpSelectQuerySearchViaQuery(
 			List<String> validSchemaColumns, 
 			String collection, 
 			String searchQuery, 

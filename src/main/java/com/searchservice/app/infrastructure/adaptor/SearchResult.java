@@ -13,7 +13,7 @@ import lombok.Data;
 @Data
 @Component
 @JsonInclude(JsonInclude.Include.NON_NULL)
-public class SolrSearchResult {
+public class SearchResult {
 	private Long numDocs;
 	private List<Map<String, Object>> data;
 

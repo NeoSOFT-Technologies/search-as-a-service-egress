@@ -14,16 +14,15 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
-import com.searchservice.app.domain.dto.SearchResponseDTO;
-import com.searchservice.app.domain.dto.logger.LoggersDTO;
-import com.searchservice.app.domain.service.SearchAdvanced;
+import com.searchservice.app.domain.dto.SearchResponse;
+import com.searchservice.app.domain.dto.logger.Loggers;
+import com.searchservice.app.domain.service.SearchViaQueryField;
 import com.searchservice.app.domain.service.SearchViaQuery;
 import com.searchservice.app.domain.utils.LoggerUtils;
-import com.searchservice.app.infrastructure.adaptor.SolrSearchResult;
+import com.searchservice.app.infrastructure.adaptor.SearchResult;
 
 @RestController
 @RequestMapping("${base-url.api-endpoint.home}")
-//@RequestMapping("/search/api/v1")
 public class SearchResource {
     /* Solr Search Records for given collection- Egress Service Resource */
     private final Logger logger = LoggerFactory.getLogger(SearchResource.class);
@@ -31,23 +30,22 @@ public class SearchResource {
     ZonedDateTime utc = ZonedDateTime.now(ZoneOffset.UTC);
     
     private String servicename = "Search_Resource";
-    
-    private String username = "Username";  
+    private String username = "Username";
 
-    private SearchAdvanced solrSearchAdvanced;
-    private SearchViaQuery solrSearchViaQuery;
+    private SearchViaQueryField searchViaQueryField;
+    private SearchViaQuery searchViaQuery;
 
     public SearchResource(
-            SearchAdvanced solrSearchAdvanced, 
-            SearchViaQuery solrSearchViaQuery) {
-        this.solrSearchAdvanced = solrSearchAdvanced;
-        this.solrSearchViaQuery = solrSearchViaQuery;
+            SearchViaQueryField searchViaQueryField, 
+            SearchViaQuery searchViaQuery) {
+        this.searchViaQueryField = searchViaQueryField;
+        this.searchViaQuery = searchViaQuery;
     }
 
     @Autowired
-    SolrSearchResult solrSearchResult;
+    SearchResult solrSearchResult;
 
-    private void successMethod(String nameofCurrMethod, LoggersDTO loggersDTO) {
+    private void successMethod(String nameofCurrMethod, Loggers loggersDTO) {
 		String timestamp;
 		loggersDTO.setServicename(servicename);
 		loggersDTO.setUsername(username);
@@ -58,7 +56,7 @@ public class SearchResource {
     
     
     @GetMapping(value = "/{clientId}/{tableName}")
-    public ResponseEntity<SearchResponseDTO> searchRecordsBasic(
+    public ResponseEntity<SearchResponse> searchRecordsBasic(
     		@PathVariable int clientId, 
     		@PathVariable String tableName, 
             @RequestParam(defaultValue = "*") String queryField, @RequestParam(defaultValue = "*") String searchTerm, 
@@ -69,13 +67,13 @@ public class SearchResource {
 
         String nameofCurrMethod = new Throwable().getStackTrace()[0].getMethodName();
 		String timestamp = LoggerUtils.utcTime().toString();
-		LoggersDTO loggersDTO = LoggerUtils.getRequestLoggingInfo(servicename, username,nameofCurrMethod,timestamp);
+		Loggers loggersDTO = LoggerUtils.getRequestLoggingInfo(servicename, username,nameofCurrMethod,timestamp);
 		LoggerUtils.printlogger(loggersDTO,true,false);
 		loggersDTO.setCorrelationid(loggersDTO.getCorrelationid());
 		loggersDTO.setIpaddress(loggersDTO.getIpaddress());
 				
         tableName = tableName + "_" + clientId;
-        SearchResponseDTO solrSearchResponseDTO = solrSearchAdvanced.search(
+        SearchResponse solrSearchResponseDTO = searchViaQueryField.search(
         		clientId, tableName, 
         		queryField, searchTerm, 
         		startRecord, pageSize, orderBy, order,loggersDTO);
@@ -93,7 +91,7 @@ public class SearchResource {
     
     
     @GetMapping(value = "/query/{clientId}/{tableName}")
-    public ResponseEntity<SearchResponseDTO> searchRecordsViaQuery(
+    public ResponseEntity<SearchResponse> searchRecordsViaQuery(
     		@PathVariable int clientId, 
     		@PathVariable String tableName, 
             @RequestParam(defaultValue = "*") String searchQuery, 
@@ -104,13 +102,13 @@ public class SearchResource {
 
         String nameofCurrMethod = new Throwable().getStackTrace()[0].getMethodName();
 		String timestamp = LoggerUtils.utcTime().toString();
-		LoggersDTO loggersDTO = LoggerUtils.getRequestLoggingInfo(servicename, username,nameofCurrMethod,timestamp);
+		Loggers loggersDTO = LoggerUtils.getRequestLoggingInfo(servicename, username,nameofCurrMethod,timestamp);
 		LoggerUtils.printlogger(loggersDTO,true,false);
 		loggersDTO.setCorrelationid(loggersDTO.getCorrelationid());
 		loggersDTO.setIpaddress(loggersDTO.getIpaddress());
 				
         tableName = tableName + "_" + clientId;
-        SearchResponseDTO solrSearchResponseDTO = solrSearchViaQuery.search(
+        SearchResponse solrSearchResponseDTO = searchViaQuery.search(
         		clientId, tableName, 
         		searchQuery, 
         		startRecord, pageSize, orderBy, order,loggersDTO);

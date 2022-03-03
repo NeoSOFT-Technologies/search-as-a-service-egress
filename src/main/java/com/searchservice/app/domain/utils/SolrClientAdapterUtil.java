@@ -3,9 +3,9 @@ package com.searchservice.app.domain.utils;
 import org.apache.solr.client.solrj.SolrClient;
 import org.apache.solr.client.solrj.SolrQuery;
 
-public class SolrAPIAdapterUtil {
+public class SolrClientAdapterUtil {
 	
-	private SolrAPIAdapterUtil() {}
+	private SolrClientAdapterUtil() {}
 	
 	public static boolean isSolrClientFound(SolrClient solrClient) {
 		try {
