@@ -135,8 +135,7 @@ public class SolrSearchService implements SolrSearchServicePort {
 
 		// Set up 'q'
 		List<String> queryFieldList = SearchUtil.getTrimmedListOfStrings(Arrays.asList(queryField));
-		List<String> searchTermList = SearchUtil.getTrimmedListOfStrings(Arrays.asList(searchTerm));
-		
+		List<String> searchTermList = SearchUtil.getTrimmedListOfStrings(Arrays.asList(searchTerm.split(",")));	
 		// VALIDATE queryField & searchTerm
 		boolean isSearchQueryInputsValidated = SearchUtil.validateSearchQueryInputs(
 				currentTableSchema, queryFieldList, searchTermList);
@@ -144,35 +143,21 @@ public class SolrSearchService implements SolrSearchServicePort {
 			throw new OperationNotAllowedException(
 					406, 
 					"Search query input validation unsuccessful. Please provide inputs in correct format");
-
+	
 		// Set up query
 		StringBuilder queryString = new StringBuilder();
 		if(!queryFieldList.isEmpty()) {
 			// Get Multivalue queryFields
 			Map<Integer, String> multivalueQueryFieldsMap = SearchUtil.getMultivaluedQueryFields(queryFieldList, currentTableSchema);
 			Map<Integer, List<String>> searchTermArrayValuesMap = SearchUtil.getMultivaluedSearchTerms(
-					queryFieldList, currentTableSchema, searchTermList);
-
-			for(int i=0; i<queryFieldList.size(); i++) {
-				String currentQueryField = queryFieldList.get(i);
-				
-				// if i>0:
-				if(i>0)
-					SearchUtil.setQueryForOtherThanFirstQueryField(
-							i, currentQueryField, searchTermList, multivalueQueryFieldsMap, searchTermArrayValuesMap, queryString, 
-							searchOperator);
-				else
-					SearchUtil.setQueryForFirstQueryField(
-							i, currentQueryField, searchTermList, multivalueQueryFieldsMap, searchTermArrayValuesMap, 
-							queryString);
-			}
-		}
-		
+					queryFieldList, currentTableSchema, searchTermList);			
+		}		
 		query.set("q", queryString.toString());
 		query.set("start", startRecord);
 		query.set("rows", pageSize);
 		SortClause sortClause = new SortClause(tag, order);
 		query.setSort(sortClause);
+	
 		solrSearchResponseDTO = processSearchQuery(client, query, validSchemaColumns);
 		
 		return solrSearchResponseDTO;

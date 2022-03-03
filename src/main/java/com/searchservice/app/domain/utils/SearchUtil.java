@@ -12,6 +12,7 @@ import org.json.JSONObject;
 
 import com.searchservice.app.rest.errors.OperationNotAllowedException;
 
+import ch.qos.logback.core.net.SyslogOutputStream;
 import lombok.Data;
 
 @Data
@@ -33,7 +34,7 @@ public class SearchUtil {
 					"Mismatch found in queryField and searchTerm counts. Please provide same number of values");
 		
 		boolean isSearchQueryValidated = false;
-		if(currentTableSchema.isEmpty()) {
+		if(currentTableSchema.isEmpty()) {			
 			/** Microservice is down
 			 * Multivalue fields validation can't be performed
 			 */

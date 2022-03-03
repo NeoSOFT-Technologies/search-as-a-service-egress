@@ -52,7 +52,6 @@ public class SolrSearchCustom {
 	public SolrSearchResponseDTO search(int clientId, String tableName, String queryField, String queryFieldSearchTerm, 
 			String startRecord, String pageSize, String sortTag, String sortOrder, LoggersDTO loggersDTO) {
 		logger.debug("Multifield search for the given table");
-
 		String nameofCurrMethod = new Throwable().getStackTrace()[0].getMethodName();
 		requestMethod(loggersDTO,nameofCurrMethod);
 		LoggerUtils.printlogger(loggersDTO,true,false);
