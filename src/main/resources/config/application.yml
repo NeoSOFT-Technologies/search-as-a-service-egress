@@ -140,3 +140,13 @@ base-microservice-url: http://localhost:8081
 microservice-url:
   get-table: /api/v1/manage/table
 #================================================================
+# Keycloak Server Configurations
+keycloak:
+  realm: demo_realm
+  credentials: 
+    secret: zf8GS1Lc2lCzIUULNIwyateNNFJrCxcj
+  resource: Ingress_Microservice
+  auth-server-url: http://localhost:8080/auth
+  ssl-required: external
+  public-client: false
+  use-resource-role-mappings: true

@@ -22,6 +22,9 @@ import com.searchservice.app.domain.utils.LoggerUtils;
 import com.searchservice.app.infrastructure.adaptor.SolrSearchResult;
 import com.searchservice.app.rest.errors.OperationNotAllowedException;
 
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.security.SecurityRequirement;
+
 @RestController
 @RequestMapping("/search/api/v1")
 public class SearchResource {
@@ -57,6 +60,7 @@ public class SearchResource {
     
     
     @GetMapping(value = "/{clientId}/{tableName}")
+    @Operation(summary = "GET RECORDS", security = @SecurityRequirement(name = "bearerAuth"))
     public ResponseEntity<SolrSearchResponseDTO> searchRecords(
     		@PathVariable int clientId, 
     		@PathVariable String tableName, 
