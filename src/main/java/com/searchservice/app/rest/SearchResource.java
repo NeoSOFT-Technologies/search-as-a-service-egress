@@ -25,7 +25,7 @@ import com.searchservice.app.rest.errors.OperationNotAllowedException;
 @RestController
 @RequestMapping("/search/api/v1")
 public class SearchResource {
-    /* Solr Search Records for given collection- Egress Service Resource */
+    /* Solr Search Records for given collection- Egress Service Resource ***/
     private final Logger logger = LoggerFactory.getLogger(SearchResource.class);
     
     ZonedDateTime utc = ZonedDateTime.now(ZoneOffset.UTC);
