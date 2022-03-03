@@ -6,10 +6,13 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 import org.json.JSONArray;
 import org.json.JSONObject;
 
+import com.searchservice.app.rest.errors.NullPointerOccurredException;
 import com.searchservice.app.rest.errors.OperationNotAllowedException;
 
 import lombok.Data;
@@ -20,26 +23,29 @@ public class SearchUtil {
 	private SearchUtil() {}
 	
 	
+	// VALIDATIONS
+	public static boolean checkIfNameIsAlphaNumeric(String name) {
+		if (null == name || name.isBlank() || name.isEmpty())
+			throw new NullPointerOccurredException(404, "Field can't be empty. Provide some value");
+		Pattern pattern = Pattern.compile("^[a-zA-Z][a-zA-Z0-9]*$");
+		Matcher matcher = pattern.matcher(name);
+		return matcher.find();
+	}
+	
+	
 	public static boolean validateSearchQueryInputs(
 			JSONArray currentTableSchema, 
-			List<String> queryFieldList, 
-			List<String> searchTermList) {
-		// Validate queryFields & searchTerms: multifield
-		// Expect same no. of <comma separated values> in queryField & searchTerm
-		boolean isSearchQueryCountValidated = (queryFieldList.size() == searchTermList.size());
-		if(!isSearchQueryCountValidated)
-			throw new OperationNotAllowedException(
-					406, 
-					"Mismatch found in queryField and searchTerm counts. Please provide same number of values");
+			String queryField, 
+			String searchTerm) {
+
+		boolean isSearchQueryValidated = false;	
+		boolean isQueryFieldMultivalued = false;
 		
-		boolean isSearchQueryValidated = false;
 		if(currentTableSchema.isEmpty()) {
 			/** Microservice is down
 			 * Multivalue fields validation can't be performed
 			 */
 			// If MultivalueFields could not be validated; microservice is down, then DO STANDARDIZED VALIDATION
-			// No Array values in search term
-			isSearchQueryValidated = searchTermList.stream().allMatch(SearchUtil::isNotArrayOfStrings);
 			// If Standardized validation unsuccessful, throw exception
 			if(!isSearchQueryValidated)
 				throw new OperationNotAllowedException(
@@ -49,41 +55,18 @@ public class SearchUtil {
 			
 		} else {
 			// Check if Multivalue queryField is present
-			Map<Integer, String> multiValuedQueryFieldsMap = SearchUtil.getMultivaluedQueryFields(queryFieldList, currentTableSchema);
-			// Validate queryFields & searchTerms: multi-value --> array of searchTerms
-			boolean isMultivalueSearchTermValidated = true;
-			boolean isNonMultivalueSearchTermValidated = true;
-			if(!multiValuedQueryFieldsMap.isEmpty()) {
-				// Validate for Multivalue fields having array of values
-				for(Integer idx: multiValuedQueryFieldsMap.keySet()) {
-					isMultivalueSearchTermValidated = SearchUtil.isArrayOfStrings(searchTermList.get(idx));
-					if(!isMultivalueSearchTermValidated)
-						break;
-				}
-				if(!isMultivalueSearchTermValidated)
+			isQueryFieldMultivalued = SearchUtil.isQueryFieldMultivalued(queryField, currentTableSchema);
+			// Validate queryFields & searchTerms: multi-value --> comma-separated searchTerms
+			List<String> multivaluedSearchTerms = SearchUtil.getTrimmedListOfStrings(Arrays.asList(searchTerm.split(",")));
+			if(isQueryFieldMultivalued) {
+				// Validate for Multivalue field having comma-separated search-terms
+				if (multivaluedSearchTerms.isEmpty())
 					throw new OperationNotAllowedException(
 							406, 
-							"Please provide \"array of values\" for all multivalue query-fields");	
-				// Validate for Non-multivalue fields having non-array of values in search terms
-				Set<Integer> multivalueFieldsIdxs = multiValuedQueryFieldsMap.keySet();
-				for(int i=0; i<searchTermList.size(); i++) {
-					if(!multivalueFieldsIdxs.contains(i)) {
-						isNonMultivalueSearchTermValidated = SearchUtil.isNotArrayOfStrings(searchTermList.get(i));
-						if(!isNonMultivalueSearchTermValidated)
-							break;
-					}
-				}
-				if(!isNonMultivalueSearchTermValidated)
-					throw new OperationNotAllowedException(
-							406, 
-							"Please provide \"single-valued search terms\" for all non-multivalue query-fields");
-				else
-					isSearchQueryValidated = true;
-					
+							"Please provide 'comma-separated values' for this multivalued query-field");						
 			} else {
-				// No Array values in search term
-				isSearchQueryValidated = searchTermList.stream().allMatch(SearchUtil::isNotArrayOfStrings);
-				// If Standardized validation unsuccessful, throw exception
+				// Handle single-valued search-term
+				// If validation unsuccessful, throw exception
 				if(!isSearchQueryValidated)
 					throw new OperationNotAllowedException(
 							406, 
@@ -95,6 +78,35 @@ public class SearchUtil {
 		return isSearchQueryValidated;
 	}
 	
+	
+	public static boolean isQueryFieldMultivalued(String queryField, JSONArray currentTableSchema) {
+		boolean isMultivalued = false;
+		for(Object col: currentTableSchema) {
+			JSONObject colObj = (JSONObject)col;
+			isMultivalued = colObj.get("name").equals(queryField) && colObj.get("multiValue").equals(true);
+			if(isMultivalued)
+				break;
+		}
+
+		return isMultivalued;
+	}
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	///////////////////////////////////////////////
 	
 	public static Map<Integer, String> getMultivaluedQueryFields(List<String> queryFields, JSONArray currentTableSchema) {
 		Map<Integer, String> multiValuedQueryFieldsMap = new HashMap<>();
@@ -209,5 +221,18 @@ public class SearchUtil {
 	public static boolean isAlphaNumeric(String charSequence) {
 	    String pattern= "^[a-zA-Z0-9]*$";
 	    return charSequence.matches(pattern);
+	}
+
+
+	public static void setQueryForMultivaluedField(
+			String queryField, List<String> searchTerms, StringBuilder queryString) {
+		int counter = 0;
+		for (String val : searchTerms) {
+			if (counter == 0)
+				queryString.append(queryField + ":" + val);
+			else
+				queryString.append(" AND " + queryField + ":" + val);
+			counter++;
+		}
 	}
 }

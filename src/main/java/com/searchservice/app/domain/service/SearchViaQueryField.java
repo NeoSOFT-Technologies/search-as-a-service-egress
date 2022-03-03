@@ -4,6 +4,7 @@ import java.time.ZoneOffset;
 import java.time.ZonedDateTime;
 import java.util.List;
 
+import org.json.JSONArray;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -60,12 +61,27 @@ public class SearchViaQueryField {
 		LoggerUtils.printlogger(loggersDTO,true,false);
 
 		// Get Current Table Schema (communicating with SAAS Microservice)
+		boolean isMicroserviceDown = false;
 		List<String> currentListOfColumnsOfTableSchema = tableService.getCurrentTableSchemaColumns(tableName.split("_")[0], clientId);
-		searchResponseDTO = solrSearchRecordsServicePort.setUpSelectQueryAdvancedSearch(
+		JSONArray currentTableSchema = tableService.getCurrentTableSchema(tableName.split("_")[0], clientId);
+
+		if(currentTableSchema.isEmpty())
+			isMicroserviceDown = true;
+		
+		// Search documents
+		searchResponseDTO = solrSearchRecordsServicePort.setUpSelectQuerySearchViaQueryField(
 				currentListOfColumnsOfTableSchema, 
-				tableName, queryField,
-				queryFieldSearchTerm, startRecord, pageSize, sortTag, sortOrder);
+				currentTableSchema, 
+				tableName, 
+				queryField,
+				queryFieldSearchTerm,				
+				startRecord, pageSize, sortTag, sortOrder);
+		if(isMicroserviceDown)
+			searchResponseDTO.setResponseMessage(
+					searchResponseDTO.getResponseMessage()
+					+". Microservice is down, so 'multiValue' query-field verification incomplete; will be treated as single-valued for now");
 		loggersDTO.setTimestamp(LoggerUtils.utcTime().toString());
+		
 		if (searchResponseDTO == null)
 			throw new NullPointerOccurredException(404, ResponseMessages.NULL_RESPONSE_MESSAGE);
 		else if (searchResponseDTO.getStatusCode() == 200) {

@@ -31,6 +31,9 @@ import com.searchservice.app.rest.errors.OperationNotAllowedException;
 @Service
 @Transactional
 public class SearchService implements SearchServicePort {
+	private static final String PAGE_SIZE = "rows";
+	private static final String SEARCH_QUERY = "q";
+	private static final String START_PAGE = "start";
 	/*
 	 * Solr Search Records for given collection- Egress Service
 	 */  
@@ -57,146 +60,52 @@ public class SearchService implements SearchServicePort {
 		this.solrSearchResult = solrSearchResult;
 		this.solrSearchResponseDTO = solrSearchResponseDTO;
 	}
-
-	
-	@Override
-	public SearchResponse setUpSelectQueryUnfiltered(
-											List<String> validSchemaColumns,
-											String collection) {
-		/* Egress API -- table records -- UNFILTERED SEARCH */
-		logger.debug("Performing UNFILTERED search for given collection");
-		
-		SolrClient client = solrSchemaAPIAdapter.getSolrClient(solrUrl, collection);
-		SolrQuery query = new SolrQuery();
-		query.set("q", "*:*");
-		solrSearchResponseDTO = processSearchQuery(client, query, validSchemaColumns);
-		
-		return solrSearchResponseDTO;
-	}
 	
 	
 	@Override
-	public SearchResponse setUpSelectQueryBasicSearch(
-														List<String> validSchemaColumns,
-														String collection, 
-														String queryField, 
-														String searchTerm) {
-		/* Egress API -- table records -- BASIC SEARCH (by QUERY FIELD) */
-		logger.debug("Performing BASIC search for given collection");
-
-		SolrClient client = solrSchemaAPIAdapter.getSolrClient(solrUrl, collection);
-		SolrQuery query = new SolrQuery();
-		query.set("q", queryField + ":" + searchTerm);
-		solrSearchResponseDTO = processSearchQuery(client, query, validSchemaColumns);
-		
-		return solrSearchResponseDTO;
-	}
-
-	
-	@Override
-	public SearchResponse setUpSelectQueryOrderedSearch(
-												List<String> validSchemaColumns, 
-												String collection, 
-												String queryField, 
-												String searchTerm, 
-												String tag, 
-												String order) {
-		/* Egress API -- table records -- ORDERED SEARCH */
-		logger.debug("Performing ORDERED search for given collection");
-
-		SolrClient client = solrSchemaAPIAdapter.getSolrClient(solrUrl, collection);
-		SolrQuery query = new SolrQuery();
-		query.set("q", queryField + ":" + searchTerm);
-		SortClause sortClause = new SortClause(tag, order);
-		query.setSort(sortClause);
-		solrSearchResponseDTO = processSearchQuery(client, query, validSchemaColumns);
-		
-		return solrSearchResponseDTO;
-	}
-	
-	
-	@Override
-	public SearchResponse setUpSelectQuery(
+	public SearchResponse setUpSelectQuerySearchViaQueryField(
 												List<String> validSchemaColumns, 
 												JSONArray currentTableSchema, 
-												String collection, 
-												String queryField, // expected comma separated column names
-												String searchTerm, // expected comma separated column values
-												String searchOperator, 
+												String tableName, 
+												String queryField, // expected single column name
+												String searchTerm, // expected search term for given column
 												String startRecord, 
 												String pageSize,
 												String tag, 
 												String order) {
-		/* Egress API -- table records -- Multiple-field SEARCH */
-		logger.debug("Performing records-search for given table");
+		/* Egress API -- table records -- SEARCH via query-field */
+		logger.debug("Performing records-search via query field & search term provided for given table");
 
-		SolrClient client = solrSchemaAPIAdapter.getSolrClient(solrUrl, collection);
+		SolrClient client = solrSchemaAPIAdapter.getSolrClient(solrUrl, tableName);
 		SolrQuery query = new SolrQuery();
-
-		// Set up 'q'
-		List<String> queryFieldList = SearchUtil.getTrimmedListOfStrings(Arrays.asList(queryField.split(",")));
-		List<String> searchTermList = SearchUtil.getTrimmedListOfStrings(Arrays.asList(searchTerm.split(",")));
 		
-		// VALIDATE queryField & searchTerm
-		boolean isSearchQueryInputsValidated = SearchUtil.validateSearchQueryInputs(
-				currentTableSchema, queryFieldList, searchTermList);
-		if(!isSearchQueryInputsValidated)
+		// VALIDATE queryField
+		boolean isQueryFieldValidated = SearchUtil.checkIfNameIsAlphaNumeric(queryField.trim());
+		if(!isQueryFieldValidated)
 			throw new OperationNotAllowedException(
 					406, 
-					"Search query input validation unsuccessful. Please provide inputs in correct format");
-
+					"Query-field validation unsuccessful. Query-field entry can only be in alphanumeric format");
+		// VALIDATE queryField & searchTerm
+		boolean isQueryFieldMultivalued = SearchUtil.isQueryFieldMultivalued(
+				queryField, 
+				currentTableSchema);
+		
 		// Set up query
 		StringBuilder queryString = new StringBuilder();
-		if(!queryFieldList.isEmpty()) {
-			// Get Multivalue queryFields
-			Map<Integer, String> multivalueQueryFieldsMap = SearchUtil.getMultivaluedQueryFields(queryFieldList, currentTableSchema);
-			Map<Integer, List<String>> searchTermArrayValuesMap = SearchUtil.getMultivaluedSearchTerms(
-					queryFieldList, currentTableSchema, searchTermList);
-
-			for(int i=0; i<queryFieldList.size(); i++) {
-				String currentQueryField = queryFieldList.get(i);
-				
-				// if i>0:
-				if(i>0)
-					SearchUtil.setQueryForOtherThanFirstQueryField(
-							i, currentQueryField, searchTermList, multivalueQueryFieldsMap, searchTermArrayValuesMap, queryString, 
-							searchOperator);
-				else
-					SearchUtil.setQueryForFirstQueryField(
-							i, currentQueryField, searchTermList, multivalueQueryFieldsMap, searchTermArrayValuesMap, 
-							queryString);
-			}
+		if(!isQueryFieldMultivalued) {
+			
+			// testing
+			logger.info("isNOTMultivaled");
+			
+			queryString.append(queryField + ":" + searchTerm);
+		} else {
+			List<String> searchTerms = SearchUtil.getTrimmedListOfStrings(Arrays.asList(searchTerm.split(",")));
+			SearchUtil.setQueryForMultivaluedField(queryField, searchTerms, queryString);
 		}
 		
-		query.set("q", queryString.toString());
-		query.set("start", startRecord);
-		query.set("rows", pageSize);
-		SortClause sortClause = new SortClause(tag, order);
-		query.setSort(sortClause);
-		solrSearchResponseDTO = processSearchQuery(client, query, validSchemaColumns);
-		
-		return solrSearchResponseDTO;
-	}
-	
-	
-	@Override
-	public SearchResponse setUpSelectQueryAdvancedSearch(
-												List<String> validSchemaColumns, 
-												String collection, 
-												String queryField, 
-												String searchTerm, 
-												String startRecord, 
-												String pageSize,
-												String tag, 
-												String order) {
-		/* Egress API -- table records -- ADVANCED SEARCH */
-		logger.debug("Performing ADVANCED search for given collection");
-
-		SolrClient client = solrSchemaAPIAdapter.getSolrClient(solrUrl, collection);
-		SolrQuery query = new SolrQuery();
-		query.set("q", queryField + ":" + searchTerm);
-		query.set("start", startRecord);
-		query.set("rows", pageSize);
+		query.set(SEARCH_QUERY, queryString.toString());
+		query.set(START_PAGE, startRecord);
+		query.set(PAGE_SIZE, pageSize);
 		SortClause sortClause = new SortClause(tag, order);
 		query.setSort(sortClause);
 		solrSearchResponseDTO = processSearchQuery(client, query, validSchemaColumns);
@@ -217,9 +126,9 @@ public class SearchService implements SearchServicePort {
 		SolrClient client = solrSchemaAPIAdapter.getSolrClient(solrUrl, collection);
 		
 		SolrQuery query = new SolrQuery();
-		query.set("q", searchQuery);
-		query.set("start", startRecord);
-		query.set("rows", pageSize);
+		query.set(SEARCH_QUERY, searchQuery);
+		query.set(START_PAGE, startRecord);
+		query.set(PAGE_SIZE, pageSize);
 		SortClause sortClause = new SortClause(tag, order);
 		query.setSort(sortClause);
 		solrSearchResponseDTO = processSearchQuery(client, query, validSchemaColumns);

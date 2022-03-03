@@ -15,7 +15,6 @@ import com.searchservice.app.domain.dto.SearchResponse;
 import com.searchservice.app.domain.dto.logger.Loggers;
 import com.searchservice.app.domain.port.api.SearchServicePort;
 import com.searchservice.app.domain.utils.LoggerUtils;
-import com.searchservice.app.rest.errors.BadRequestOccurredException;
 import com.searchservice.app.rest.errors.NullPointerOccurredException;
 
 @Service
