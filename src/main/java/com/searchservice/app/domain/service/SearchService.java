@@ -92,11 +92,7 @@ public class SearchService implements SearchServicePort {
 		
 		// Set up query
 		StringBuilder queryString = new StringBuilder();
-		if(!isQueryFieldMultivalued) {
-			
-			// testing
-			logger.info("isNOTMultivaled");
-			
+		if(!isQueryFieldMultivalued) {			
 			queryString.append(queryField + ":" + searchTerm);
 		} else {
 			List<String> searchTerms = SearchUtil.getTrimmedListOfStrings(Arrays.asList(searchTerm.split(",")));
@@ -117,13 +113,13 @@ public class SearchService implements SearchServicePort {
 	@Override
 	public SearchResponse setUpSelectQuerySearchViaQuery(
 			List<String> validSchemaColumns,
-			String collection, 
+			String tableName, 
 			String searchQuery, 
 			String startRecord, String pageSize, String tag, String order) {
 		/* Egress API -- table records -- SEARCH VIA QUERY */
 		logger.debug("Performing Search VIA QUERY for given collection");
 
-		SolrClient client = solrSchemaAPIAdapter.getSolrClient(solrUrl, collection);
+		SolrClient client = solrSchemaAPIAdapter.getSolrClient(solrUrl, tableName);
 		
 		SolrQuery query = new SolrQuery();
 		query.set(SEARCH_QUERY, searchQuery);
