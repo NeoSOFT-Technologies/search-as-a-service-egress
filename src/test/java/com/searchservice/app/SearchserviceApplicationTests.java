@@ -14,9 +14,9 @@ class SearchserviceApplicationTests {
 	@Autowired
 	SearchResource searchResource;
 	
-	@Test
-	void contextLoads() {
-		assertThat(searchResource).isNotNull();
-	}
+//	@Test
+//	void contextLoads() {
+//		assertThat(searchResource).isNotNull();
+//	}
 
 }
