@@ -17,14 +17,18 @@ import org.springframework.web.bind.annotation.RestController;
 import com.searchservice.app.domain.dto.SolrSearchResponseDTO;
 import com.searchservice.app.domain.dto.logger.LoggersDTO;
 import com.searchservice.app.domain.service.SolrSearchCustom;
+import com.searchservice.app.domain.service.SolrSearchService;
 import com.searchservice.app.domain.utils.LoggerUtils;
 import com.searchservice.app.infrastructure.adaptor.SolrSearchResult;
 import com.searchservice.app.rest.errors.OperationNotAllowedException;
 
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.security.SecurityRequirement;
+
 @RestController
 @RequestMapping("/search/api/v1")
 public class SearchResource {
-    /* Solr Search Records for given collection- Egress Service Resource */
+    /* Solr Search Records for given collection- Egress Service Resource ***/
     private final Logger logger = LoggerFactory.getLogger(SearchResource.class);
     
     ZonedDateTime utc = ZonedDateTime.now(ZoneOffset.UTC);
@@ -42,6 +46,8 @@ public class SearchResource {
 
     @Autowired
     SolrSearchResult solrSearchResult;
+    
+    @Autowired SolrSearchService solrSearchService;
 
     private void successMethod(String nameofCurrMethod, LoggersDTO loggersDTO) {
 		String timestamp;
@@ -54,6 +60,7 @@ public class SearchResource {
     
     
     @GetMapping(value = "/{clientId}/{tableName}")
+    @Operation(summary = "GET RECORDS", security = @SecurityRequirement(name = "bearerAuth"))
     public ResponseEntity<SolrSearchResponseDTO> searchRecords(
     		@PathVariable int clientId, 
     		@PathVariable String tableName, 
@@ -70,13 +77,7 @@ public class SearchResource {
 		LoggerUtils.printlogger(loggersDTO,true,false);
 		loggersDTO.setCorrelationid(loggersDTO.getCorrelationid());
 		loggersDTO.setIpaddress(loggersDTO.getIpaddress());
-		
-		// Parse searchOperator
-		searchOperator = searchOperator.toUpperCase().trim();
-		// Validate searchOperator
-		if(!searchOperator.equals("AND") && !searchOperator.equals("OR"))
-			throw new OperationNotAllowedException(406, "Only 'or/OR' & 'and/AND' search operators are acceptable. Please try again with one of those");
-		
+		solrSearchService.validateInputs(searchOperator, startRecord, pageSize, order);
         tableName = tableName + "_" + clientId;
         SolrSearchResponseDTO solrSearchResponseDTO = solrSearch.search(
         		clientId, tableName, queryField, searchTerm, searchOperator, startRecord, pageSize, orderBy, order,loggersDTO);

@@ -1,10 +1,13 @@
 package com.searchservice.app.domain.service;
 
 import java.io.IOException;
+import java.lang.reflect.InvocationTargetException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 import org.apache.solr.client.solrj.SolrClient;
 import org.apache.solr.client.solrj.SolrQuery;
@@ -231,7 +234,7 @@ public class SolrSearchService implements SolrSearchServicePort {
 			solrSearchResponseDTO.setResults(solrSearchResult);
 			logger.debug(SUCCESS_LOG);
 			return solrSearchResponseDTO;
-		} catch (SolrServerException | IOException | NullPointerException e) {
+		} catch (Exception e) {
 			solrSearchResponseDTO.setStatusCode(400);
 			solrSearchResponseDTO.setResponseMessage(FAILURE_MSG);
 			logger.error(FAILURE_LOG, e);
@@ -239,4 +242,25 @@ public class SolrSearchService implements SolrSearchServicePort {
 		return solrSearchResponseDTO;
 	}
 	
+	public boolean validateInputs(String searchOperator, String startRecord, String pageSize, String order) {
+		boolean testResult = true;
+		String searchOperatorRegex = "^(AND|OR)$";
+		String startRecordRegex = "^[0-9]{0,5}+$";
+		//String pageSizeRegex = "^[0-9]{5}+$";
+		String orderRegex = "^(ASC|DESC)$";
+		if(!validateUsingRegex(searchOperatorRegex, searchOperator.trim().toUpperCase()))
+			throw new OperationNotAllowedException(406, "Search Operator value must be : 'or' OR 'and'");
+		if(!validateUsingRegex(startRecordRegex, startRecord.trim().toUpperCase()))
+			throw new OperationNotAllowedException(406, "Start Record must be of type Integer, Range : 0-99999");
+		if(!validateUsingRegex(startRecordRegex, pageSize.trim().toUpperCase()))
+			throw new OperationNotAllowedException(406, "Page Size must be of type Integer, Range : 0-99999");
+		if(!validateUsingRegex(orderRegex, order.trim().toUpperCase()))
+			throw new OperationNotAllowedException(406, "Order value must be : 'asc' OR 'desc");
+		return testResult;
+	}
+	public static boolean validateUsingRegex(String regex, String value) {
+		Pattern pattern = Pattern.compile(regex);
+		Matcher matcher = pattern.matcher(value);
+		return matcher.find();
+	}
 }
