@@ -80,7 +80,7 @@ public class SearchService implements SearchServicePort {
 		SolrQuery query = new SolrQuery();
 		
 		// VALIDATE queryField
-		boolean isQueryFieldValidated = SearchUtil.checkIfNameIsAlphaNumeric(queryField.trim());
+		boolean isQueryFieldValidated = SearchUtil.checkIfNameIsAlphaNumeric(queryField.trim()) || queryField.trim().equals("*");
 		if(!isQueryFieldValidated)
 			throw new OperationNotAllowedException(
 					406, 
