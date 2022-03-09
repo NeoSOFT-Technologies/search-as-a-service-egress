@@ -19,12 +19,16 @@ import com.searchservice.app.domain.dto.logger.Loggers;
 import com.searchservice.app.domain.service.SearchViaQueryField;
 import com.searchservice.app.domain.service.SearchViaQuery;
 import com.searchservice.app.domain.utils.LoggerUtils;
+import com.searchservice.app.domain.utils.SearchUtil;
 import com.searchservice.app.infrastructure.adaptor.SearchResult;
+
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 
 @RestController
 @RequestMapping("${base-url.api-endpoint.home}")
 public class SearchResource {
-    /* Solr Search Records for given collection- Egress Service Resource */
+    /* Solr Search Records for given collection- Egress Service Resource ***/
     private final Logger logger = LoggerFactory.getLogger(SearchResource.class);
     
     ZonedDateTime utc = ZonedDateTime.now(ZoneOffset.UTC);
@@ -56,6 +60,7 @@ public class SearchResource {
     
     
     @GetMapping(value = "/{clientId}/{tableName}")
+    @Operation(summary = "GET RECORDS", security = @SecurityRequirement(name = "bearerAuth"))
     public ResponseEntity<SearchResponse> searchRecordsViaQueryField(
     		@PathVariable int clientId, 
     		@PathVariable String tableName, 
@@ -71,7 +76,10 @@ public class SearchResource {
 		LoggerUtils.printlogger(loggersDTO,true,false);
 		loggersDTO.setCorrelationid(loggersDTO.getCorrelationid());
 		loggersDTO.setIpaddress(loggersDTO.getIpaddress());
-				
+
+		// Validate inputs
+		SearchUtil.validateInputs(startRecord, pageSize, order);
+
         tableName = tableName + "_" + clientId;
         SearchResponse searchResponseDTO = searchViaQueryField.search(
         		clientId, tableName, 
@@ -107,6 +115,9 @@ public class SearchResource {
 		loggersDTO.setCorrelationid(loggersDTO.getCorrelationid());
 		loggersDTO.setIpaddress(loggersDTO.getIpaddress());
 				
+		// Validate inputs
+		SearchUtil.validateInputs(startRecord, pageSize, order);
+		
         tableName = tableName + "_" + clientId;
         SearchResponse searchResponseDTO = searchViaQuery.search(
         		clientId, tableName, 

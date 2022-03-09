@@ -9,6 +9,7 @@ import org.json.JSONArray;
 import org.json.JSONObject;
 
 import com.searchservice.app.rest.errors.NullPointerOccurredException;
+import com.searchservice.app.rest.errors.OperationNotAllowedException;
 
 import lombok.Data;
 
@@ -44,6 +45,28 @@ public class SearchUtil {
 		}
 
 		return isMultivalued;
+	}
+	
+	
+	public static boolean validateInputs(String startRecord, String pageSize, String order) {
+		boolean testResult = true;
+		String startRecordRegex = "^[0-9]{0,5}+$";
+		//String pageSizeRegex = "^[0-9]{5}+$";
+		String orderRegex = "^(ASC|DESC)$";
+		if(!validateUsingRegex(startRecordRegex, startRecord.trim().toUpperCase()))
+			throw new OperationNotAllowedException(406, "Start Record must be of type Integer, Range : 0-99999");
+		if(!validateUsingRegex(startRecordRegex, pageSize.trim().toUpperCase()))
+			throw new OperationNotAllowedException(406, "Page Size must be of type Integer, Range : 0-99999");
+		if(!validateUsingRegex(orderRegex, order.trim().toUpperCase()))
+			throw new OperationNotAllowedException(406, "Order value must be : 'asc' OR 'desc");
+		return testResult;
+	}
+	
+	
+	public static boolean validateUsingRegex(String regex, String value) {
+		Pattern pattern = Pattern.compile(regex);
+		Matcher matcher = pattern.matcher(value);
+		return matcher.find();
 	}
 	
 	
