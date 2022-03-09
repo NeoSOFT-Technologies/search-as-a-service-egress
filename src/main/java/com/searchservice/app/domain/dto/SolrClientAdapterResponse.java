@@ -11,7 +11,7 @@ import lombok.NoArgsConstructor;
 @Data
 @NoArgsConstructor
 @EqualsAndHashCode
-public class SolrAPIAdapterResponseDTO {
+public class SolrClientAdapterResponse {
 	private int statusCode;
 	private String responseMessage;
 	private SolrClient solrClient;

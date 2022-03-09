@@ -11,21 +11,20 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import com.searchservice.app.domain.dto.ResponseMessages;
-import com.searchservice.app.domain.dto.SolrSearchResponseDTO;
-import com.searchservice.app.domain.dto.logger.LoggersDTO;
-import com.searchservice.app.domain.port.api.SolrSearchServicePort;
+import com.searchservice.app.domain.dto.SearchResponse;
+import com.searchservice.app.domain.dto.logger.Loggers;
+import com.searchservice.app.domain.port.api.SearchServicePort;
 import com.searchservice.app.domain.utils.LoggerUtils;
-import com.searchservice.app.rest.errors.BadRequestOccurredException;
 import com.searchservice.app.rest.errors.NullPointerOccurredException;
 
 @Service
 @Transactional
-public class SolrSearchAdvanced {
-	private final Logger logger = LoggerFactory.getLogger(SolrSearchAdvanced.class);
+public class SearchViaQuery {
+	private final Logger logger = LoggerFactory.getLogger(SearchViaQuery.class);
 
 	ZonedDateTime utc = ZonedDateTime.now(ZoneOffset.UTC);
 
-	private String servicename = "Search_Advanced_Service";
+	private String servicename = "Search_Via_Query_Service";
 
 	private String username = "Username";
 
@@ -33,16 +32,16 @@ public class SolrSearchAdvanced {
 	@Autowired
 	TableService tableService;
 	
-	private SolrSearchServicePort solrSearchRecordsServicePort;
-	private SolrSearchResponseDTO searchResponseDTO;
+	private SearchServicePort solrSearchRecordsServicePort;
+	private SearchResponse searchResponseDTO;
 
-	public SolrSearchAdvanced(SolrSearchServicePort solrSearchRecordsServicePort,
-			SolrSearchResponseDTO searchResponseDTO) {
+	public SearchViaQuery(SearchServicePort solrSearchRecordsServicePort,
+			SearchResponse searchResponseDTO) {
 		this.solrSearchRecordsServicePort = solrSearchRecordsServicePort;
 		this.searchResponseDTO = searchResponseDTO;
 	}
 
-	private void requestMethod(LoggersDTO loggersDTO, String nameofCurrMethod) {
+	private void requestMethod(Loggers loggersDTO, String nameofCurrMethod) {
 
 		String timestamp = LoggerUtils.utcTime().toString();
 		loggersDTO.setNameofmethod(nameofCurrMethod);
@@ -51,9 +50,11 @@ public class SolrSearchAdvanced {
 		loggersDTO.setUsername(username);
 	}
 	
-	public SolrSearchResponseDTO search(int clientId, String tableName, String queryField, String queryFieldSearchTerm,
-			String startRecord, String pageSize, String sortTag, String sortOrder, LoggersDTO loggersDTO) {
-		logger.debug("Advanced search for the given table");
+	public SearchResponse search(
+			int clientId, String tableName, 
+			String searchQuery, 
+			String startRecord, String pageSize, String sortTag, String sortOrder, Loggers loggersDTO) {
+		logger.debug("Query search for the given table");
 
 		String nameofCurrMethod = new Throwable().getStackTrace()[0].getMethodName();
 		requestMethod(loggersDTO,nameofCurrMethod);
@@ -61,21 +62,23 @@ public class SolrSearchAdvanced {
 
 		// Get Current Table Schema (communicating with SAAS Microservice)
 		List<String> currentListOfColumnsOfTableSchema = tableService.getCurrentTableSchemaColumns(tableName.split("_")[0], clientId);
-		searchResponseDTO = solrSearchRecordsServicePort.setUpSelectQueryAdvancedSearch(
+		searchResponseDTO = solrSearchRecordsServicePort.setUpSelectQuerySearchViaQuery(
 				currentListOfColumnsOfTableSchema, 
-				tableName, queryField,
-				queryFieldSearchTerm, startRecord, pageSize, sortTag, sortOrder);
+				tableName, 
+				searchQuery, 
+				startRecord, pageSize, sortTag, sortOrder);
 		loggersDTO.setTimestamp(LoggerUtils.utcTime().toString());
-		if (searchResponseDTO == null)
+		if (searchResponseDTO == null) {
+			LoggerUtils.printlogger(loggersDTO, false, true);
 			throw new NullPointerOccurredException(404, ResponseMessages.NULL_RESPONSE_MESSAGE);
-		else if (searchResponseDTO.getStatusCode() == 200) {
+		} else if (searchResponseDTO.getStatusCode() == 200) {
 			LoggerUtils.printlogger(loggersDTO, false, false);
 			return searchResponseDTO;
 		} else {
 			searchResponseDTO.setStatusCode(400);
 			LoggerUtils.printlogger(loggersDTO, false, true);
-			throw new BadRequestOccurredException(400, ResponseMessages.BAD_REQUEST_MSG);
+			//throw new BadRequestOccurredException(400, ResponseMessages.BAD_REQUEST_MSG);
+			return searchResponseDTO;
 		}
-		
 	}
 }

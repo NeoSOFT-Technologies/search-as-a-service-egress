@@ -14,19 +14,19 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
-import com.searchservice.app.domain.dto.SolrSearchResponseDTO;
-import com.searchservice.app.domain.dto.logger.LoggersDTO;
-import com.searchservice.app.domain.service.SolrSearchCustom;
-import com.searchservice.app.domain.service.SolrSearchService;
+import com.searchservice.app.domain.dto.SearchResponse;
+import com.searchservice.app.domain.dto.logger.Loggers;
+import com.searchservice.app.domain.service.SearchViaQueryField;
+import com.searchservice.app.domain.service.SearchViaQuery;
 import com.searchservice.app.domain.utils.LoggerUtils;
-import com.searchservice.app.infrastructure.adaptor.SolrSearchResult;
-import com.searchservice.app.rest.errors.OperationNotAllowedException;
+import com.searchservice.app.domain.utils.SearchUtil;
+import com.searchservice.app.infrastructure.adaptor.SearchResult;
 
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 
 @RestController
-@RequestMapping("/search/api/v1")
+@RequestMapping("${base-url.api-endpoint.home}")
 public class SearchResource {
     /* Solr Search Records for given collection- Egress Service Resource ***/
     private final Logger logger = LoggerFactory.getLogger(SearchResource.class);
@@ -34,22 +34,22 @@ public class SearchResource {
     ZonedDateTime utc = ZonedDateTime.now(ZoneOffset.UTC);
     
     private String servicename = "Search_Resource";
-    
-    private String username = "Username";  
+    private String username = "Username";
 
-    private SolrSearchCustom solrSearch;
+    private SearchViaQueryField searchViaQueryField;
+    private SearchViaQuery searchViaQuery;
 
     public SearchResource(
-            SolrSearchCustom solrSearch) {
-        this.solrSearch = solrSearch;
+            SearchViaQueryField searchViaQueryField, 
+            SearchViaQuery searchViaQuery) {
+        this.searchViaQueryField = searchViaQueryField;
+        this.searchViaQuery = searchViaQuery;
     }
 
     @Autowired
-    SolrSearchResult solrSearchResult;
-    
-    @Autowired SolrSearchService solrSearchService;
+    SearchResult searchResult;
 
-    private void successMethod(String nameofCurrMethod, LoggersDTO loggersDTO) {
+    private void successMethod(String nameofCurrMethod, Loggers loggersDTO) {
 		String timestamp;
 		loggersDTO.setServicename(servicename);
 		loggersDTO.setUsername(username);
@@ -61,35 +61,77 @@ public class SearchResource {
     
     @GetMapping(value = "/{clientId}/{tableName}")
     @Operation(summary = "GET RECORDS", security = @SecurityRequirement(name = "bearerAuth"))
-    public ResponseEntity<SolrSearchResponseDTO> searchRecords(
+    public ResponseEntity<SearchResponse> searchRecordsViaQueryField(
     		@PathVariable int clientId, 
     		@PathVariable String tableName, 
             @RequestParam(defaultValue = "*") String queryField, @RequestParam(defaultValue = "*") String searchTerm, 
-            @RequestParam(defaultValue = "AND") String searchOperator, 
             @RequestParam(defaultValue = "0") String startRecord,
             @RequestParam(defaultValue = "5") String pageSize, 
             @RequestParam(defaultValue = "id") String orderBy, @RequestParam(defaultValue = "asc") String order) {
-        logger.debug("REST call for records-search in the given collection");
+        logger.debug("REST call for records-search in the given table");
 
         String nameofCurrMethod = new Throwable().getStackTrace()[0].getMethodName();
 		String timestamp = LoggerUtils.utcTime().toString();
-		LoggersDTO loggersDTO = LoggerUtils.getRequestLoggingInfo(servicename, username,nameofCurrMethod,timestamp);
+		Loggers loggersDTO = LoggerUtils.getRequestLoggingInfo(servicename, username,nameofCurrMethod,timestamp);
 		LoggerUtils.printlogger(loggersDTO,true,false);
 		loggersDTO.setCorrelationid(loggersDTO.getCorrelationid());
 		loggersDTO.setIpaddress(loggersDTO.getIpaddress());
-		solrSearchService.validateInputs(searchOperator, startRecord, pageSize, order);
+
+		// Validate inputs
+		SearchUtil.validateInputs(startRecord, pageSize, order);
+
         tableName = tableName + "_" + clientId;
-        SolrSearchResponseDTO solrSearchResponseDTO = solrSearch.search(
-        		clientId, tableName, queryField, searchTerm, searchOperator, startRecord, pageSize, orderBy, order,loggersDTO);
+        SearchResponse searchResponseDTO = searchViaQueryField.search(
+        		clientId, tableName, 
+        		queryField, searchTerm, 
+        		startRecord, pageSize, orderBy, order,loggersDTO);
 
         successMethod(nameofCurrMethod, loggersDTO);
 		
-        if (solrSearchResponseDTO.getStatusCode() == 200) {
+        if (searchResponseDTO.getStatusCode() == 200) {
         	LoggerUtils.printlogger(loggersDTO,false,false);
-            return ResponseEntity.status(HttpStatus.OK).body(solrSearchResponseDTO);
+            return ResponseEntity.status(HttpStatus.OK).body(searchResponseDTO);
         } else {
         	LoggerUtils.printlogger(loggersDTO,false,true);
-            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(solrSearchResponseDTO);
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(searchResponseDTO);
+        }
+    }
+    
+    
+    @GetMapping(value = "/query/{clientId}/{tableName}")
+    public ResponseEntity<SearchResponse> searchRecordsViaQuery(
+    		@PathVariable int clientId, 
+    		@PathVariable String tableName, 
+            @RequestParam(defaultValue = "*") String searchQuery, 
+            @RequestParam(defaultValue = "0") String startRecord,
+            @RequestParam(defaultValue = "5") String pageSize, 
+            @RequestParam(defaultValue = "id") String orderBy, @RequestParam(defaultValue = "asc") String order) {
+        logger.debug("REST call for records-search in the given table");
+
+        String nameofCurrMethod = new Throwable().getStackTrace()[0].getMethodName();
+		String timestamp = LoggerUtils.utcTime().toString();
+		Loggers loggersDTO = LoggerUtils.getRequestLoggingInfo(servicename, username,nameofCurrMethod,timestamp);
+		LoggerUtils.printlogger(loggersDTO,true,false);
+		loggersDTO.setCorrelationid(loggersDTO.getCorrelationid());
+		loggersDTO.setIpaddress(loggersDTO.getIpaddress());
+				
+		// Validate inputs
+		SearchUtil.validateInputs(startRecord, pageSize, order);
+		
+        tableName = tableName + "_" + clientId;
+        SearchResponse searchResponseDTO = searchViaQuery.search(
+        		clientId, tableName, 
+        		searchQuery, 
+        		startRecord, pageSize, orderBy, order,loggersDTO);
+        
+        successMethod(nameofCurrMethod, loggersDTO);
+		
+        if (searchResponseDTO.getStatusCode() == 200) {
+        	LoggerUtils.printlogger(loggersDTO,false,false);
+            return ResponseEntity.status(HttpStatus.OK).body(searchResponseDTO);
+        } else {
+        	LoggerUtils.printlogger(loggersDTO,false,true);
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(searchResponseDTO);
         }
     }
     

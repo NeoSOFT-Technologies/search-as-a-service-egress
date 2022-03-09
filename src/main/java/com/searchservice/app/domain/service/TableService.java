@@ -17,7 +17,7 @@ import org.springframework.transaction.annotation.Transactional;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.searchservice.app.domain.utils.GetCurrentSchemaUtil;
 import com.searchservice.app.domain.utils.SolrDocumentUtil;
-import com.searchservice.app.infrastructure.adaptor.SolrAPIAdapter;
+import com.searchservice.app.infrastructure.adaptor.SolrClientAdapter;
 
 @Service
 @Transactional
@@ -31,7 +31,7 @@ public class TableService {
 	private String getTableUrl;
 	
 	@Autowired
-	SolrAPIAdapter solrAPIAdapter = new SolrAPIAdapter();
+	SolrClientAdapter solrAPIAdapter = new SolrClientAdapter();
 
 	
 	public List<String> getCurrentTableSchemaColumns(String tableName, int clientId) {

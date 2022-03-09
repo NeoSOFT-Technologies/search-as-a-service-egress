@@ -140,6 +140,17 @@ base-microservice-url: http://localhost:8081
 microservice-url:
   get-table: /api/v1/manage/table
 #================================================================
+<<<<<<< HEAD
+
+
+#================================================================
+#base-urls
+base-url:
+  api-endpoint:
+    home: /search/api/v1
+    
+#================================================================
+=======
 # Keycloak Server Configurations
 keycloak:
   realm: demo_realm
@@ -150,3 +161,4 @@ keycloak:
   ssl-required: external
   public-client: false
   use-resource-role-mappings: true
+>>>>>>> origin/main

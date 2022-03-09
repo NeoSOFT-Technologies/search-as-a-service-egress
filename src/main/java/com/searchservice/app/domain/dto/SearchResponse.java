@@ -2,7 +2,8 @@ package com.searchservice.app.domain.dto;
 
 import org.springframework.stereotype.Component;
 
-import com.searchservice.app.infrastructure.adaptor.SolrSearchResult;
+import com.fasterxml.jackson.annotation.JsonInclude;
+import com.searchservice.app.infrastructure.adaptor.SearchResult;
 
 import lombok.Data;
 import lombok.NoArgsConstructor;
@@ -10,12 +11,13 @@ import lombok.NoArgsConstructor;
 @Data
 @NoArgsConstructor
 @Component
-public class SolrSearchResponseDTO {
+@JsonInclude(JsonInclude.Include.NON_NULL)
+public class SearchResponse {
 	private int statusCode;
 	private String responseMessage;
-	private SolrSearchResult results;
+	private SearchResult results;
 	
-	public SolrSearchResponseDTO(String responseMessage, SolrSearchResult solrSearchResultResponse) {
+	public SearchResponse(String responseMessage, SearchResult solrSearchResultResponse) {
 		this.responseMessage = responseMessage;
 		this.results = solrSearchResultResponse;
 	}

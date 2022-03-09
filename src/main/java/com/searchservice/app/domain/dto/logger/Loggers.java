@@ -7,7 +7,7 @@ import lombok.NoArgsConstructor;
 @Data
 @AllArgsConstructor
 @NoArgsConstructor
-public class LoggersDTO {
+public class Loggers {
 	private String servicename;
 	private String username;
 	private String correlationid;
