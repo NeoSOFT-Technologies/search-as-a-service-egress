@@ -3,7 +3,7 @@ spring:
   application:
     name: basicSample
     data:
-    solr:
+    search:
       host: http://${SOLR_CONTAINER_NAME:localhost}:8983/solr/
       repositories:
         enabled: false
@@ -49,8 +49,8 @@ springdoc:
 
 
 #================================================================
-#Solr Configurations
-base-solr-url: http://${SOLR_CONTAINER_NAME:localhost}:8983/solr
+#Search Configurations
+base-search-url: http://${SOLR_CONTAINER_NAME:localhost}:8983/solr
 #================================================================
 
 
@@ -96,7 +96,7 @@ base-app-url: http://localhost:8082
 throttler-test-app-url: http://localhost:8082
 resilience4j.ratelimiter:
   instances:
-    solrDataInjectionRateLimitThrottler:
+    searchDataInjectionRateLimitThrottler:
       limitForPeriod: 3
       limitRefreshPeriod: 4s
       timeoutDuration: 1s
@@ -112,8 +112,8 @@ resilience4j:
   maxRequestSize:
     maxAllowedRequestSize: 10kB
 throttle-service:
-  solr:
-    data-injection: solrDataInjectionRateLimitThrottler
+  search:
+    data-injection: searchDataInjectionRateLimitThrottler
   test: defaultRateLimitThrottler
 #================================================================
 
@@ -121,7 +121,7 @@ throttle-service:
 # ConfigSet Configurations
 base-configset: _default
 
-# Solr authentication(basicAuth) credentials
+# search authentication(basicAuth) credentials
 basic-auth:
   username: solr
   password: SolrRocks
@@ -140,7 +140,7 @@ base-microservice-url: http://localhost:8081
 microservice-url:
   get-table: /api/v1/manage/table
 #================================================================
-<<<<<<< HEAD
+
 
 
 #================================================================
@@ -150,7 +150,7 @@ base-url:
     home: /search/api/v1
     
 #================================================================
-=======
+
 # Keycloak Server Configurations
 keycloak:
   realm: demo_realm
@@ -161,4 +161,4 @@ keycloak:
   ssl-required: external
   public-client: false
   use-resource-role-mappings: true
->>>>>>> origin/main
+

@@ -3,15 +3,15 @@ package com.searchservice.app.domain.utils;
 import org.apache.solr.client.solrj.SolrClient;
 import org.apache.solr.client.solrj.SolrQuery;
 
-public class SolrClientAdapterUtil {
+public class SearchClientAdapterUtil {
 	
-	private SolrClientAdapterUtil() {}
+	private SearchClientAdapterUtil() {}
 	
-	public static boolean isSolrClientFound(SolrClient solrClient) {
+	public static boolean isSearchClientFound(SolrClient searchClient) {
 		try {
 			SolrQuery query = new SolrQuery();
 			query.set("q", "*:*");
-			solrClient.query(query);
+			searchClient.query(query);
 		} catch(Exception e) {
 			return false;
 		}

@@ -34,12 +34,12 @@ public class SearchViaQueryField {
 	@Autowired
 	TableService tableService;
 	
-	private SearchServicePort solrSearchRecordsServicePort;
+	private SearchServicePort searchRecordsServicePort;
 	private SearchResponse searchResponseDTO;
 
-	public SearchViaQueryField(SearchServicePort solrSearchRecordsServicePort,
+	public SearchViaQueryField(SearchServicePort searchRecordsServicePort,
 			SearchResponse searchResponseDTO) {
-		this.solrSearchRecordsServicePort = solrSearchRecordsServicePort;
+		this.searchRecordsServicePort = searchRecordsServicePort;
 		this.searchResponseDTO = searchResponseDTO;
 	}
 
@@ -69,7 +69,7 @@ public class SearchViaQueryField {
 			isMicroserviceDown = true;
 		
 		// Search documents
-		searchResponseDTO = solrSearchRecordsServicePort.setUpSelectQuerySearchViaQueryField(
+		searchResponseDTO = searchRecordsServicePort.setUpSelectQuerySearchViaQueryField(
 				currentListOfColumnsOfTableSchema, 
 				currentTableSchema, 
 				tableName, 

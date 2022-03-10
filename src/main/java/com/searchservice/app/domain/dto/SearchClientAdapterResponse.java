@@ -11,15 +11,15 @@ import lombok.NoArgsConstructor;
 @Data
 @NoArgsConstructor
 @EqualsAndHashCode
-public class SolrClientAdapterResponse {
+public class SearchClientAdapterResponse {
 	private int statusCode;
 	private String responseMessage;
-	private SolrClient solrClient;
+	private SolrClient searchClient;
     private String name;
     private List<String> data;
 	@Override
 	public String toString() {
-		return "SolrAPIAdapterResponseDTO [statusCode=" + statusCode + ", responseMessage=" + responseMessage
-				+ ", solrClient=" + solrClient + "]";
+		return " SearchClientAdapterResponse [statusCode=" + statusCode + ", responseMessage=" + responseMessage
+				+ ", searchClient=" + searchClient + "]";
 	}
 }

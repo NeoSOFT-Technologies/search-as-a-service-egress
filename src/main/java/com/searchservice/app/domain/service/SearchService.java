@@ -23,7 +23,7 @@ import org.springframework.transaction.annotation.Transactional;
 import com.searchservice.app.domain.dto.SearchResponse;
 import com.searchservice.app.domain.port.api.SearchServicePort;
 import com.searchservice.app.domain.utils.SearchUtil;
-import com.searchservice.app.infrastructure.adaptor.SolrClientAdapter;
+import com.searchservice.app.infrastructure.adaptor.SearchClientAdapter;
 import com.searchservice.app.infrastructure.adaptor.SearchResult;
 import com.searchservice.app.rest.errors.OperationNotAllowedException;
 
@@ -35,30 +35,30 @@ public class SearchService implements SearchServicePort {
 	private static final String SEARCH_QUERY = "q";
 	private static final String START_PAGE = "start";
 	/*
-	 * Solr Search Records for given collection- Egress Service
+	 * Search Records for given collection- Egress Service
 	 */  
 	private final Logger logger = LoggerFactory.getLogger(SearchService.class); 
 	private static final String SUCCESS_MSG = "Records fetched successfully";
 	private static final String FAILURE_MSG = "Records couldn't be fetched for given collection";
-	private static final String SUCCESS_LOG = "Solr search operation is peformed successfully for given collection";
-	private static final String FAILURE_LOG = "An exception occured while performing Solr Search Operation! ";
+	private static final String SUCCESS_LOG = "Server search operation is peformed successfully for given collection";
+	private static final String FAILURE_LOG = "An exception occured while performing Server Search Operation! ";
 	
-	SearchResult solrSearchResult = new SearchResult();
-	SearchResponse solrSearchResponseDTO = new SearchResponse();
+	SearchResult searchResult = new SearchResult();
+	SearchResponse searchResponseDTO = new SearchResponse();
 	@Autowired
-	SolrClientAdapter solrSchemaAPIAdapter = new SolrClientAdapter();
+	SearchClientAdapter searchSchemaAPIAdapter = new SearchClientAdapter();
 	@Autowired
 	TableService tableService;
 	
 	
-	@Value("${base-solr-url}")
-	String solrUrl;
+	@Value("${base-search-url}")
+	String searchUrl;
 	
 	public SearchService(
-			SearchResult solrSearchResult, 
-			SearchResponse solrSearchResponseDTO) {
-		this.solrSearchResult = solrSearchResult;
-		this.solrSearchResponseDTO = solrSearchResponseDTO;
+			SearchResult searchResult, 
+			SearchResponse searchResponseDTO) {
+		this.searchResult = searchResult;
+		this.searchResponseDTO = searchResponseDTO;
 	}
 	
 	
@@ -76,7 +76,7 @@ public class SearchService implements SearchServicePort {
 		/* Egress API -- table records -- SEARCH via query-field */
 		logger.debug("Performing records-search via query field & search term provided for given table");
 
-		SolrClient client = solrSchemaAPIAdapter.getSolrClient(solrUrl, tableName);
+		SolrClient client = searchSchemaAPIAdapter.getSearchClient(searchUrl, tableName);
 		SolrQuery query = new SolrQuery();
 		
 		// VALIDATE queryField
@@ -104,9 +104,9 @@ public class SearchService implements SearchServicePort {
 		query.set(PAGE_SIZE, pageSize);
 		SortClause sortClause = new SortClause(tag, order);
 		query.setSort(sortClause);
-		solrSearchResponseDTO = processSearchQuery(client, query, validSchemaColumns);
+		searchResponseDTO = processSearchQuery(client, query, validSchemaColumns);
 		
-		return solrSearchResponseDTO;
+		return searchResponseDTO;
 	}
 	
 
@@ -119,7 +119,7 @@ public class SearchService implements SearchServicePort {
 		/* Egress API -- table records -- SEARCH VIA QUERY */
 		logger.debug("Performing Search VIA QUERY for given collection");
 
-		SolrClient client = solrSchemaAPIAdapter.getSolrClient(solrUrl, tableName);
+		SolrClient client = searchSchemaAPIAdapter.getSearchClient(searchUrl, tableName);
 		
 		SolrQuery query = new SolrQuery();
 		query.set(SEARCH_QUERY, searchQuery);
@@ -127,53 +127,53 @@ public class SearchService implements SearchServicePort {
 		query.set(PAGE_SIZE, pageSize);
 		SortClause sortClause = new SortClause(tag, order);
 		query.setSort(sortClause);
-		solrSearchResponseDTO = processSearchQuery(client, query, validSchemaColumns);
+		searchResponseDTO = processSearchQuery(client, query, validSchemaColumns);
 		
-		return solrSearchResponseDTO;
+		return searchResponseDTO;
 	}
 	
 	
 	// Auxiliary methods
 	public SearchResponse processSearchQuery(SolrClient client, SolrQuery query, List<String> validSchemaColumns) {
 		try {
-			solrSearchResult = new SearchResult();
+			searchResult = new SearchResult();
 			QueryResponse response = client.query(query);
 			
 			SolrDocumentList docs = response.getResults();
 
-			List<Map<String, Object>> solrDocuments = new ArrayList<>();
+			List<Map<String, Object>> searchDocuments = new ArrayList<>();
 			// Sync Table documents with soft deleted schema; add valid documents
 			if(validSchemaColumns.isEmpty())
-				docs.forEach(solrDocuments::add);
+				docs.forEach(searchDocuments::add);
 			else
-				solrDocuments = tableService.getValidDocumentsList(
+				searchDocuments = tableService.getValidDocumentsList(
 					docs, validSchemaColumns);
 
 			response = client.query(query);
 			
 			response.getDebugMap();
 			long numDocs = docs.getNumFound();
-			solrSearchResult.setNumDocs(numDocs);
-			solrSearchResult.setData(solrDocuments);
-			// Prepare SolrSearchResponse
-			solrSearchResponseDTO.setStatusCode(200);
-			solrSearchResponseDTO.setResponseMessage(SUCCESS_MSG);
-			solrSearchResponseDTO.setResults(solrSearchResult);
+			searchResult.setNumDocs(numDocs);
+			searchResult.setData(searchDocuments);
+			// Prepare SearchResponse
+			searchResponseDTO.setStatusCode(200);
+			searchResponseDTO.setResponseMessage(SUCCESS_MSG);
+			searchResponseDTO.setResults(searchResult);
 			logger.debug(SUCCESS_LOG);
-			return solrSearchResponseDTO;
+			return searchResponseDTO;
 		} catch (SolrServerException | IOException | NullPointerException e) {
-			solrSearchResponseDTO.setStatusCode(400);
-			solrSearchResponseDTO.setResponseMessage(FAILURE_MSG);
+			searchResponseDTO.setStatusCode(400);
+			searchResponseDTO.setResponseMessage(FAILURE_MSG);
 			logger.error(FAILURE_LOG, e);
 		} catch(Exception e) {
-			solrSearchResponseDTO.setStatusCode(400);
+			searchResponseDTO.setStatusCode(400);
 			if(e.getMessage().contains("Cannot parse")) {				
-				solrSearchResponseDTO.setResponseMessage("Couldn't parse the search query. Please provide query in correct format");
+				searchResponseDTO.setResponseMessage("Couldn't parse the search query. Please provide query in correct format");
 			} else
-				solrSearchResponseDTO.setResponseMessage(FAILURE_MSG);
+				searchResponseDTO.setResponseMessage(FAILURE_MSG);
 		}
 		
-		return solrSearchResponseDTO;
+		return searchResponseDTO;
 	}
 	
 }
