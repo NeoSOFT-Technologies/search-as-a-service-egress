@@ -1,0 +1,17 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: search-service-egress-deployment
+spec:
+  replicas: 3
+  selector:
+    matchLabels: 
+      app: search-service-egress
+  template:
+    metadata:
+      labels: 
+        app: search-service-egress
+    spec:
+      containers:
+        - name: search-service-egress-node
+          image: neosoftcoe/search-service-egress
