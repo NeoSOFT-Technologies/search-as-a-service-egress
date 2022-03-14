@@ -13,11 +13,11 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.searchservice.app.domain.utils.GetCurrentSchemaUtil;
-import com.searchservice.app.domain.utils.SolrDocumentUtil;
-import com.searchservice.app.infrastructure.adaptor.SolrClientAdapter;
+import com.searchservice.app.domain.utils.SearchDocumentUtil;
+import com.searchservice.app.infrastructure.adaptor.SearchClientAdapter;
+
 
 @Service
 @Transactional
@@ -31,7 +31,7 @@ public class TableService {
 	private String getTableUrl;
 	
 	@Autowired
-	SolrClientAdapter solrAPIAdapter = new SolrClientAdapter();
+	SearchClientAdapter searchAPIAdapter = new SearchClientAdapter();
 
 	
 	public List<String> getCurrentTableSchemaColumns(String tableName, int clientId) {
@@ -69,18 +69,18 @@ public class TableService {
 	public List<Map<String, Object>> getValidDocumentsList(SolrDocumentList docs, List<String> validColumns) {
 		logger.debug("Validate table documents");
 		
-		List<Map<String, Object>> validSolrDocumentsList = new ArrayList<>();
+		List<Map<String, Object>> validSearchDocumentsList = new ArrayList<>();
 		docs.forEach(
 				d -> {
 					try {
-						SolrDocumentUtil myDoc = new SolrDocumentUtil();
+						SearchDocumentUtil myDoc = new SearchDocumentUtil();
 						myDoc.putAll(d);
-						validSolrDocumentsList.add(getValidMapOfDocument(myDoc.getFieldValueMap(), validColumns));
+						validSearchDocumentsList.add(getValidMapOfDocument(myDoc.getFieldValueMap(), validColumns));
 					} catch (JsonProcessingException e) {
 						logger.error("Error occurred while retrieving map of document with valid columns. ", e);
 					}
 				});
-		return validSolrDocumentsList;
+		return validSearchDocumentsList;
 	}
 	
 	

@@ -32,12 +32,12 @@ public class SearchViaQuery {
 	@Autowired
 	TableService tableService;
 	
-	private SearchServicePort solrSearchRecordsServicePort;
+	private SearchServicePort searchRecordsServicePort;
 	private SearchResponse searchResponseDTO;
 
-	public SearchViaQuery(SearchServicePort solrSearchRecordsServicePort,
+	public SearchViaQuery(SearchServicePort searchRecordsServicePort,
 			SearchResponse searchResponseDTO) {
-		this.solrSearchRecordsServicePort = solrSearchRecordsServicePort;
+		this.searchRecordsServicePort = searchRecordsServicePort;
 		this.searchResponseDTO = searchResponseDTO;
 	}
 
@@ -62,7 +62,7 @@ public class SearchViaQuery {
 
 		// Get Current Table Schema (communicating with SAAS Microservice)
 		List<String> currentListOfColumnsOfTableSchema = tableService.getCurrentTableSchemaColumns(tableName.split("_")[0], clientId);
-		searchResponseDTO = solrSearchRecordsServicePort.setUpSelectQuerySearchViaQuery(
+		searchResponseDTO = searchRecordsServicePort.setUpSelectQuerySearchViaQuery(
 				currentListOfColumnsOfTableSchema, 
 				tableName, 
 				searchQuery, 
