@@ -19,12 +19,15 @@ import org.springframework.security.web.authentication.session.SessionAuthentica
 import org.springframework.web.client.RestTemplate;
 
 import com.searchservice.app.domain.service.JwtTokenFilterService;
+import com.searchservice.app.domain.utils.KeycloakConfigProperties;
 
 @KeycloakConfiguration
 public class SecurityConfiguration extends KeycloakWebSecurityConfigurerAdapter {
 	
 	@Autowired
 	private RestTemplate restTemplate;
+	
+	@Autowired KeycloakConfigProperties keycloakConfigProperties;
 	
 	@Value("${keycloak.realm}")
 	private String realm_name;
@@ -79,6 +82,6 @@ public class SecurityConfiguration extends KeycloakWebSecurityConfigurerAdapter 
                 .and();
         
         // Add JWT token filter
-       http = http.addFilterBefore(new JwtTokenFilterService(realm_name,client_id,client_Secret,restTemplate), UsernamePasswordAuthenticationFilter.class);
+       http = http.addFilterBefore(new JwtTokenFilterService(keycloakConfigProperties,restTemplate), UsernamePasswordAuthenticationFilter.class);
     }
 }

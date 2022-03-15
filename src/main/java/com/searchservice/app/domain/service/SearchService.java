@@ -17,6 +17,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -157,20 +158,32 @@ public class SearchService implements SearchServicePort {
 			searchResult.setData(searchDocuments);
 			// Prepare SearchResponse
 			searchResponseDTO.setStatusCode(200);
-			searchResponseDTO.setResponseMessage(SUCCESS_MSG);
+			searchResponseDTO.setStatus(HttpStatus.OK);
+			searchResponseDTO.setMessage(SUCCESS_MSG);
 			searchResponseDTO.setResults(searchResult);
 			logger.debug(SUCCESS_LOG);
 			return searchResponseDTO;
 		} catch (SolrServerException | IOException | NullPointerException e) {
-			searchResponseDTO.setStatusCode(400);
-			searchResponseDTO.setResponseMessage(FAILURE_MSG);
+			if(e.getMessage().contains("Server refused connection")) {
+				searchResponseDTO.setStatusCode(503);
+				searchResponseDTO.setStatus(HttpStatus.SERVICE_UNAVAILABLE);
+				searchResponseDTO.setMessage("Unable to connect Solr server");
+			}else {
+				searchResponseDTO.setStatusCode(400);
+				searchResponseDTO.setStatus(HttpStatus.BAD_REQUEST);
+				searchResponseDTO.setMessage(FAILURE_MSG);
+			}
 			logger.error(FAILURE_LOG, e);
 		} catch(Exception e) {
 			searchResponseDTO.setStatusCode(400);
+			searchResponseDTO.setStatus(HttpStatus.BAD_REQUEST);
 			if(e.getMessage().contains("Cannot parse")) {				
-				searchResponseDTO.setResponseMessage("Couldn't parse the search query. Please provide query in correct format");
+				searchResponseDTO.setMessage("Couldn't parse the search query. Please provide query in correct format");
+			}else if(e.getMessage().contains("404 Not Found")) {
+				searchResponseDTO.setStatusCode(403);
+				searchResponseDTO.setMessage("Resource not found");
 			} else
-				searchResponseDTO.setResponseMessage(FAILURE_MSG);
+				searchResponseDTO.setMessage(FAILURE_MSG);
 		}
 		
 		return searchResponseDTO;
