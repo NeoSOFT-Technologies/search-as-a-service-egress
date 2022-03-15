@@ -28,7 +28,7 @@ import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 @RestController
 @RequestMapping("${base-url.api-endpoint.home}")
 public class SearchResource {
-    /* Solr Search Records for given collection- Egress Service Resource ***/
+    /* Search Records for given collection- Egress Service Resource ***/
     private final Logger logger = LoggerFactory.getLogger(SearchResource.class);
     
     ZonedDateTime utc = ZonedDateTime.now(ZoneOffset.UTC);
@@ -59,10 +59,10 @@ public class SearchResource {
 	}
     
     
-    @GetMapping(value = "/{clientId}/{tableName}")
-    @Operation(summary = "GET RECORDS", security = @SecurityRequirement(name = "bearerAuth"))
+    @GetMapping(value = "/{tenantId}/{tableName}")
+    @Operation(summary = "GET RECORDS" ,security = @SecurityRequirement(name = "bearerAuth"))
     public ResponseEntity<SearchResponse> searchRecordsViaQueryField(
-    		@PathVariable int clientId, 
+    		@PathVariable int tenantId, 
     		@PathVariable String tableName, 
             @RequestParam(defaultValue = "*") String queryField, @RequestParam(defaultValue = "*") String searchTerm, 
             @RequestParam(defaultValue = "0") String startRecord,
@@ -80,9 +80,9 @@ public class SearchResource {
 		// Validate inputs
 		SearchUtil.validateInputs(startRecord, pageSize, order);
 
-        tableName = tableName + "_" + clientId;
+        tableName = tableName + "_" + tenantId;
         SearchResponse searchResponseDTO = searchViaQueryField.search(
-        		clientId, tableName, 
+        		tenantId, tableName, 
         		queryField, searchTerm, 
         		startRecord, pageSize, orderBy, order,loggersDTO);
 
@@ -98,10 +98,10 @@ public class SearchResource {
     }
     
     
-    @GetMapping(value = "/query/{clientId}/{tableName}")
-    @Operation(summary = "GET RECORDS", security = @SecurityRequirement(name = "bearerAuth"))
+    @GetMapping(value = "/query/{tenantId}/{tableName}")
+    @Operation(summary = "GET RECORDS VIA QUERY" ,security = @SecurityRequirement(name = "bearerAuth"))
     public ResponseEntity<SearchResponse> searchRecordsViaQuery(
-    		@PathVariable int clientId, 
+    		@PathVariable int tenantId, 
     		@PathVariable String tableName, 
             @RequestParam(defaultValue = "*") String searchQuery, 
             @RequestParam(defaultValue = "0") String startRecord,
@@ -119,9 +119,9 @@ public class SearchResource {
 		// Validate inputs
 		SearchUtil.validateInputs(startRecord, pageSize, order);
 		
-        tableName = tableName + "_" + clientId;
+        tableName = tableName + "_" + tenantId;
         SearchResponse searchResponseDTO = searchViaQuery.search(
-        		clientId, tableName, 
+        		tenantId, tableName, 
         		searchQuery, 
         		startRecord, pageSize, orderBy, order,loggersDTO);
         

@@ -42,7 +42,7 @@ import org.apache.solr.common.util.NamedList;
  *
  * @since solr 1.3
  */
-public class SolrDocumentUtil extends SolrDocumentBase<Object, SolrDocument>
+public class SearchDocumentUtil extends SolrDocumentBase<Object, SolrDocument>
 		implements Iterable<Map.Entry<String, Object>> {
 	private static final long serialVersionUID = 1L;
 
@@ -50,7 +50,7 @@ public class SolrDocumentUtil extends SolrDocumentBase<Object, SolrDocument>
 
 	private List<SolrDocument> _childDocuments;
 
-	public SolrDocumentUtil() {
+	public SearchDocumentUtil() {
 		_fields = new LinkedHashMap<>();
 	}
 
@@ -59,13 +59,13 @@ public class SolrDocumentUtil extends SolrDocumentBase<Object, SolrDocument>
 		_fields.forEach(ew.getBiConsumer());
 	}
 
-	public SolrDocumentUtil(Map<String, Object> fields) {
+	public SearchDocumentUtil(Map<String, Object> fields) {
 		this._fields = fields;
 	}
 
 	/**
 	 * @return a list of field names defined in this document - this Collection is
-	 *         directly backed by this SolrDocument.
+	 *         directly backed by this SearchDocument.
 	 * @see #keySet
 	 */
 	@Override
@@ -125,7 +125,7 @@ public class SolrDocumentUtil extends SolrDocumentBase<Object, SolrDocument>
 	 * value will be added independently.
 	 * 
 	 * The class type of value and the name parameter should match schema.xml.
-	 * schema.xml can be found in conf directory under the solr home by default.
+	 * schema.xml can be found in conf directory under the Search home by default.
 	 * 
 	 * @param name  Name of the field, should match one of the field names defined
 	 *              under "fields" tag in schema.xml.
@@ -219,7 +219,7 @@ public class SolrDocumentUtil extends SolrDocumentBase<Object, SolrDocument>
 
 	@Override
 	public String toString() {
-		return "SolrDocument" + _fields;
+		return "SearchDocument" + _fields;
 	}
 
 	/**
@@ -374,14 +374,14 @@ public class SolrDocumentUtil extends SolrDocumentBase<Object, SolrDocument>
 	};
 	
 	/**
-	 * Expose a Map interface to the solr field value collection.
+	 * Expose a Map interface to the Search field value collection.
 	 */
 	public Map<String, Collection<Object>> getFieldValuesMap() {
 		return fieldValuesMapObject;
 	}
 
 	/**
-	 * Expose a Map interface to the solr fields. This function is useful for JSTL
+	 * Expose a Map interface to the Search fields. This function is useful for JSTL
 	 */
 	public Map<String, Object> getFieldValueMap() {
 		return fieldValueMapObject;

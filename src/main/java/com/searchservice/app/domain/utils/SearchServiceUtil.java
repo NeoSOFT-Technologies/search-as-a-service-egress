@@ -9,21 +9,21 @@ import lombok.extern.slf4j.Slf4j;
 
 
 @Slf4j
-public class SolrUtil {
+public class SearchServiceUtil {
 	
-	private SolrUtil() {}
+	private SearchServiceUtil() {}
 	
-	public static void closeSolrClientConnection(HttpSolrClient solrClient) {
+	public static void closeSearchServiceClientConnection(HttpSolrClient searchServiceClient) {
 		try {
-			solrClient.close();
+			searchServiceClient.close();
 		} catch (IOException e) {
 			log.debug(e.getMessage());
 		}
 	}
 	
-	public static void closeSolrClientConnection(SolrClient solrClient) {
+	public static void closeSearchServiceClientConnection(SolrClient searchServiceClient) {
 		try {
-			solrClient.close();
+			searchServiceClient.close();
 		} catch (IOException e) {
 			log.debug(e.getMessage());
 		}
