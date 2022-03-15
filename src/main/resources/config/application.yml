@@ -152,10 +152,10 @@ base-url:
 #================================================================
 # Keycloak Server Configurations
 keycloak:
-  realm: demo_realm
+  realm: Demo_Realm
   credentials: 
-    secret: zf8GS1Lc2lCzIUULNIwyateNNFJrCxcj
-  resource: Ingress_Microservice
+    secret: fkt2zezjwsvxd1YzyiKwJvqCv91HFBrW
+  resource: saas-egress-microservice
   auth-server-url: http://localhost:8080/auth
   ssl-required: external
   public-client: false

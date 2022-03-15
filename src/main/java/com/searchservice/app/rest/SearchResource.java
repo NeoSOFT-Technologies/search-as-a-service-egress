@@ -99,6 +99,7 @@ public class SearchResource {
     
     
     @GetMapping(value = "/query/{clientId}/{tableName}")
+    @Operation(summary = "GET RECORDS", security = @SecurityRequirement(name = "bearerAuth"))
     public ResponseEntity<SearchResponse> searchRecordsViaQuery(
     		@PathVariable int clientId, 
     		@PathVariable String tableName, 
