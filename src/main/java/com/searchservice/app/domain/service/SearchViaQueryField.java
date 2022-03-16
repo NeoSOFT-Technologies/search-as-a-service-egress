@@ -8,6 +8,7 @@ import org.json.JSONArray;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -77,17 +78,22 @@ public class SearchViaQueryField {
 				queryFieldSearchTerm,				
 				startRecord, pageSize, sortTag, sortOrder);
 		if(isMicroserviceDown)
-			searchResponseDTO.setResponseMessage(
-					searchResponseDTO.getResponseMessage()
+			searchResponseDTO.setMessage(
+					searchResponseDTO.getMessage()
 					+". Microservice is down, so 'multiValue' query-field verification incomplete; will be treated as single-valued for now");
 		loggersDTO.setTimestamp(LoggerUtils.utcTime().toString());
 		
 		if (searchResponseDTO == null)
 			throw new NullPointerOccurredException(404, ResponseMessages.NULL_RESPONSE_MESSAGE);
 		else if (searchResponseDTO.getStatusCode() == 200) {
+			searchResponseDTO.setStatus(HttpStatus.OK);
 			LoggerUtils.printlogger(loggersDTO, false, false);
 			return searchResponseDTO;
-		} else {
+		}else if(searchResponseDTO.getStatusCode() == 403) {
+			throw new BadRequestOccurredException(400, searchResponseDTO.getMessage());
+		} else if(searchResponseDTO.getStatusCode() == 503) {
+			return searchResponseDTO;
+		}else {
 			searchResponseDTO.setStatusCode(400);
 			LoggerUtils.printlogger(loggersDTO, false, true);
 			throw new BadRequestOccurredException(400, ResponseMessages.BAD_REQUEST_MSG);

@@ -74,7 +74,9 @@ public class SearchViaQuery {
 		} else if (searchResponseDTO.getStatusCode() == 200) {
 			LoggerUtils.printlogger(loggersDTO, false, false);
 			return searchResponseDTO;
-		} else {
+		} else if(searchResponseDTO.getStatusCode() == 503) {
+			return searchResponseDTO;
+		}else {
 			searchResponseDTO.setStatusCode(400);
 			LoggerUtils.printlogger(loggersDTO, false, true);
 			//throw new BadRequestOccurredException(400, ResponseMessages.BAD_REQUEST_MSG);
