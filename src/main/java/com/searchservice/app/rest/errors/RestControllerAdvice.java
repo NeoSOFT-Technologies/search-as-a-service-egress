@@ -24,11 +24,8 @@ public class RestControllerAdvice {
 	  private final Logger log = LoggerFactory.getLogger(RestControllerAdvice.class);
 	  
 	@ExceptionHandler(BadRequestOccurredException.class)
-	public ResponseEntity<Object> handleBadRequestOccurred(
-			BadRequestOccurredException exception) {
-		return frameRestApiException(new RestApiError(
-										HttpStatus.BAD_REQUEST, 
-										exception.getExceptionMessage()));
+	public ResponseEntity<Object> handleBadRequestOccurred(BadRequestOccurredException exception) {
+		return frameRestApiException(new RestApiError(HttpStatus.BAD_REQUEST,exception.getExceptionCode(),exception.getExceptionMessage()));
 	}
 	
 	
@@ -36,7 +33,7 @@ public class RestControllerAdvice {
 	public ResponseEntity<Object> handleOperationNotAllowed(
 			OperationNotAllowedException exception) {
 		return frameRestApiException(new RestApiError(
-										HttpStatus.NOT_ACCEPTABLE, 
+										HttpStatus.NOT_ACCEPTABLE,exception.getExceptionCode(), 
 										exception.getExceptionMessage()));
 	}
 	
@@ -45,7 +42,7 @@ public class RestControllerAdvice {
 	public ResponseEntity<Object> handleNullPointerOccurredException(
 			NullPointerOccurredException exception) {
 		return frameRestApiException(new RestApiError(
-										HttpStatus.NOT_FOUND, 
+										HttpStatus.NOT_FOUND,exception.getExceptionCode(), 
 										exception.getExceptionMessage()));
 	}
 	
@@ -55,7 +52,7 @@ public class RestControllerAdvice {
 			Exception exception) {
 		log.error("Uncaught Error Occured: {}", exception.getMessage());
 		return frameRestApiException(new RestApiError(
-										HttpStatus.BAD_REQUEST, 
+										HttpStatus.BAD_REQUEST,400, 
 										"Uncaught error occurred. "+exception.getMessage()));
 	}
 	
@@ -70,7 +67,7 @@ public class RestControllerAdvice {
 		if(exception.getCause() instanceof UnrecognizedPropertyException) {
 			UnrecognizedPropertyException ex = (UnrecognizedPropertyException)exception.getCause();
 			fieldName = ex.getPropertyName();
-			return frameRestApiException(new RestApiError(HttpStatus.BAD_REQUEST, "Unrecognized Field : "+fieldName));
+			return frameRestApiException(new RestApiError(HttpStatus.BAD_REQUEST,400, "Unrecognized Field : "+fieldName));
 		}else if(exception.getCause() instanceof InvalidFormatException) {
 			//String targetType = "";
 			InvalidFormatException ex = (InvalidFormatException)exception.getCause();
@@ -79,17 +76,17 @@ public class RestControllerAdvice {
 		       fieldName = (null != path)?path.getFieldName():"";
 		    }
 			String value = (null != ex.getValue())?ex.getValue().toString():"";
-			return frameRestApiException(new RestApiError(HttpStatus.BAD_REQUEST, "Value for field : "+fieldName+" is not expected as : "+value));
+			return frameRestApiException(new RestApiError(HttpStatus.BAD_REQUEST,400, "Value for field : "+fieldName+" is not expected as : "+value));
 			//targetType = ex.getTargetType().getName();
 		}else if(exception.getCause() instanceof JsonMappingException) {
 			JsonMappingException ex = (JsonMappingException)exception.getCause();
 			if(ex.getCause() instanceof BadRequestOccurredException) {
 				BadRequestOccurredException exc = (BadRequestOccurredException)ex.getCause();
-				return frameRestApiException(new RestApiError(HttpStatus.BAD_REQUEST, exc.getExceptionMessage()));
+				return frameRestApiException(new RestApiError(HttpStatus.BAD_REQUEST,400, exc.getExceptionMessage()));
 			}else
-				return frameRestApiException(new RestApiError(HttpStatus.BAD_REQUEST, "Provide valid JSON Input"));
+				return frameRestApiException(new RestApiError(HttpStatus.BAD_REQUEST,400, "Provide valid JSON Input"));
 		}else {
-			return frameRestApiException(new RestApiError(HttpStatus.BAD_REQUEST, "Provide valid JSON Input"));
+			return frameRestApiException(new RestApiError(HttpStatus.BAD_REQUEST,400, "Provide valid JSON Input"));
 		}
 		//return frameRestApiException(new RestApiError(HttpStatus.BAD_REQUEST, "Unrecognized Field : "+fieldName));
 	}
@@ -103,6 +100,6 @@ public class RestControllerAdvice {
 			fieldName = (null != exception.getName())?exception.getName():"";
 			requiredType = (null != exception.getRequiredType())?exception.getRequiredType().getName():"";
 		}
-		return frameRestApiException(new RestApiError(HttpStatus.BAD_REQUEST, fieldName+" must be of type "+requiredType));
+		return frameRestApiException(new RestApiError(HttpStatus.BAD_REQUEST,400, fieldName+" must be of type "+requiredType));
 	}
 }
