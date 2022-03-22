@@ -18,7 +18,7 @@ spring:
       fail-on-unknown-properties: true
 
 server:
-  port: 8082
+  port: 8087
 
 #================================================================
 #Logger
@@ -154,7 +154,8 @@ keycloak:
   credentials: 
     secret: fkt2zezjwsvxd1YzyiKwJvqCv91HFBrW
   resource: saas-egress-microservice
-  auth-server-url: http://localhost:8080/auth
+  #auth-server-url: http://localhost:8080/auth
+  auth-server-url: http://host.docker.internal:8080/auth  #to run keycloak server via docker: temporary
   ssl-required: external
   public-client: false
   use-resource-role-mappings: true
