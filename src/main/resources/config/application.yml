@@ -18,7 +18,7 @@ spring:
       fail-on-unknown-properties: true
 
 server:
-  port: 8087
+  port: 8082
 
 #================================================================
 #Logger
