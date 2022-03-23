@@ -159,5 +159,4 @@ keycloak:
   ssl-required: external
   public-client: false
   use-resource-role-mappings: true
-
-
+#================================================================

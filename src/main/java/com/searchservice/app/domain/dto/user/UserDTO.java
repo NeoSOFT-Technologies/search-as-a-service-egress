@@ -9,11 +9,11 @@ import lombok.NoArgsConstructor;
 @EqualsAndHashCode
 public class UserDTO {
 	
-	private String userName;
+	private String username;
 	private String password;
 
-	public UserDTO(String userName, String password) {
-		this.userName = userName;
+	public UserDTO(String username, String password) {
+		this.username = username;
 		this.password = password;
 	}
 }
