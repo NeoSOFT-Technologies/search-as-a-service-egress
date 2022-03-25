@@ -16,8 +16,8 @@ import org.springframework.web.bind.annotation.RestController;
 
 import com.searchservice.app.domain.dto.SearchResponse;
 import com.searchservice.app.domain.dto.logger.Loggers;
-import com.searchservice.app.domain.service.SearchViaQueryField;
-import com.searchservice.app.domain.service.SearchViaQuery;
+import com.searchservice.app.domain.port.api.SearchServicePort;
+import com.searchservice.app.domain.service.SearchService;
 import com.searchservice.app.domain.utils.LoggerUtils;
 import com.searchservice.app.domain.utils.SearchUtil;
 import com.searchservice.app.infrastructure.adaptor.SearchResult;
@@ -36,14 +36,12 @@ public class SearchResource {
     private String servicename = "Search_Resource";
     private String username = "Username";
 
-    private SearchViaQueryField searchViaQueryField;
-    private SearchViaQuery searchViaQuery;
+    
+    private SearchServicePort searchservice;
 
-    public SearchResource(
-            SearchViaQueryField searchViaQueryField, 
-            SearchViaQuery searchViaQuery) {
-        this.searchViaQueryField = searchViaQueryField;
-        this.searchViaQuery = searchViaQuery;
+    public SearchResource(    	
+            SearchService searchservice) {      
+        this.searchservice = searchservice;
     }
 
     @Autowired
@@ -81,7 +79,7 @@ public class SearchResource {
 		SearchUtil.validateInputs(startRecord, pageSize, order);
 
         tableName = tableName + "_" + tenantId;
-        SearchResponse searchResponseDTO = searchViaQueryField.search(
+        SearchResponse searchResponseDTO = searchservice.searchField(
         		tenantId, tableName, 
         		queryField, searchTerm, 
         		startRecord, pageSize, orderBy, order,loggersDTO);
@@ -120,7 +118,7 @@ public class SearchResource {
 		SearchUtil.validateInputs(startRecord, pageSize, order);
 		
         tableName = tableName + "_" + tenantId;
-        SearchResponse searchResponseDTO = searchViaQuery.search(
+        SearchResponse searchResponseDTO = searchservice.searchQuery(
         		tenantId, tableName, 
         		searchQuery, 
         		startRecord, pageSize, orderBy, order,loggersDTO);

@@ -1,192 +1,141 @@
 package com.searchservice.app.domain.service;
 
-import java.io.IOException;
-import java.util.ArrayList;
-import java.util.Arrays;
+import java.time.ZoneOffset;
+import java.time.ZonedDateTime;
 import java.util.List;
-import java.util.Map;
 
-import org.apache.solr.client.solrj.SolrClient;
-import org.apache.solr.client.solrj.SolrQuery;
-import org.apache.solr.client.solrj.SolrQuery.SortClause;
-import org.apache.solr.client.solrj.SolrServerException;
-import org.apache.solr.client.solrj.response.QueryResponse;
-import org.apache.solr.common.SolrDocumentList;
 import org.json.JSONArray;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import com.searchservice.app.domain.dto.ResponseMessages;
 import com.searchservice.app.domain.dto.SearchResponse;
+import com.searchservice.app.domain.dto.logger.Loggers;
+import com.searchservice.app.domain.port.api.AdvSearchServicePort;
 import com.searchservice.app.domain.port.api.SearchServicePort;
-import com.searchservice.app.domain.utils.SearchUtil;
-import com.searchservice.app.infrastructure.adaptor.SearchClientAdapter;
-import com.searchservice.app.infrastructure.adaptor.SearchResult;
-import com.searchservice.app.rest.errors.OperationNotAllowedException;
-
+import com.searchservice.app.domain.utils.LoggerUtils;
+import com.searchservice.app.rest.errors.BadRequestOccurredException;
+import com.searchservice.app.rest.errors.NullPointerOccurredException;
 
 @Service
 @Transactional
 public class SearchService implements SearchServicePort {
-	private static final String PAGE_SIZE = "rows";
-	private static final String SEARCH_QUERY = "q";
-	private static final String START_PAGE = "start";
-	/*
-	 * Search Records for given collection- Egress Service
-	 */  
-	private final Logger logger = LoggerFactory.getLogger(SearchService.class); 
-	private static final String SUCCESS_MSG = "Records fetched successfully";
-	private static final String FAILURE_MSG = "Records couldn't be fetched for given collection";
-	private static final String SUCCESS_LOG = "Server search operation is peformed successfully for given collection";
-	private static final String FAILURE_LOG = "An exception occured while performing Server Search Operation! ";
-	
-	SearchResult searchResult = new SearchResult();
-	SearchResponse searchResponseDTO = new SearchResponse();
-	@Autowired
-	SearchClientAdapter searchSchemaAPIAdapter = new SearchClientAdapter();
+	private final Logger logger = LoggerFactory.getLogger(SearchService.class);
+
+	ZonedDateTime utc = ZonedDateTime.now(ZoneOffset.UTC);
+
+	private String servicename = "Search_Via_Query_Service";
+
+	private String username = "Username";
+
+	// Table service
 	@Autowired
 	TableService tableService;
 	
-	
-	@Value("${base-search-url}")
-	String searchUrl;
-	
-	public SearchService(
-			SearchResult searchResult, 
+	private AdvSearchServicePort searchRecordsServicePort;
+	private SearchResponse searchResponseDTO;
+
+	public SearchService(AdvSearchServicePort searchRecordsServicePort,
 			SearchResponse searchResponseDTO) {
-		this.searchResult = searchResult;
+		this.searchRecordsServicePort = searchRecordsServicePort;
 		this.searchResponseDTO = searchResponseDTO;
 	}
-	
-	
-	@Override
-	public SearchResponse setUpSelectQuerySearchViaQueryField(
-												List<String> validSchemaColumns, 
-												JSONArray currentTableSchema, 
-												String tableName, 
-												String queryField, // expected single column name
-												String searchTerm, // expected search term for given column
-												String startRecord, 
-												String pageSize,
-												String tag, 
-												String order) {
-		/* Egress API -- table records -- SEARCH via query-field */
-		logger.debug("Performing records-search via query field & search term provided for given table");
 
-		SolrClient client = searchSchemaAPIAdapter.getSearchClient(searchUrl, tableName);
-		SolrQuery query = new SolrQuery();
-		
-		// VALIDATE queryField
-		boolean isQueryFieldValidated = SearchUtil.checkIfNameIsAlphaNumeric(queryField.trim()) || queryField.trim().equals("*");
-		if(!isQueryFieldValidated)
-			throw new OperationNotAllowedException(
-					406, 
-					"Query-field validation unsuccessful. Query-field entry can only be in alphanumeric format");
-		// VALIDATE queryField & searchTerm
-		boolean isQueryFieldMultivalued = SearchUtil.isQueryFieldMultivalued(
-				queryField, 
-				currentTableSchema);
-		
-		// Set up query
-		StringBuilder queryString = new StringBuilder();
-		if(!isQueryFieldMultivalued) {			
-			queryString.append(queryField + ":" + searchTerm);
-		} else {
-			List<String> searchTerms = SearchUtil.getTrimmedListOfStrings(Arrays.asList(searchTerm.split(",")));
-			SearchUtil.setQueryForMultivaluedField(queryField, searchTerms, queryString);
-		}
-		
-		query.set(SEARCH_QUERY, queryString.toString());
-		query.set(START_PAGE, startRecord);
-		query.set(PAGE_SIZE, pageSize);
-		SortClause sortClause = new SortClause(tag, order);
-		query.setSort(sortClause);
-		searchResponseDTO = processSearchQuery(client, query, validSchemaColumns);
-		
-		return searchResponseDTO;
+	private void requestMethod(Loggers loggersDTO, String nameofCurrMethod) {
+
+		String timestamp = LoggerUtils.utcTime().toString();
+		loggersDTO.setNameofmethod(nameofCurrMethod);
+		loggersDTO.setTimestamp(timestamp);
+		loggersDTO.setServicename(servicename);
+		loggersDTO.setUsername(username);
 	}
 	
 
+
 	@Override
-	public SearchResponse setUpSelectQuerySearchViaQuery(
-			List<String> validSchemaColumns,
-			String tableName, 
-			String searchQuery, 
-			String startRecord, String pageSize, String tag, String order) {
-		/* Egress API -- table records -- SEARCH VIA QUERY */
-		logger.debug("Performing Search VIA QUERY for given collection");
+	public SearchResponse searchQuery(int clientId, String tableName, String searchQuery, String startRecord,
+			String pageSize, String sortTag, String sortOrder, Loggers loggersDTO) {
+		logger.debug("Query search for the given table");
 
-		SolrClient client = searchSchemaAPIAdapter.getSearchClient(searchUrl, tableName);
-		
-		SolrQuery query = new SolrQuery();
-		query.set(SEARCH_QUERY, searchQuery);
-		query.set(START_PAGE, startRecord);
-		query.set(PAGE_SIZE, pageSize);
-		SortClause sortClause = new SortClause(tag, order);
-		query.setSort(sortClause);
-		searchResponseDTO = processSearchQuery(client, query, validSchemaColumns);
-		
-		return searchResponseDTO;
-	}
-	
-	
-	// Auxiliary methods
-	public SearchResponse processSearchQuery(SolrClient client, SolrQuery query, List<String> validSchemaColumns) {
-		try {
-			searchResult = new SearchResult();
-			QueryResponse response = client.query(query);
-			
-			SolrDocumentList docs = response.getResults();
+		String nameofCurrMethod = new Throwable().getStackTrace()[0].getMethodName();
+		requestMethod(loggersDTO,nameofCurrMethod);
+		LoggerUtils.printlogger(loggersDTO,true,false);
 
-			List<Map<String, Object>> searchDocuments = new ArrayList<>();
-			// Sync Table documents with soft deleted schema; add valid documents
-			if(validSchemaColumns.isEmpty())
-				docs.forEach(searchDocuments::add);
-			else
-				searchDocuments = tableService.getValidDocumentsList(
-					docs, validSchemaColumns);
-
-			response = client.query(query);
-			
-			response.getDebugMap();
-			long numDocs = docs.getNumFound();
-			searchResult.setNumDocs(numDocs);
-			searchResult.setData(searchDocuments);
-			// Prepare SearchResponse
-			searchResponseDTO.setStatusCode(200);
-			searchResponseDTO.setStatus(HttpStatus.OK);
-			searchResponseDTO.setMessage(SUCCESS_MSG);
-			searchResponseDTO.setResults(searchResult);
-			logger.debug(SUCCESS_LOG);
+		// Get Current Table Schema (communicating with SAAS Microservice)
+		List<String> currentListOfColumnsOfTableSchema = tableService.getCurrentTableSchemaColumns(tableName.split("_")[0], clientId);
+		searchResponseDTO = searchRecordsServicePort.setUpSelectQuerySearchViaQuery(
+				currentListOfColumnsOfTableSchema, 
+				tableName, 
+				searchQuery, 
+				startRecord, pageSize, sortTag, sortOrder);
+		loggersDTO.setTimestamp(LoggerUtils.utcTime().toString());
+		if (searchResponseDTO == null) {
+			LoggerUtils.printlogger(loggersDTO, false, true);
+			throw new NullPointerOccurredException(404, ResponseMessages.NULL_RESPONSE_MESSAGE);
+		} else if (searchResponseDTO.getStatusCode() == 200) {
+			LoggerUtils.printlogger(loggersDTO, false, false);
 			return searchResponseDTO;
-		} catch (SolrServerException | IOException | NullPointerException e) {
-			if(e.getMessage().contains("Server refused connection")) {
-				searchResponseDTO.setStatusCode(503);
-				searchResponseDTO.setStatus(HttpStatus.SERVICE_UNAVAILABLE);
-				searchResponseDTO.setMessage("Unable to connect Solr server");
-			}else {
-				searchResponseDTO.setStatusCode(400);
-				searchResponseDTO.setStatus(HttpStatus.BAD_REQUEST);
-				searchResponseDTO.setMessage(FAILURE_MSG);
-			}
-			logger.error(FAILURE_LOG, e);
-		} catch(Exception e) {
+		} else if(searchResponseDTO.getStatusCode() == 503) {
+			return searchResponseDTO;
+		}else {
 			searchResponseDTO.setStatusCode(400);
-			searchResponseDTO.setStatus(HttpStatus.BAD_REQUEST);
-			if(e.getMessage().contains("Cannot parse")) {				
-				searchResponseDTO.setMessage("Couldn't parse the search query. Please provide query in correct format");
-			}else if(e.getMessage().contains("404 Not Found")) {
-				searchResponseDTO.setStatusCode(403);
-				searchResponseDTO.setMessage("Resource not found");
-			} else
-				searchResponseDTO.setMessage(FAILURE_MSG);
+			LoggerUtils.printlogger(loggersDTO, false, true);
+			//throw new BadRequestOccurredException(400, ResponseMessages.BAD_REQUEST_MSG);
+			return searchResponseDTO;
+		}
+	}
+
+	@Override
+	public SearchResponse searchField(int clientId, String tableName, String queryField, String queryFieldSearchTerm,
+			String startRecord, String pageSize, String sortTag, String sortOrder, Loggers loggersDTO) {
+		logger.debug("Advanced search for the given table");
+
+		String nameofCurrMethod = new Throwable().getStackTrace()[0].getMethodName();
+		requestMethod(loggersDTO,nameofCurrMethod);
+		LoggerUtils.printlogger(loggersDTO,true,false);
+
+		// Get Current Table Schema (communicating with SAAS Microservice)
+		boolean isMicroserviceDown = false;
+		List<String> currentListOfColumnsOfTableSchema = tableService.getCurrentTableSchemaColumns(tableName.split("_")[0], clientId);
+		JSONArray currentTableSchema = tableService.getCurrentTableSchema(tableName.split("_")[0], clientId);
+
+		if(currentTableSchema.isEmpty())
+			isMicroserviceDown = true;
+		
+		// Search documents
+		searchResponseDTO = searchRecordsServicePort.setUpSelectQuerySearchViaQueryField(
+				currentListOfColumnsOfTableSchema, 
+				currentTableSchema, 
+				tableName, 
+				queryField,
+				queryFieldSearchTerm,				
+				startRecord, pageSize, sortTag, sortOrder);
+		if(isMicroserviceDown)
+			searchResponseDTO.setMessage(
+					searchResponseDTO.getMessage()
+					+". Microservice is down, so 'multiValue' query-field verification incomplete; will be treated as single-valued for now");
+		loggersDTO.setTimestamp(LoggerUtils.utcTime().toString());
+		
+		if (searchResponseDTO == null)
+			throw new NullPointerOccurredException(404, ResponseMessages.NULL_RESPONSE_MESSAGE);
+		else if (searchResponseDTO.getStatusCode() == 200) {
+			searchResponseDTO.setStatus(HttpStatus.OK);
+			LoggerUtils.printlogger(loggersDTO, false, false);
+			return searchResponseDTO;
+		}else if(searchResponseDTO.getStatusCode() == 403) {
+			throw new BadRequestOccurredException(400, searchResponseDTO.getMessage());
+		} else if(searchResponseDTO.getStatusCode() == 503) {
+			return searchResponseDTO;
+		}else {
+			searchResponseDTO.setStatusCode(400);
+			LoggerUtils.printlogger(loggersDTO, false, true);
+			throw new BadRequestOccurredException(400, ResponseMessages.BAD_REQUEST_MSG);
 		}
 		
-		return searchResponseDTO;
 	}
 	
 }
