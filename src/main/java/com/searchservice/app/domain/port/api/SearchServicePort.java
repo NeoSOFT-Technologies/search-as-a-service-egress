@@ -5,25 +5,16 @@ import java.util.List;
 import org.json.JSONArray;
 
 import com.searchservice.app.domain.dto.SearchResponse;
+import com.searchservice.app.domain.dto.logger.Loggers;
 
 public interface SearchServicePort {	
-	SearchResponse setUpSelectQuerySearchViaQueryField(
-			List<String> validSchemaColumns, 
-			JSONArray currentTableSchema, 
-			String tableName, 
-			String queryField, 
-			String searchTerm, 
-			String startRecord, 
-			String pageSize, 
-			String tag, 
-			String order);
-	
-	SearchResponse setUpSelectQuerySearchViaQuery(
-			List<String> validSchemaColumns, 
-			String collection, 
+	SearchResponse searchQuery(
+			int clientId, String tableName, 
 			String searchQuery, 
-			String startRecord, 
-			String pageSize, 
-			String tag, 
-			String order);
+			String startRecord, String pageSize, String sortTag, String sortOrder, Loggers loggersDTO);
+	
+	SearchResponse searchField(int clientId, String tableName, String queryField, String queryFieldSearchTerm,
+			String startRecord, String pageSize, String sortTag, String sortOrder, Loggers loggersDTO);
+	
+	
 }

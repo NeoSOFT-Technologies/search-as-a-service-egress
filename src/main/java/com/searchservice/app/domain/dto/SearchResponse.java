@@ -30,4 +30,12 @@ public class SearchResponse {
 						+ "responseMessage=" + message + ", "
 						+ "solrSearchResultResponse=" + results + "]";
 	}
+
+	public SearchResponse(int statusCode, String message) {
+		super();
+		this.statusCode = statusCode;
+		this.message = message;
+	}
+
+	
 }

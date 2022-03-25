@@ -14,14 +14,17 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import com.fasterxml.jackson.core.JsonProcessingException;
+import com.searchservice.app.domain.port.api.TableServicePort;
 import com.searchservice.app.domain.utils.GetCurrentSchemaUtil;
 import com.searchservice.app.domain.utils.SearchDocumentUtil;
 import com.searchservice.app.infrastructure.adaptor.SearchClientAdapter;
 
+import ch.qos.logback.core.recovery.ResilientSyslogOutputStream;
+
 
 @Service
 @Transactional
-public class TableService {
+public class TableService implements TableServicePort{
 
 	private final Logger logger = LoggerFactory.getLogger(TableService.class); 
 	
@@ -33,23 +36,23 @@ public class TableService {
 	@Autowired
 	SearchClientAdapter searchAPIAdapter = new SearchClientAdapter();
 
-	
+	@Override
 	public List<String> getCurrentTableSchemaColumns(String tableName, int clientId) {
 		logger.debug("Get current table schema from Ingress microservice");
 		
 		GetCurrentSchemaUtil getCurrentSchemaUtil = extracted(tableName, clientId);
 		GetCurrentSchemaUtil.GetCurrentSchemaUtilResponse response = getCurrentSchemaUtil.get();
 		String responseString = response.getResponseString();
-		
 		return getCurrentSchemaUtil.getCurrentSchemaColumns(responseString);
 	}
 	
-	
+	@Override
 	public JSONArray getCurrentTableSchema(String tableName, int clientId) {
 		logger.debug("Get current table schema from Ingress microservice");
 		
 		GetCurrentSchemaUtil getCurrentSchemaUtil = extracted(tableName, clientId);
 		GetCurrentSchemaUtil.GetCurrentSchemaUtilResponse response = getCurrentSchemaUtil.get();
+		
 		String responseString = response.getResponseString();
 		
 		return getCurrentSchemaUtil.getCurrentSchemaDetails(responseString);
@@ -65,7 +68,7 @@ public class TableService {
 		return getCurrentSchemaUtil;
 	}
 	
-	
+	@Override
 	public List<Map<String, Object>> getValidDocumentsList(SolrDocumentList docs, List<String> validColumns) {
 		logger.debug("Validate table documents");
 		
@@ -83,7 +86,7 @@ public class TableService {
 		return validSearchDocumentsList;
 	}
 	
-	
+	@Override
 	public Map<String, Object> getValidMapOfDocument(Map<String, Object> mapDoc, List<String> validColumns) throws JsonProcessingException {
 		Map<String, Object> map = new HashMap<>();
 		for(Map.Entry<String, Object> entry: mapDoc.entrySet()) {
