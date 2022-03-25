@@ -1,6 +1,5 @@
 package com.searchservice.app.domain.dto;
 
-import java.util.List;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
 import lombok.Data;
@@ -14,12 +13,11 @@ import lombok.NoArgsConstructor;
 public class Response{
 
     private int statusCode;
-    private String name;
     private String message;
-    private List<String> data;
+    private String token;
 
-    public Response(String name) {
-        this.name = name;
+    public Response(String token) {
+        this.token = token;
     }
     
     public Response(int responseStatusCode, String responseMessage) {
@@ -27,9 +25,9 @@ public class Response{
     	this.message = responseMessage;
     }
 
-	public Response(int statusCode, String name, String message) {
+	public Response(int statusCode, String token, String message) {
 		this.statusCode = statusCode;
-		this.name = name;
+		this.token = token;
 		this.message = message;
 	}
 	
