@@ -31,7 +31,7 @@ public class AspectConfig {
       private static UserDTO user;
       private static String ip;
      
-      
+      //Added Condition for Null User
       @Before(value="execution(* com.searchservice.app.rest.UserResource.*(..))")
       public static Object logStatementForRest(JoinPoint joinPoint) {
     	user =(UserDTO) joinPoint.getArgs()[0];
