@@ -117,7 +117,7 @@ dependencies {
 	implementation group: 'org.springframework.boot', name: 'spring-boot-starter-security', version: '2.6.3'
 	
 	//Spring Aop
-	implementation group: 'org.springframework.boot', name: 'spring-boot-starter-aop', version: '2.3.4.RELEASE
+	implementation group: 'org.springframework.boot', name: 'spring-boot-starter-aop', version: '2.3.4.RELEASE'
 }
 
 tasks.named('test') {
