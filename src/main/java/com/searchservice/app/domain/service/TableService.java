@@ -1,6 +1,7 @@
 package com.searchservice.app.domain.service;
 
 import java.util.ArrayList;
+
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -19,7 +20,6 @@ import com.searchservice.app.domain.utils.GetCurrentSchemaUtil;
 import com.searchservice.app.domain.utils.SearchDocumentUtil;
 import com.searchservice.app.infrastructure.adaptor.SearchClientAdapter;
 
-import ch.qos.logback.core.recovery.ResilientSyslogOutputStream;
 
 
 @Service
