@@ -33,6 +33,8 @@ public class TableService implements TableServicePort{
 	@Value("${microservice-url.get-table}")
 	private String getTableUrl;
 	
+	String message = "";
+	
 	@Autowired
 	SearchClientAdapter searchAPIAdapter = new SearchClientAdapter();
 
@@ -42,7 +44,9 @@ public class TableService implements TableServicePort{
 		
 		GetCurrentSchemaUtil getCurrentSchemaUtil = extracted(tableName, clientId);
 		GetCurrentSchemaUtil.GetCurrentSchemaUtilResponse response = getCurrentSchemaUtil.get();
+		System.out.println("cccxcxc table service "+response);
 		String responseString = response.getResponseString();
+		System.out.println("Tablllllle responseTring  "+responseString);
 		return getCurrentSchemaUtil.getCurrentSchemaColumns(responseString);
 	}
 	

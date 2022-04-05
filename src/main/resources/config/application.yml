@@ -150,13 +150,11 @@ base-url:
 #================================================================
 # Keycloak Server Configurations
 keycloak:
-
-  realm: ${KEYCLOAK_REALM_NAME:Demo_Realm}
+  realm: ravi_realm
   credentials: 
-    secret: ${KEYCLOAK_CLIENT_SECRET:EM2zUo5CTPiaTGRjEXzfuSc21tuin2qo}
-  resource: ${KEYCLOAK_CLIENT_NAME:saas-ingress-microservice}
-  auth-server-url: http://${KEYCLOAK_CONTAINER_NAME:localhost}:8080/auth
-
+    secret: 2MGBo1s8upyPn8lRsHW0scW6WkrLOj8K
+  resource: search-as-a-service-egress
+  auth-server-url: http://localhost:8080/auth
   ssl-required: external
   public-client: false
   use-resource-role-mappings: true

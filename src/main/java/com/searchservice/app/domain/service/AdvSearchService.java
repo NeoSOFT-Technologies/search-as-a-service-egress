@@ -138,8 +138,11 @@ public class AdvSearchService implements AdvSearchServicePort {
 	public SearchResponse processSearchQuery(SolrClient client, SolrQuery query, List<String> validSchemaColumns) {
 		try {
 			searchResult = new SearchResult();			
-			QueryResponse response = client.query(query);			
-			SolrDocumentList docs = response.getResults();			
+			System.out.println("query      "+query);
+			QueryResponse response =searchSchemaAPIAdapter.getresponse(client, query);		
+			System.out.println("QueryResponse      "+response);
+			SolrDocumentList docs = response.getResults();	
+			System.out.println("docs get     "+docs);
 			List<Map<String, Object>> searchDocuments = new ArrayList<>();
 			// Sync Table documents with soft deleted schema; add valid documents
 			if(validSchemaColumns.isEmpty())

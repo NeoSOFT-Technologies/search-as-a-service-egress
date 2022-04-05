@@ -1,8 +1,13 @@
 package com.searchservice.app.infrastructure.adaptor;
 
+import java.io.IOException;
+
 import org.apache.solr.client.solrj.SolrClient;
+import org.apache.solr.client.solrj.SolrQuery;
+import org.apache.solr.client.solrj.SolrServerException;
 import org.apache.solr.client.solrj.impl.CloudSolrClient;
 import org.apache.solr.client.solrj.impl.HttpSolrClient;
+import org.apache.solr.client.solrj.response.QueryResponse;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
@@ -60,6 +65,21 @@ public class SearchClientAdapter implements SearchClientAdapterPort {
 				responseDTO.setResponseMessage("Couldn't find Search Client for given collection");
 				return responseDTO;
 			}
+	}
+
+	@Override
+	public QueryResponse getresponse(SolrClient client, SolrQuery query) {
+		QueryResponse res = new QueryResponse();
+		try {
+			 res =	 client.query(query);
+		} catch (SolrServerException e) {
+			e.printStackTrace();
+			
+		} catch (IOException e) {
+			e.printStackTrace();
+		}
+		
+		return res;
 	}
  
 }

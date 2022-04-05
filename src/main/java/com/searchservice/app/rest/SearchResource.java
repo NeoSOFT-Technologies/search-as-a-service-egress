@@ -36,8 +36,8 @@ public class SearchResource {
     private String servicename = "Search_Resource";
     private String username = "Username";
 
-    
-    private SearchServicePort searchservice;
+    @Autowired
+    private SearchService searchservice;
 
     public SearchResource(    	
             SearchService searchservice) {      
