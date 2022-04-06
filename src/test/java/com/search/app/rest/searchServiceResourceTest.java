@@ -4,8 +4,15 @@ package com.search.app.rest;
 
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
+import java.util.ArrayList;
+import java.util.List;
+
+import org.json.JSONArray;
+import org.json.JSONObject;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
+import org.mockito.MockitoAnnotations;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
@@ -14,14 +21,15 @@ import org.springframework.http.MediaType;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
 
-import com.searchservice.app.IntegrationTest;
+import com.search.app.service.IntegrationTest;
 import com.searchservice.app.domain.dto.SearchResponse;
 import com.searchservice.app.domain.service.SearchService;
+import com.searchservice.app.domain.utils.LoggerUtils;
 
 
 @IntegrationTest
 @AutoConfigureMockMvc(addFilters = false)
-class InputDocumentResourceTest {
+class searchServiceResourceTest {
 
 	// String apiEndpoint = "/api/v1";
 	@Value("${base-url.api-endpoint.home}")
@@ -63,30 +71,39 @@ class InputDocumentResourceTest {
     @Autowired
         MockMvc restAMockMvc;
 
-	
+    @SuppressWarnings("deprecation")
+	@BeforeEach
+	void setUp() throws Exception {
+		MockitoAnnotations.initMocks(this);
+		String timestamp = LoggerUtils.utcTime().toString();
+		SearchResponse responseDTO = new SearchResponse(statusCode, message);
+		responseDTO.setStatusCode(200);
+		Mockito.when(searchservice.searchQuery(Mockito.any(), Mockito.any(), Mockito.any(), Mockito.any(),Mockito.any(), Mockito.any(), Mockito.any(), Mockito.any() )).thenReturn(responseDTO);
+			
+			}
 
 	
 	@MockBean
 	 SearchService searchservice;
 
-	public void setMockitoSucccessResponseForService() {
-		SearchResponse responseDTO = new SearchResponse(statusCode, message);
-		responseDTO.setStatusCode(200);
-		Mockito.when(searchservice.searchQuery(Mockito.any(), Mockito.any(), Mockito.any(), Mockito.any(),Mockito.any(), Mockito.any(), Mockito.any(), Mockito.any())).thenReturn(responseDTO);
-			}
-
-	public void setMockitoBadResponseForService() {
-		SearchResponse responseDTO = new SearchResponse(statusCode, message);
-		responseDTO.setStatusCode(400);
-			}
-
+		/*
+		 * public void setMockitoSucccessResponseForService() { SearchResponse
+		 * responseDTO = new SearchResponse(statusCode, message);
+		 * responseDTO.setStatusCode(200);
+		 * Mockito.when(searchservice.searchQuery(Mockito.any(), Mockito.any(),
+		 * Mockito.any(), Mockito.any(),Mockito.any(), Mockito.any(), Mockito.any(),
+		 * Mockito.any())).thenReturn(responseDTO); }
+		 * 
+		 * public void setMockitoBadResponseForService() { SearchResponse responseDTO =
+		 * new SearchResponse(statusCode, message); responseDTO.setStatusCode(400); }
+		 */
 	@Test
 	void testinputdocs() throws Exception {
 		System.out.println("vfdvdfvfdv        "+apiEndpoint);
-		setMockitoSucccessResponseForService();
+
 		restAMockMvc.perform(MockMvcRequestBuilders.get(apiEndpoint + "/query/" + tenantId + "/" + tableName)
 				.contentType(MediaType.APPLICATION_PROBLEM_JSON)
-				.content(inputString))
+				)
 				.andExpect(status().isOk());
 	}
 
