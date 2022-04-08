@@ -1,18 +1,20 @@
 package com.searchservice.app.domain.utils;
 
+import com.searchservice.app.domain.service.JwtTokenFilterService;
 import com.squareup.okhttp.*;
 import lombok.Data;
-
+import lombok.NoArgsConstructor;
 import org.json.JSONArray;
 import org.json.JSONObject;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
+
 @Data
+@NoArgsConstructor
 public class GetCurrentSchemaUtil {
 
 	private final Logger log = LoggerFactory.getLogger(GetCurrentSchemaUtil.class);
@@ -20,14 +22,14 @@ public class GetCurrentSchemaUtil {
 	private String baseIngressMicroserviceUrl;
 	private String tableName;
 	private int clientId;
-
+	
+	JwtTokenFilterService service =new JwtTokenFilterService();
+	
 	public GetCurrentSchemaUtilResponse get() {
 		
 		OkHttpClient client = new OkHttpClient();
-
 		String url = baseIngressMicroserviceUrl + "/"+clientId + "/"+tableName;
 		log.debug("GET table");
-	
 		Request request = new Request.Builder().url(url).build();
 
 		try {
@@ -42,7 +44,9 @@ public class GetCurrentSchemaUtil {
 		}
 
 	}
-
+	
+	
+    
 
 	@Data
 	public static class GetCurrentSchemaUtilResponse {
@@ -92,4 +96,5 @@ public class GetCurrentSchemaUtil {
 		}
 		return new JSONArray();
 	}
+	
 }
