@@ -36,9 +36,9 @@ public class GetCurrentSchemaUtilTest {
 	@Test
 	void testgetCurrentSchemaColumns()
 	{
-		System.out.println("Testing Egress : "+schemaUtil.toString());
-		System.out.println("Testing Egress: "+schemaUtil.equals(schemaUtil1));
-		System.out.println("testing egress: "+schemaUtil.hashCode());
+		logger.info("Testing Egress : "+schemaUtil.toString());
+		logger.info("Testing Egress: "+schemaUtil.equals(schemaUtil1));
+		logger.info("testing egress: "+schemaUtil.hashCode());
 
 		int expectedSize =2;
 		
@@ -53,8 +53,8 @@ public class GetCurrentSchemaUtilTest {
 		
 		logger.info("Testing Egress: "+response1.equals(response2));
 		logger.info("testing egress: "+response1.hashCode());
-		logger.info("Testing egress");
-		logger.info("HEllo");
+		response1.setMessage("Testing egress");
+		response1.setResponseString("HEllo");
 		response1.setTableRetrieved(true);
 		JSONArray schemaDetails  = schemaUtil.getCurrentSchemaDetails(schemaResponse);
 		assertNotNull(schemaDetails);
