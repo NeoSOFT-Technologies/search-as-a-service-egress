@@ -18,6 +18,7 @@ import org.apache.solr.client.solrj.SolrRequest.METHOD;
 import org.apache.solr.client.solrj.SolrServerException;
 import org.apache.solr.client.solrj.impl.BaseCloudSolrClient;
 import org.apache.solr.client.solrj.response.QueryResponse;
+import org.apache.solr.common.SolrDocument;
 import org.apache.solr.common.SolrDocumentList;
 import org.apache.solr.common.SolrInputDocument;
 import org.apache.solr.common.params.SolrParams;
@@ -137,13 +138,26 @@ class AdvSearchServiceTest {
 		loggersDTO.setNameofmethod("nameofCurrMethod");
 		loggersDTO.setTimestamp(timestamp);
 		loggersDTO.setServicename("servicename");
-		loggersDTO.setUsername("username");		
-    
+		loggersDTO.setUsername("username");	 
 		solrClient = solrAPIAdapter.getSearchCloudClient(SOLR_URL, SOLR_COLLECTION);
+		List<String> categoryList =  Arrays.asList("Christopher Osborne", "Melanie Calderon", "Jessica Jacobs");
+		List<Number> vendorIdList = Arrays.asList(56,50.73);
+		SolrDocument solrDocs = new SolrDocument();
+		solrDocs.setField("id", 0);
+		solrDocs.setField("title","Michelle Giles");
+		solrDocs.setField("product_name","Amazing title - Michelle Giles");
+		solrDocs.setField("category", categoryList);
+		solrDocs.setField("price", Long.valueOf(3500));
+		solrDocs.setField("vendor_id", vendorIdList);
+		solrDocs.setField("is_available", true);
+		solrDocs.setField("_version_", 1728887091072335872L);
+		SolrDocumentList list = new SolrDocumentList();
+		list.add(solrDocs);
+		list.setNumFound(1);
 		System.out.println("zzzzzzzzzzzzz     "+solrClient);
 		when(solrAPIAdapterMock.getSearchClient(Mockito.any(), Mockito.any())).thenReturn(solrClient);
 		QueryResponse emptyResponse = new QueryResponse();
-		emptyResponse.setResponse(new NamedList<>(Map.of("response", new SolrDocumentList())));
+		emptyResponse.setResponse(new NamedList<>(Map.of("response", list)));
 		QueryResponse response = createAndInitEmptySolrQueryReponseMock();
 		System.out.println("aaaaaaaaacvcv  "+ response);
 	
@@ -187,6 +201,7 @@ class AdvSearchServiceTest {
 		assertEquals(expectedStatusResponse, receivedResponse.getStatusCode());
 		logger.info("Negative testing is completed for invalid Solr Collection.");
 	}
+	
 
 	/*
 	 * @Test

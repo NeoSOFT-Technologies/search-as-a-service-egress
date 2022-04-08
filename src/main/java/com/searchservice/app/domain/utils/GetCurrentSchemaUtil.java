@@ -21,6 +21,7 @@ public class GetCurrentSchemaUtil {
 	private String tableName;
 	private int clientId;
 
+	
 	public GetCurrentSchemaUtilResponse get() {
 		
 		OkHttpClient client = new OkHttpClient();
@@ -29,7 +30,8 @@ public class GetCurrentSchemaUtil {
 		log.debug("GET table");
 	
 		Request request = new Request.Builder().url(url).build();
-
+	
+		System.out.println("Testing Egress : "+request);
 		try {
 			Response response = client.newCall(request).execute();
 			return new GetCurrentSchemaUtilResponse(

@@ -1,9 +1,6 @@
 package com.search.app.rest;
 
-
-
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
-
 import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -16,14 +13,14 @@ import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
 
 import com.searchservice.app.IntegrationTest;
 import com.searchservice.app.domain.dto.SearchResponse;
+import com.searchservice.app.domain.dto.logger.Loggers;
 import com.searchservice.app.domain.service.SearchService;
 
 
 @IntegrationTest
 @AutoConfigureMockMvc(addFilters = false)
-class InputDocumentResourceTest {
+class SearchServiceResourceTest {
 
-	// String apiEndpoint = "/api/v1";
 	@Value("${base-url.api-endpoint.home}")
 	private String apiEndpoint;
 
@@ -33,6 +30,14 @@ class InputDocumentResourceTest {
 	String message="";
 	int tenantId = 101;
 	String tableName = "book";
+	String tablename1 = "book_101";
+	String searchQuery = "category: shubham AND category: karthik";
+	String startRecord = "0";
+	String pageSize = "10";
+	String orderBy = "id";
+	String order = "asc";
+	String searchQueryfield = "category";
+	String queryFieldSearchTerm = "shubham";
 	String expectedGetResponse = "{\r\n"
 			+ "  \"statusCode\": 200,\r\n"
 			+ "  \"message\": \"Records fetched successfully\",\r\n"
@@ -62,9 +67,8 @@ class InputDocumentResourceTest {
 
     @Autowired
         MockMvc restAMockMvc;
-
-	
-
+    
+	Loggers loggersDTO = new Loggers();
 	
 	@MockBean
 	 SearchService searchservice;
@@ -72,17 +76,19 @@ class InputDocumentResourceTest {
 	public void setMockitoSucccessResponseForService() {
 		SearchResponse responseDTO = new SearchResponse(statusCode, message);
 		responseDTO.setStatusCode(200);
-		Mockito.when(searchservice.searchQuery(Mockito.any(), Mockito.any(), Mockito.any(), Mockito.any(),Mockito.any(), Mockito.any(), Mockito.any(), Mockito.any())).thenReturn(responseDTO);
+		Mockito.when(searchservice.searchQuery(Mockito.anyInt(), Mockito.anyString(), Mockito.anyString(), Mockito.anyString(),Mockito.anyString(), Mockito.anyString(), Mockito.anyString(), Mockito.any())).thenReturn(responseDTO);
+		Mockito.when(searchservice.searchField(Mockito.anyInt(), Mockito.anyString(), Mockito.anyString(), Mockito.anyString(),Mockito.anyString(), Mockito.anyString(), Mockito.anyString(), Mockito.anyString(),Mockito.any())).thenReturn(responseDTO);
 			}
 
 	public void setMockitoBadResponseForService() {
 		SearchResponse responseDTO = new SearchResponse(statusCode, message);
 		responseDTO.setStatusCode(400);
+		Mockito.when(searchservice.searchQuery(Mockito.anyInt(), Mockito.anyString(), Mockito.anyString(), Mockito.anyString(),Mockito.anyString(), Mockito.anyString(), Mockito.anyString(), Mockito.any())).thenReturn(responseDTO);
+		Mockito.when(searchservice.searchField(Mockito.anyInt(), Mockito.anyString(), Mockito.anyString(), Mockito.anyString(),Mockito.anyString(), Mockito.anyString(), Mockito.anyString(), Mockito.anyString(),Mockito.any())).thenReturn(responseDTO);
 			}
 
 	@Test
-	void testinputdocs() throws Exception {
-		System.out.println("vfdvdfvfdv        "+apiEndpoint);
+	void testsearchRecordsViaQuery() throws Exception {
 		setMockitoSucccessResponseForService();
 		restAMockMvc.perform(MockMvcRequestBuilders.get(apiEndpoint + "/query/" + tenantId + "/" + tableName)
 				.contentType(MediaType.APPLICATION_PROBLEM_JSON)
@@ -91,9 +97,34 @@ class InputDocumentResourceTest {
 	}
 
 
-	
+	@Test
+	void testsearchRecordsViaQueryFields() throws Exception {
+		setMockitoSucccessResponseForService();
+		restAMockMvc.perform(MockMvcRequestBuilders.get(apiEndpoint + "/" + tenantId + "/" + tableName)
+				.contentType(MediaType.APPLICATION_PROBLEM_JSON)
+				.content(inputString))
+				.andExpect(status().isOk());
+	}
 	
 
+	@Test
+	void testbadsearchRecordsViaQuery() throws Exception{
+		setMockitoBadResponseForService();
+		restAMockMvc.perform(MockMvcRequestBuilders.get(apiEndpoint + "/query/" + tenantId + "/" + tableName)
+				.contentType(MediaType.APPLICATION_PROBLEM_JSON)
+				.content(inputString))
+		        .andExpect(status().isBadRequest());
+	} 
+	
+	@Test
+	void testbadsearchRecordsViaQueryFields() throws Exception{
+		setMockitoBadResponseForService();
+		restAMockMvc.perform(MockMvcRequestBuilders.get(apiEndpoint + "/" + tenantId + "/" + tableName)
+				.contentType(MediaType.APPLICATION_PROBLEM_JSON)
+				.content(inputString))
+		        .andExpect(status().isBadRequest());
+		
+	}
 	
 	
 }
