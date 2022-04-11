@@ -1,4 +1,4 @@
-package com.searchservice.app.filter;
+package com.searchservice.app.domain.filter;
 
 
 import java.io.IOException;
