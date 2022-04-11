@@ -3,8 +3,6 @@ package com.searchservice.app.config.aspect;
 
 import java.io.IOException;
 import java.util.UUID;
-//import java.util.logging.LogRecord;
-
 import javax.servlet.Filter;
 import javax.servlet.FilterChain;
 import javax.servlet.ServletException;
@@ -21,7 +19,6 @@ public class CidFilter implements Filter {
 	@Override
 	public void doFilter(ServletRequest req, ServletResponse res, FilterChain chain)
 			throws IOException, ServletException {
-		// TODO Auto-generated method stub
 		if(req instanceof HttpServletRequest)
 		{
 			HttpServletRequest request=(HttpServletRequest) req;
@@ -43,7 +40,6 @@ public class CidFilter implements Filter {
 	
 	
 	public static String generationUniqueCorrelationId() {
-		// TODO Auto-generated method stub
 		return UUID.randomUUID().toString();
 	}
 
