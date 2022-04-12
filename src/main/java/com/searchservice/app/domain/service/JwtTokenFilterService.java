@@ -117,31 +117,5 @@ public class JwtTokenFilterService extends OncePerRequestFilter{
 		}	
         return active;
     }
-	 
-	 
-	 public String getIngressToken() {
-	    	String accessToken = "";
-			String url = "http://localhost:8080/auth/realms/SK_realm/protocol/openid-connect/token";
-		    	HttpHeaders headers = new HttpHeaders();
-		    	headers.setContentType(MediaType.APPLICATION_FORM_URLENCODED);
-		    	MultiValueMap<String, String> map= new LinkedMultiValueMap<String, String>();
-		    	map.add("grant_type", "password");
-		    	map.add("client_id", "search-as-service-ingress");
-		    	map.add("client_secret", "DqyPaAbNKueiwMF7GQnuUbMsK3oH6P75");
-		    	map.add("username", "sk");
-		    	map.add("password", "1234");
-		    	HttpEntity<MultiValueMap<String, String>> request = new HttpEntity<>(map, headers);
-		    	ResponseEntity<String> response = new ResponseEntity<>(HttpStatus.OK);
-		    	try {
-		    		response = restTemplate.postForEntity( url, request , String.class );
-				} catch (Exception e) {
-					e.printStackTrace();
-				}
-		    	JSONObject obj = new JSONObject(response.getBody());
-		    	if (obj.has("access_token")) {
-		    		accessToken = obj.getString("access_token");
-					return accessToken;
-		    	}
-			return accessToken;
-	    }
+	
 }
