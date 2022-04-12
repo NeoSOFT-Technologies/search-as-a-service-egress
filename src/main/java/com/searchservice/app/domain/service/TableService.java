@@ -38,6 +38,9 @@ public class TableService implements TableServicePort{
 	@Autowired
 	SearchClientAdapter searchAPIAdapter = new SearchClientAdapter();
 
+
+	GetCurrentSchemaUtil getCurrentSchemaUtil = new GetCurrentSchemaUtil();
+	
 	@Override
 	public List<String> getCurrentTableSchemaColumns(String tableName, int clientId) {
 		logger.debug("Get current table schema from Ingress microservice");
@@ -64,7 +67,7 @@ public class TableService implements TableServicePort{
 	
 
 	private GetCurrentSchemaUtil extracted(String tableName, int clientId) {
-		GetCurrentSchemaUtil getCurrentSchemaUtil = new GetCurrentSchemaUtil();
+		
 		getCurrentSchemaUtil.setBaseIngressMicroserviceUrl(baseIngressMicroserviceUrl + getTableUrl);
 		getCurrentSchemaUtil.setTableName(tableName);
 		getCurrentSchemaUtil.setClientId(clientId);
