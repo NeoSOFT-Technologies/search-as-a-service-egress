@@ -8,6 +8,7 @@ import org.springframework.http.HttpStatus;
 import com.fasterxml.jackson.annotation.JsonFormat;
 
 import lombok.Data;
+import lombok.NoArgsConstructor;
 
 @Data
 public class RestApiError {
@@ -21,7 +22,9 @@ public class RestApiError {
 	   private RestApiError() {
 	       timestamp = LocalDateTime.now();
 	   }
-
+      static RestApiError getInstance() {
+    	  return new RestApiError();
+      }
 	   RestApiError(HttpStatus status) {
 	       this();
 	       this.status = status;

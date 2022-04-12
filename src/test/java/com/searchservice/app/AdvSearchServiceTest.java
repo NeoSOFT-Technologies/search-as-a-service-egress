@@ -42,14 +42,17 @@ import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.test.context.TestPropertySource;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
 
+
 import com.searchservice.app.domain.dto.SearchResponse;
 import com.searchservice.app.domain.dto.logger.Loggers;
 import com.searchservice.app.domain.port.api.SearchServicePort;
 import com.searchservice.app.domain.port.spi.SearchClientAdapterPort;
 import com.searchservice.app.domain.service.AdvSearchService;
 import com.searchservice.app.domain.service.SearchService;
+import com.searchservice.app.domain.service.TableService;
 import com.searchservice.app.domain.utils.LoggerUtils;
 import com.searchservice.app.infrastructure.adaptor.SearchClientAdapter;
+import com.searchservice.app.infrastructure.adaptor.SearchResult;
 
 
 @ExtendWith(MockitoExtension.class)
@@ -69,39 +72,51 @@ class AdvSearchServiceTest {
 	/* Mock the dependencies */
 	@MockBean
 	private SearchServicePort solrSearchRecordsServicePort;
+	
+	@MockBean
+	TableService tableService;
+	
 	// @Autowired
 	@MockBean
 	private SearchClientAdapter solrAPIAdapterMock;
-	
+
 	@MockBean
 	SolrClient solrclient;
 
+	SearchResult searchResult = new SearchResult();
+
 	@InjectMocks
 	private AdvSearchService solrSearchRecordsService;
-	
-	//SolrClient client= "{responseHeader={zkConnected=true,status=0,QTime=3,params={q=category: shubham AND category: karthik,start=0,sort=id asc,rows=5,wt=javabin,version=2}},response={numFound=1,numFoundExact=true,start=0,docs=[SolrDocument{id=7, title=the aaaaaaaaaa, category=[shubham, mangesh, karthik, abc], _version_=1726096559946334208}]}}";
 
-    Map<String, Map<String, Object>> getSchemaKeyValuePair(){
-        Map<String, Map<String, Object>> schemaKeyValuePair = new HashMap<>();
-        Map<String, Object> id=new HashMap<String, Object>(){{
-            put("name" , "id");
-            put("type" , "string");
-            put("multiValued", "false");
-            put("uninvertible" , "true");
-            put("indexed" , "true");
-            put("stored" , "true");
-        }};
-        schemaKeyValuePair.put("id",id);
-		return schemaKeyValuePair;
-        
-    }
-	
-	//QueryResponse clintjson= new QueryResponse(client);
-	
+	// SolrClient client=
+	// "{responseHeader={zkConnected=true,status=0,QTime=3,params={q=category:
+	// shubham AND category: karthik,start=0,sort=id
+	// asc,rows=5,wt=javabin,version=2}},response={numFound=1,numFoundExact=true,start=0,docs=[SolrDocument{id=7,
+	// title=the aaaaaaaaaa, category=[shubham, mangesh, karthik, abc],
+	// _version_=1726096559946334208}]}}";
+
+
+
+	// QueryResponse clintjson= new QueryResponse(client);
+
 	String query = "q=*&start=0&rows=5&sort=id+asc";
 
 	private SearchClientAdapter solrAPIAdapter = new SearchClientAdapter();
 	
+String json = "{\r\n"
+		+ "\"books\" :[\r\n"
+		+ "  {\r\n"
+		+ "    \"id\" : 1,\r\n"
+		+ "    \"name\" : \"queryField\",\r\n"
+		+ "    \"author\" : \"Rick Riordan\",\r\n"
+		+ "    \"multiValue\" : true\r\n"
+		+ "  }  \r\n"
+		+ "]\r\n"
+		+ "}";
+
+	JSONObject jobj = new JSONObject(json);
+	JSONArray jarray = jobj.getJSONArray("books");
+
 	@Mock
 	SolrClient solrClient;
 
@@ -118,18 +133,21 @@ class AdvSearchServiceTest {
 	 * when(solrAPIAdapterMock.getSolrClient(Mockito.any(), Mockito.any()))
 	 * .thenReturn(null); } }
 	 */
-	 Loggers loggersDTO =new Loggers() ;
-	 private  SearchResponse responseDTO = new SearchResponse();
-	 
-	 Map<String, Object> id=new HashMap<String, Object>(){{
-         put("name" , "id");
-         put("type" , "string");
-         put("multiValued", "false");
-         put("uninvertible" , "true");
-         put("indexed" , "true");
-         put("stored" , "true");
-     }};
-    private BaseCloudSolrClient baseCloudSolrClient;
+	Loggers loggersDTO = new Loggers();
+	private SearchResponse responseDTO = new SearchResponse();
+
+	Map<String, Object> id = new HashMap<String, Object>() {
+		{
+			put("name", "id");
+			put("type", "string");
+			put("multiValued", "false");
+			put("uninvertible", "true");
+			put("indexed", "true");
+			put("stored", "true");
+		}
+	};
+	private BaseCloudSolrClient baseCloudSolrClient;
+
 	@SuppressWarnings("deprecation")
 	@BeforeEach
 	void setUp() throws SolrServerException, IOException {
@@ -138,14 +156,16 @@ class AdvSearchServiceTest {
 		loggersDTO.setNameofmethod("nameofCurrMethod");
 		loggersDTO.setTimestamp(timestamp);
 		loggersDTO.setServicename("servicename");
-		loggersDTO.setUsername("username");	 
-		solrClient = solrAPIAdapter.getSearchCloudClient(SOLR_URL, SOLR_COLLECTION);
-		List<String> categoryList =  Arrays.asList("Christopher Osborne", "Melanie Calderon", "Jessica Jacobs");
-		List<Number> vendorIdList = Arrays.asList(56,50.73);
+		loggersDTO.setUsername("username");	
+		
+		when(solrAPIAdapterMock.getSearchClient(Mockito.any(), Mockito.any())).thenReturn(solrClient);
+
+		List<String> categoryList = Arrays.asList("Christopher Osborne", "Melanie Calderon", "Jessica Jacobs");
+		List<Number> vendorIdList = Arrays.asList(56, 50.73);
 		SolrDocument solrDocs = new SolrDocument();
 		solrDocs.setField("id", 0);
-		solrDocs.setField("title","Michelle Giles");
-		solrDocs.setField("product_name","Amazing title - Michelle Giles");
+		solrDocs.setField("title", "Michelle Giles");
+		solrDocs.setField("product_name", "Amazing title - Michelle Giles");
 		solrDocs.setField("category", categoryList);
 		solrDocs.setField("price", Long.valueOf(3500));
 		solrDocs.setField("vendor_id", vendorIdList);
@@ -154,34 +174,25 @@ class AdvSearchServiceTest {
 		SolrDocumentList list = new SolrDocumentList();
 		list.add(solrDocs);
 		list.setNumFound(1);
-		System.out.println("zzzzzzzzzzzzz     "+solrClient);
+		
 		when(solrAPIAdapterMock.getSearchClient(Mockito.any(), Mockito.any())).thenReturn(solrClient);
 		QueryResponse emptyResponse = new QueryResponse();
 		emptyResponse.setResponse(new NamedList<>(Map.of("response", list)));
-		QueryResponse response = createAndInitEmptySolrQueryReponseMock();
-		System.out.println("aaaaaaaaacvcv  "+ response);
-	
-		//when(solrClient.query( Mockito.any(),Mockito.any(SolrQuery.class)));
+		//QueryResponse response = createAndInitEmptySolrQueryReponseMock();
+		// when(solrClient.query( Mockito.any(),Mockito.any(SolrQuery.class)));
 		
+		List<Map<String, Object>> listmap = new ArrayList<Map<String, Object>>();
+		Map<String, Object> map = new HashMap<String, Object>();
+		map.put("id", "7");
+		map.put("title", "the monk");
+		map.put("category", "shubham");
+		listmap.add(map);
+
 		Mockito.when(solrAPIAdapterMock.getresponse(Mockito.any(), Mockito.any())).thenReturn(emptyResponse);
-		
-	
-		// when(solrClient.query(Mockito.any())).thenReturn((QueryResponse) getSchemaKeyValuePair());
-		// Mockito.when(solrSearchRecordsService.processSearchQuery( Mockito.any(),
-		// Mockito.any(), Mockito.anyList())).thenReturn(receivedResponse);
-	}
-	
-	private QueryResponse createAndInitEmptySolrQueryReponseMock() {
-
-		SolrDocumentList sdl = Mockito.mock(SolrDocumentList.class);
-		when(sdl.isEmpty()).thenReturn(true);
-		QueryResponse response = Mockito.mock(QueryResponse.class);
-		when(response.getResults()).thenReturn(sdl);
-		when(sdl.getNumFound()).thenReturn(0L);
-
-		return response;
+		Mockito.when(tableService.getValidDocumentsList(Mockito.any(), Mockito.any())).thenReturn(listmap);			
 	}
 
+	
 	@Test
 	void testSetUpSelectQueryearch() {
 		logger.info("Solr Search ADVANCED service test is started..");
@@ -192,41 +203,22 @@ class AdvSearchServiceTest {
 		assertEquals(expectedStatusResponse, receivedResponse.getStatusCode());
 		logger.info("Positive testing is completed.");
 
-		/* Test service when invalid collection is provided as input */
-		String invalidCollection = "invalidcollection";
-		// setUpMockitoForInvalidCollection(invalidCollection);
-		expectedStatusResponse = 400;
-		receivedResponse = solrSearchRecordsService.setUpSelectQuerySearchViaQuery(validSchemaColumns, SOLR_COLLECTION,
-				"*", "0", "5", "id", "asc");
-		assertEquals(expectedStatusResponse, receivedResponse.getStatusCode());
-		logger.info("Negative testing is completed for invalid Solr Collection.");
 	}
+
 	
-
-	/*
-	 * @Test
-	 * 
-	 * void testSetUpSelectQueryfieldSearch() {
-	 * logger.info("Solr Search ADVANCED service test is started..");
-	 * 
-	 * int expectedStatusResponse = 200; SearchResponse receivedResponse = null;
-	 * 
-	 * 
-	 * receivedResponse = solrSearchRecordsService.setUpSelectQuerySearchViaQuery(
-	 * validSchemaColumns, SOLR_COLLECTION, "*", "0", "5", "id", "asc");
-	 * 
-	 * assertEquals( expectedStatusResponse, receivedResponse.getStatusCode());
-	 * logger.info("Positive testing is completed.");
-	 * 
-	 * Test service when invalid collection is provided as input String
-	 * invalidCollection = "invalidcollection";
-	 * //setUpMockitoForInvalidCollection(invalidCollection); expectedStatusResponse
-	 * = 400; receivedResponse =
-	 * solrSearchRecordsService.setUpSelectQuerySearchViaQueryField(
-	 * validSchemaColumns, currentTableSchema, SOLR_COLLECTION, "*", "*", "0", "5",
-	 * "id", "asc"); assertEquals( expectedStatusResponse,
-	 * receivedResponse.getStatusCode());
-	 * logger.info("Negative testing is completed for invalid Solr Collection."); }
-	 */
-
+	@Test
+	  
+	  void testSetUpSelectQueryfieldSearch() {
+	  logger.info("Solr Search ADVANCED service test is started..");
+	  
+	  int expectedStatusResponse = 200; 
+	  SearchResponse receivedResponse = null;
+	  
+	  
+	  receivedResponse = solrSearchRecordsService.setUpSelectQuerySearchViaQueryField(
+	  validSchemaColumns, jarray, SOLR_COLLECTION, "*","*", "0", "5", "id", "asc");
+	  
+	  assertEquals( expectedStatusResponse, receivedResponse.getStatusCode());
+	  logger.info("Positive testing is completed.");
+	}
 }

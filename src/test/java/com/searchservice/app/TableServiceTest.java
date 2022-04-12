@@ -8,7 +8,10 @@ import static org.mockito.Mockito.spy;
 import static org.mockito.Mockito.when;
 
 import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.LinkedList;
 import java.util.List;
+import java.util.Map;
 
 import javax.management.RuntimeErrorException;
 
@@ -16,12 +19,14 @@ import org.json.JSONArray;
 import org.json.JSONObject;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.junit.runner.RunWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.Mockito;
 import org.mockito.MockitoAnnotations;
 import org.mockito.junit.MockitoJUnitRunner;
+import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
@@ -40,10 +45,10 @@ import com.searchservice.app.domain.utils.LoggerUtils;
 import com.searchservice.app.rest.errors.BadRequestOccurredException;
 import com.squareup.okhttp.Request;
 
-
 @AutoConfigureMockMvc
 @SpringBootTest
 @RunWith(MockitoJUnitRunner.class)
+@ExtendWith(MockitoExtension.class)
 class TableServiceTest {
 	
 
@@ -68,10 +73,27 @@ class TableServiceTest {
 	
 	String token = "Unauthorized:Invalid token";
 	
-	@Mock
-	private GetCurrentSchemaUtil getCurrentSchemaUtil;
+
 	
-	GetCurrentSchemaUtilResponse getCurrentSchemaUtilResponse = new GetCurrentSchemaUtilResponse(true,message,"book");
+	String json = "{\r\n"
+			+ "\"books\" :[\r\n"
+			+ "  {\r\n"
+			+ "    \"id\" : 1,\r\n"
+			+ "    \"name\" : \"queryField\",\r\n"
+			+ "    \"author\" : \"Rick Riordan\",\r\n"
+			+ "    \"multiValue\" : true\r\n"
+			+ "  }  \r\n"
+			+ "]\r\n"
+			+ "}";
+
+		JSONObject jobj = new JSONObject(json);
+	
+	@MockBean
+	GetCurrentSchemaUtil getCurrentSchemaUtil;
+	
+
+  @MockBean
+   GetCurrentSchemaUtilResponse getCurrentSchemaUtilResponse;
 
 	@SuppressWarnings("deprecation")
 	@BeforeEach
@@ -83,53 +105,51 @@ class TableServiceTest {
 		loggersDTO.setServicename("servicename");
 		loggersDTO.setUsername("username");
 
-		responseDTO = new SearchResponse();
-		responseDTO.setMessage("success");
-		responseDTO.setStatusCode(200);		
-		String url = baseIngressMicroserviceUrl + "/"+tenantId + "/"+tableName;
-		Request request = new Request.Builder().url(url).build();
-		
-		GetCurrentSchemaUtil.GetCurrentSchemaUtilResponse respons = new GetCurrentSchemaUtil.GetCurrentSchemaUtilResponse(true, message, token);
-	
-		 //getCurrentSchemaUtilResponse.setResponseString("Unauthorized:Invalid token");
-		Mockito.when(getCurrentSchemaUtil.get()).thenReturn(respons);
+		//Mockito.when(request.newBuilder().url(url).build()).thenReturn(request);
 			}
 
 	public void setMockitoSucccessResponseForService() {
-		SearchResponse responseDTO = new SearchResponse(statusCode, message);
-		responseDTO.setStatusCode(200);
-	
+		getCurrentSchemaUtilResponse = new GetCurrentSchemaUtilResponse(true,message,"book");
+		JSONArray jarray = jobj.getJSONArray("books");
+		Mockito.when(getCurrentSchemaUtil.get()).thenReturn(getCurrentSchemaUtilResponse);
+		Mockito.when(getCurrentSchemaUtil.getCurrentSchemaColumns(Mockito.any())).thenReturn(new LinkedList<>(List.of("book")));
+		Mockito.when(getCurrentSchemaUtil.getCurrentSchemaDetails(Mockito.any())).thenReturn(jarray);		
 	}
 
-	public void setMockitoBadResponseForService() {
-		SearchResponse responseDTO = new SearchResponse(statusCode, message);
-		responseDTO.setStatusCode(400);
-		
-	}
+
 
 	
 	@Test
 	void testsearchtableSchema() throws Exception {
-		List<String> currentListOfColumnsOfTableSchema = new ArrayList<>(List.of("id", "category"));
-		
+		List<String> currentListOfColumnsOfTableSchema = new LinkedList<>(List.of("book"));
+		setMockitoSucccessResponseForService();
 		List<String> responseDTO = tableService.getCurrentTableSchemaColumns( tableName,tenantId);
 		assertEquals(responseDTO,currentListOfColumnsOfTableSchema );
 
 	}
 	
-	/*
-	 * @Test void testsearchtable() throws Exception { List<String>
-	 * currentListOfColumnsOfTableSchema = new ArrayList<>(List.of("id",
-	 * "category"));
-	 * 
-	 * JSONArray responseDTO = tableService.getCurrentTableSchema(
-	 * tablename1,tenantId);
-	 * assertEquals(responseDTO,currentListOfColumnsOfTableSchema );
-	 * 
-	 * }
-	 */
+	@Test
+	void testsearchtableSchemacolumn() throws Exception {		
+			JSONArray jarray = jobj.getJSONArray("books");
+		setMockitoSucccessResponseForService();
+		JSONArray responseDTO = tableService.getCurrentTableSchema( tableName,tenantId);
+		assertEquals(responseDTO,jarray );
+	}
 	
-	
+	@Test
+	void testsearchtableSchemacolumnMap() throws Exception {		
+			String jarray = "{author=Rick Riordan, id=1, multiValue=true}";
+		setMockitoSucccessResponseForService();
+		Map<String, Object> mapDoc = new HashMap<String, Object>();
+		mapDoc.put("id", "1");
+		mapDoc.put("name", "queryField");
+		mapDoc.put("author", "Rick Riordan");
+		mapDoc.put("multiValue", "true");		 
+		List<String> validColumns =  new ArrayList<>(List.of("author","id","multiValue","Power"));
+		Map<String, Object>responseDTO = tableService.getValidMapOfDocument( mapDoc,validColumns );		
+		String Mapstr =responseDTO.toString();
+		assertEquals(Mapstr,jarray );
+	}
 	
 
 }
