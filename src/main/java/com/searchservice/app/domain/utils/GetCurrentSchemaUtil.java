@@ -18,13 +18,15 @@ import java.util.List;
 @Data
 @NoArgsConstructor
 public class GetCurrentSchemaUtil {
-
+	
+	private String userName;
+	private String password;
 	private final Logger log = LoggerFactory.getLogger(GetCurrentSchemaUtil.class);	
 	private String baseIngressMicroserviceUrl;
 	private String tableName;
 	private int clientId;
 	public GetCurrentSchemaUtilResponse get() {
-		
+		System.out.println(">>User "+userName);
 	 String ingressServiceToken = getIngressToken();
 		if(!ingressServiceToken.isBlank()) {
 		OkHttpClient client = new OkHttpClient();
@@ -53,7 +55,7 @@ public class GetCurrentSchemaUtil {
 	
 	public String getIngressToken() {
 		OkHttpClient client = new OkHttpClient();
-		String json = "{\"userName\":\"sk\",\"password\":\"1234\"}";
+		String json = "{\"userName\":\""+userName+"\",\"password\":\""+password+"\"}";
 		RequestBody body = RequestBody.create(
 		MediaType.parse("application/json"), json);
 		String ingressToken = "";

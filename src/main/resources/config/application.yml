@@ -162,3 +162,6 @@ keycloak:
   public-client: false
   use-resource-role-mappings: true
 #================================================================
+
+token-userName: sk
+token-password : 1234
