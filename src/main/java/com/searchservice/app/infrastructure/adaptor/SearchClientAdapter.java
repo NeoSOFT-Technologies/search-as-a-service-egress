@@ -58,13 +58,9 @@ public class SearchClientAdapter implements SearchClientAdapterPort {
 		QueryResponse res = new QueryResponse();
 		try {
 			 res =	 client.query(query);
-		} catch (SolrServerException e) {
-			e.printStackTrace();
-			
-		} catch (IOException e) {
-			e.printStackTrace();
-		}
-		
+		} catch (SolrServerException  | IOException e) {
+			log.error("exception occured",e);			
+		} 
 		return res;
 	}
  
