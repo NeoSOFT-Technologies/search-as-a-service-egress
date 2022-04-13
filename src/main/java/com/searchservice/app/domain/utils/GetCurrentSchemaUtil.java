@@ -21,12 +21,12 @@ public class GetCurrentSchemaUtil {
 	
 	private String userName;
 	private String password;
+	private String baseIngresstokenUrl;
 	private final Logger log = LoggerFactory.getLogger(GetCurrentSchemaUtil.class);	
 	private String baseIngressMicroserviceUrl;
 	private String tableName;
 	private int clientId;
 	public GetCurrentSchemaUtilResponse get() {
-		System.out.println(">>User "+userName);
 	 String ingressServiceToken = getIngressToken();
 		if(!ingressServiceToken.isBlank()) {
 		OkHttpClient client = new OkHttpClient();
@@ -59,7 +59,7 @@ public class GetCurrentSchemaUtil {
 		RequestBody body = RequestBody.create(
 		MediaType.parse("application/json"), json);
 		String ingressToken = "";
-		String url = "http:localhost:8081/user/token";
+		String url = baseIngresstokenUrl;
 		log.debug("GET Ingress Token");
 		Request request = new Request.Builder().url(url).post(body).build();
 		try {
@@ -67,6 +67,7 @@ public class GetCurrentSchemaUtil {
 			String requestData = response.body().string();
 			 JSONObject responseObject = new JSONObject(requestData);
 			 ingressToken = responseObject.getString("token");
+			 log.debug("Token Successfully Retrieved From Ingress Microservice");
 		} catch (IOException e) {
 			log.error("Couldn't interact with microservice to retrieve current schema details!", e);
 		

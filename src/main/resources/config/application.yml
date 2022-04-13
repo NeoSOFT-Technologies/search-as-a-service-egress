@@ -151,17 +151,16 @@ base-url:
 #================================================================
 # Keycloak Server Configurations
 keycloak:
-
-  realm: ${KEYCLOAK_REALM_NAME:SK_realm}
+  realm: Demo_Realm
   credentials: 
-    secret: ${KEYCLOAK_CLIENT_SECRET:UiUJWyJCAEYlspvM9qpuwsy1UKsxDMw3}
-  resource: ${KEYCLOAK_CLIENT_NAME:search-as-service-egress}
-  auth-server-url: http://${KEYCLOAK_CONTAINER_NAME:localhost}:8080/auth
-
+    secret: fkt2zezjwsvxd1YzyiKwJvqCv91HFBrW
+  resource: saas-egress-microservice
+  #auth-server-url: http://localhost:8080/auth
+  auth-server-url: http://host.docker.internal:8080/auth  #to run keycloak server via docker: temporary
   ssl-required: external
   public-client: false
   use-resource-role-mappings: true
 #================================================================
-
-token-userName: sk
-token-password : 1234
+#Keycloack UserName and Password For Ingress Token
+token-userName: demo
+token-password : demo
