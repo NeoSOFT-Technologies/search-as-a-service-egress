@@ -1,6 +1,7 @@
 package com.searchservice.app.domain.service;
 
 import java.time.ZoneOffset;
+
 import java.time.ZonedDateTime;
 import java.util.List;
 
@@ -14,10 +15,8 @@ import org.springframework.transaction.annotation.Transactional;
 
 import com.searchservice.app.domain.dto.ResponseMessages;
 import com.searchservice.app.domain.dto.SearchResponse;
-import com.searchservice.app.domain.dto.logger.Loggers;
 import com.searchservice.app.domain.port.api.AdvSearchServicePort;
 import com.searchservice.app.domain.port.api.SearchServicePort;
-import com.searchservice.app.domain.utils.LoggerUtils;
 import com.searchservice.app.rest.errors.BadRequestOccurredException;
 import com.searchservice.app.rest.errors.NullPointerOccurredException;
 
@@ -27,10 +26,6 @@ public class SearchService implements SearchServicePort {
 	private final Logger logger = LoggerFactory.getLogger(SearchService.class);
 
 	ZonedDateTime utc = ZonedDateTime.now(ZoneOffset.UTC);
-
-	private String servicename = "Search_Via_Query_Service";
-
-	private String username = "Username";
 
 	// Table service
 	@Autowired
@@ -45,25 +40,14 @@ public class SearchService implements SearchServicePort {
 		this.searchResponseDTO = searchResponseDTO;
 	}
 
-	private void requestMethod(Loggers loggersDTO, String nameofCurrMethod) {
-
-		String timestamp = LoggerUtils.utcTime().toString();
-		loggersDTO.setNameofmethod(nameofCurrMethod);
-		loggersDTO.setTimestamp(timestamp);
-		loggersDTO.setServicename(servicename);
-		loggersDTO.setUsername(username);
-	}
 	
 
 
 	@Override
 	public SearchResponse searchQuery(int clientId, String tableName, String searchQuery, String startRecord,
-			String pageSize, String sortTag, String sortOrder, Loggers loggersDTO) {
+			String pageSize, String sortTag, String sortOrder) {
 		logger.debug("Query search for the given table");
 
-		String nameofCurrMethod = new Throwable().getStackTrace()[0].getMethodName();
-		requestMethod(loggersDTO,nameofCurrMethod);
-		LoggerUtils.printlogger(loggersDTO,true,false);
 
 		// Get Current Table Schema (communicating with SAAS Microservice)
 		List<String> currentListOfColumnsOfTableSchema = tableService.getCurrentTableSchemaColumns(tableName.split("_")[0], clientId);
@@ -72,18 +56,15 @@ public class SearchService implements SearchServicePort {
 				tableName, 
 				searchQuery, 
 				startRecord, pageSize, sortTag, sortOrder);
-		loggersDTO.setTimestamp(LoggerUtils.utcTime().toString());
+
 		if (searchResponseDTO == null) {
-			LoggerUtils.printlogger(loggersDTO, false, true);
 			throw new NullPointerOccurredException(404, ResponseMessages.NULL_RESPONSE_MESSAGE);
 		} else if (searchResponseDTO.getStatusCode() == 200) {
-			LoggerUtils.printlogger(loggersDTO, false, false);
 			return searchResponseDTO;
 		} else if(searchResponseDTO.getStatusCode() == 503) {
 			return searchResponseDTO;
 		}else {
 			searchResponseDTO.setStatusCode(400);
-			LoggerUtils.printlogger(loggersDTO, false, true);
 			//throw new BadRequestOccurredException(400, ResponseMessages.BAD_REQUEST_MSG);
 			return searchResponseDTO;
 		}
@@ -91,12 +72,8 @@ public class SearchService implements SearchServicePort {
 
 	@Override
 	public SearchResponse searchField(int clientId, String tableName, String queryField, String queryFieldSearchTerm,
-			String startRecord, String pageSize, String sortTag, String sortOrder, Loggers loggersDTO) {
+			String startRecord, String pageSize, String sortTag, String sortOrder) {
 		logger.debug("Advanced search for the given table");
-
-		String nameofCurrMethod = new Throwable().getStackTrace()[0].getMethodName();
-		requestMethod(loggersDTO,nameofCurrMethod);
-		LoggerUtils.printlogger(loggersDTO,true,false);
 
 		// Get Current Table Schema (communicating with SAAS Microservice)
 		boolean isMicroserviceDown = false;
@@ -118,13 +95,11 @@ public class SearchService implements SearchServicePort {
 			searchResponseDTO.setMessage(
 					searchResponseDTO.getMessage()
 					+". Microservice is down, so 'multiValue' query-field verification incomplete; will be treated as single-valued for now");
-		loggersDTO.setTimestamp(LoggerUtils.utcTime().toString());
 		
 		if (searchResponseDTO == null)
 			throw new NullPointerOccurredException(404, ResponseMessages.NULL_RESPONSE_MESSAGE);
 		else if (searchResponseDTO.getStatusCode() == 200) {
 			searchResponseDTO.setStatus(HttpStatus.OK);
-			LoggerUtils.printlogger(loggersDTO, false, false);
 			return searchResponseDTO;
 		}else if(searchResponseDTO.getStatusCode() == 403) {
 			throw new BadRequestOccurredException(400, searchResponseDTO.getMessage());
@@ -132,7 +107,6 @@ public class SearchService implements SearchServicePort {
 			return searchResponseDTO;
 		}else {
 			searchResponseDTO.setStatusCode(400);
-			LoggerUtils.printlogger(loggersDTO, false, true);
 			throw new BadRequestOccurredException(400, ResponseMessages.BAD_REQUEST_MSG);
 		}
 		
