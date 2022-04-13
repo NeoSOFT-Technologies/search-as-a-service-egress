@@ -77,7 +77,7 @@ public class AdvSearchService implements AdvSearchServicePort {
 												String order) {
 		/* Egress API -- table records -- SEARCH via query-field */
 		logger.debug("Performing records-search via query field & search term provided for given table");
-System.out.println("current table array     "+currentTableSchema);
+
 		SolrClient client = searchSchemaAPIAdapter.getSearchClient(searchUrl, tableName);
 		SolrQuery query = new SolrQuery();
 		

@@ -1,5 +1,7 @@
 package com.searchservice.app.domain.dtos;
 
+import static org.junit.Assert.assertEquals;
+
 import org.eclipse.jetty.http.HttpStatus;
 import org.junit.jupiter.api.Test;
 
@@ -21,6 +23,7 @@ public class SearchResponseTest {
 	 @Test 
 	 void testSearchResponse()
 	 {
+		 int code= 200;
 		 s1.equals(s2);
 		 s1.getStatus();
 		 s1.getResults();
@@ -28,10 +31,12 @@ public class SearchResponseTest {
 		 s1.setMessage("success");
 		 s1.toString();
 		 s1.hashCode();
+		 assertEquals(code,s1.getStatusCode());
 	 }
 	 
 	@Test
 	void testSearchResponse1() {
+		 int code= 200;
 		s3.equals(s4);
 		s3.getStatus();
 		s3.getResults();
@@ -40,11 +45,13 @@ public class SearchResponseTest {
 		s3.setMessage("success");
 		s3.toString();
 		s3.hashCode();
+		 assertEquals(code,s3.getStatusCode());
 	}
 	
 	@Test 
 	void testSearchResponse2()
 	{
+		 int code= 200;
 		s5.equals(s6);
 		s5.getStatus();
 		s5.getResults();
@@ -54,5 +61,6 @@ public class SearchResponseTest {
 		s5.toString();
 		s5.hashCode();
 		//s5.setStatus(status);
+		 assertEquals(code,s5.getStatusCode());
 	}
 }
