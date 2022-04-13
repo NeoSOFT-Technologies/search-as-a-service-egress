@@ -1,6 +1,7 @@
 package com.searchservice.app.domain.service;
 
 import java.time.ZoneOffset;
+
 import java.time.ZonedDateTime;
 import java.util.List;
 
@@ -28,10 +29,6 @@ public class SearchService implements SearchServicePort {
 
 	ZonedDateTime utc = ZonedDateTime.now(ZoneOffset.UTC);
 
-	private String servicename = "Search_Via_Query_Service";
-
-	private String username = "Username";
-
 	// Table service
 	@Autowired
 	TableService tableService;
@@ -44,56 +41,41 @@ public class SearchService implements SearchServicePort {
 		this.searchResponseDTO = searchResponseDTO;
 	}
 
-	private void requestMethod(Loggers loggersDTO, String nameofCurrMethod) {
 
-		String timestamp = LoggerUtils.utcTime().toString();
-		loggersDTO.setNameofmethod(nameofCurrMethod);
-		loggersDTO.setTimestamp(timestamp);
-		loggersDTO.setServicename(servicename);
-		loggersDTO.setUsername(username);
-	}
 
 	@Override
 	public SearchResponse searchQuery(int clientId, String tableName, String searchQuery, String startRecord,
-			String pageSize, String sortTag, String sortOrder, Loggers loggersDTO) {
+			String pageSize, String sortTag, String sortOrder) {
 		logger.debug("Query search for the given table");
 
-		String nameofCurrMethod = new Throwable().getStackTrace()[0].getMethodName();
-		requestMethod(loggersDTO, nameofCurrMethod);
-		LoggerUtils.printlogger(loggersDTO, true, false);
+
 
 		// Get Current Table Schema (communicating with SAAS Microservice)
-		List<String> currentListOfColumnsOfTableSchema = tableService
-				.getCurrentTableSchemaColumns(tableName.split("_")[0], clientId);
+		List<String> currentListOfColumnsOfTableSchema = tableService.getCurrentTableSchemaColumns(tableName.split("_")[0], clientId);
+		searchResponseDTO = searchRecordsServicePort.setUpSelectQuerySearchViaQuery(
+				currentListOfColumnsOfTableSchema, 
+				tableName, 
+				searchQuery, 
+				startRecord, pageSize, sortTag, sortOrder);
 
-		searchResponseDTO = searchRecordsServicePort.setUpSelectQuerySearchViaQuery(currentListOfColumnsOfTableSchema,
-				tableName, searchQuery, startRecord, pageSize, sortTag, sortOrder);
-		loggersDTO.setTimestamp(LoggerUtils.utcTime().toString());
 
 		if (searchResponseDTO == null) {
-			LoggerUtils.printlogger(loggersDTO, false, true);
 			throw new NullPointerOccurredException(404, ResponseMessages.NULL_RESPONSE_MESSAGE);
 		} else if (searchResponseDTO.getStatusCode() == 200) {
-			LoggerUtils.printlogger(loggersDTO, false, false);
 			return searchResponseDTO;
 		} else if (searchResponseDTO.getStatusCode() == 503) {
 			return searchResponseDTO;
 		} else {
 			searchResponseDTO.setStatusCode(400);
-			LoggerUtils.printlogger(loggersDTO, false, true);
-			// throw new BadRequestOccurredException(400, ResponseMessages.BAD_REQUEST_MSG);
+
 			return searchResponseDTO;
 		}
 	}
 
 	@Override
 	public SearchResponse searchField(int clientId, String tableName, String queryField, String queryFieldSearchTerm,
-			String startRecord, String pageSize, String sortTag, String sortOrder, Loggers loggersDTO) {
+			String startRecord, String pageSize, String sortTag, String sortOrder) {
 		logger.debug("Advanced search for the given table");
-
-		String nameofCurrMethod = new Throwable().getStackTrace()[0].getMethodName();
-		requestMethod(loggersDTO, nameofCurrMethod);
-		LoggerUtils.printlogger(loggersDTO, true, false);
 
 		// Get Current Table Schema (communicating with SAAS Microservice)
 		boolean isMicroserviceDown = false;
@@ -107,16 +89,16 @@ public class SearchService implements SearchServicePort {
 		searchResponseDTO = searchRecordsServicePort.setUpSelectQuerySearchViaQueryField(
 				currentListOfColumnsOfTableSchema, currentTableSchema, tableName, queryField, queryFieldSearchTerm,
 				startRecord, pageSize, sortTag, sortOrder);
-		if (isMicroserviceDown)
-			searchResponseDTO.setMessage(searchResponseDTO.getMessage()
-					+ ". Microservice is down, so 'multiValue' query-field verification incomplete; will be treated as single-valued for now");
-		loggersDTO.setTimestamp(LoggerUtils.utcTime().toString());
 
+		if(isMicroserviceDown)
+			searchResponseDTO.setMessage(
+					searchResponseDTO.getMessage()
+					+". Microservice is down, so 'multiValue' query-field verification incomplete; will be treated as single-valued for now");
+		
 		if (searchResponseDTO == null)
 			throw new NullPointerOccurredException(404, ResponseMessages.NULL_RESPONSE_MESSAGE);
 		else if (searchResponseDTO.getStatusCode() == 200) {
 			searchResponseDTO.setStatus(HttpStatus.OK);
-			LoggerUtils.printlogger(loggersDTO, false, false);
 			return searchResponseDTO;
 		} else if (searchResponseDTO.getStatusCode() == 403) {
 			throw new BadRequestOccurredException(400, searchResponseDTO.getMessage());
@@ -124,7 +106,6 @@ public class SearchService implements SearchServicePort {
 			return searchResponseDTO;
 		} else {
 			searchResponseDTO.setStatusCode(400);
-			LoggerUtils.printlogger(loggersDTO, false, true);
 			throw new BadRequestOccurredException(400, ResponseMessages.BAD_REQUEST_MSG);
 		}
 
