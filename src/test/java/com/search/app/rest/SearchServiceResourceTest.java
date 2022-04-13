@@ -76,15 +76,15 @@ class SearchServiceResourceTest {
 	public void setMockitoSucccessResponseForService() {
 		SearchResponse responseDTO = new SearchResponse(statusCode, message);
 		responseDTO.setStatusCode(200);
-		Mockito.when(searchservice.searchQuery(Mockito.anyInt(), Mockito.anyString(), Mockito.anyString(), Mockito.anyString(),Mockito.anyString(), Mockito.anyString(), Mockito.anyString(), Mockito.any())).thenReturn(responseDTO);
-		Mockito.when(searchservice.searchField(Mockito.anyInt(), Mockito.anyString(), Mockito.anyString(), Mockito.anyString(),Mockito.anyString(), Mockito.anyString(), Mockito.anyString(), Mockito.anyString(),Mockito.any())).thenReturn(responseDTO);
+		Mockito.when(searchservice.searchQuery(Mockito.anyInt(), Mockito.anyString(), Mockito.anyString(), Mockito.anyString(),Mockito.anyString(), Mockito.anyString(), Mockito.anyString())).thenReturn(responseDTO);
+		Mockito.when(searchservice.searchField(Mockito.anyInt(), Mockito.anyString(), Mockito.anyString(), Mockito.anyString(),Mockito.anyString(), Mockito.anyString(), Mockito.anyString(), Mockito.anyString())).thenReturn(responseDTO);
 			}
 
 	public void setMockitoBadResponseForService() {
 		SearchResponse responseDTO = new SearchResponse(statusCode, message);
 		responseDTO.setStatusCode(400);
-		Mockito.when(searchservice.searchQuery(Mockito.anyInt(), Mockito.anyString(), Mockito.anyString(), Mockito.anyString(),Mockito.anyString(), Mockito.anyString(), Mockito.anyString(), Mockito.any())).thenReturn(responseDTO);
-		Mockito.when(searchservice.searchField(Mockito.anyInt(), Mockito.anyString(), Mockito.anyString(), Mockito.anyString(),Mockito.anyString(), Mockito.anyString(), Mockito.anyString(), Mockito.anyString(),Mockito.any())).thenReturn(responseDTO);
+		Mockito.when(searchservice.searchQuery(Mockito.anyInt(), Mockito.anyString(), Mockito.anyString(), Mockito.anyString(),Mockito.anyString(), Mockito.anyString(), Mockito.anyString())).thenReturn(responseDTO);
+		Mockito.when(searchservice.searchField(Mockito.anyInt(), Mockito.anyString(), Mockito.anyString(), Mockito.anyString(),Mockito.anyString(), Mockito.anyString(), Mockito.anyString(), Mockito.anyString())).thenReturn(responseDTO);
 			}
 
 	@Test

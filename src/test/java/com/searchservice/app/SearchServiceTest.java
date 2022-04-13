@@ -136,7 +136,7 @@ class SearchServiceTest {
 		int statusCode = 200;
 		setMockitoSucccessResponseForService();
 		SearchResponse responseDTO = search.searchQuery(tenantId, tablename1, searchQuery, startRecord, pageSize,
-				orderBy, order, loggersDTO);
+				orderBy, order);
 		assertEquals(statusCode, responseDTO.getStatusCode());
 
 	}
@@ -147,7 +147,7 @@ class SearchServiceTest {
 		setMockitoSucccessResponseForService();
 
 		SearchResponse responseDTO = search.searchField(tenantId, tablename1, "*", "*", startRecord, pageSize, orderBy,
-				order, loggersDTO);
+				order);
 		assertEquals(statusCode, responseDTO.getStatusCode());
 
 	}
@@ -157,7 +157,7 @@ class SearchServiceTest {
 		int statusCode = 400;
 		setMockitoBadResponseForService();
 		SearchResponse responseDTO = search.searchQuery(tenantId, "1", searchQuery, startRecord, pageSize, orderBy,
-				order, loggersDTO);
+				order);
 
 		assertEquals(statusCode, responseDTO.getStatusCode());
 
@@ -168,8 +168,7 @@ class SearchServiceTest {
 		int statusCode =400;
 		setMockitoBadResponseForService();
 try {
-		SearchResponse responseDTO = search.searchField(tenantId, "1", "*", "*", startRecord, pageSize, orderBy, order,
-				loggersDTO);		
+		SearchResponse responseDTO = search.searchField(tenantId, "1", "*", "*", startRecord, pageSize, orderBy, order);		
 		assertEquals(statusCode, responseDTO.getStatusCode());
 }catch (Exception e) {
 	
