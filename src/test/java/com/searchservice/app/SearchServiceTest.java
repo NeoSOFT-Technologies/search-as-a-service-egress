@@ -12,6 +12,8 @@ import java.util.List;
 
 import javax.management.RuntimeErrorException;
 
+import org.apache.solr.client.solrj.SolrClient;
+import org.apache.solr.client.solrj.SolrQuery;
 import org.json.JSONArray;
 import org.json.JSONObject;
 import org.junit.jupiter.api.BeforeEach;
@@ -33,6 +35,7 @@ import com.searchservice.app.domain.service.AdvSearchService;
 import com.searchservice.app.domain.service.SearchService;
 import com.searchservice.app.domain.service.TableService;
 import com.searchservice.app.domain.utils.LoggerUtils;
+import com.searchservice.app.infrastructure.adaptor.SearchClientAdapter;
 import com.searchservice.app.rest.errors.BadRequestOccurredException;
 
 @IntegrationTest
@@ -75,6 +78,9 @@ class SearchServiceTest {
 
 	@MockBean
 	TableService tableService;
+	
+	
+	SearchClientAdapter searchClientAdapter= new SearchClientAdapter();
 
 	Loggers loggersDTO = new Loggers();
 
@@ -88,9 +94,8 @@ class SearchServiceTest {
 		loggersDTO.setServicename("servicename");
 		loggersDTO.setUsername("username");
 
-		responseDTO = new SearchResponse();
-		responseDTO.setMessage("success");
-		responseDTO.setStatusCode(200);
+		searchClientAdapter.getSearchClient( searchQueryfield, tableName);
+		searchClientAdapter.getSearchClientAdapter(searchQueryfield, tableName);		
 		List<String> currentListOfColumnsOfTableSchema = new ArrayList<>(List.of("id", "category"));
 		// tableService = spy(new TableService());
 		Mockito.when(tableService.getCurrentTableSchemaColumns(Mockito.anyString(), Mockito.anyInt()))

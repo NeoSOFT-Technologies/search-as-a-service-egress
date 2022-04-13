@@ -30,21 +30,7 @@ public class SearchClientAdapter implements SearchClientAdapterPort {
 		return new HttpSolrClient.Builder(urlString+"/"+tableName).build();
 	}
 
-	@Override
-	public SolrClient getSearchCloudClient(String urlString, String tableName) {
-		log.debug("Getting Search Cloud Client for collection/table: {}", tableName);
-		
-		// Using already running Search nodes
-		return new CloudSolrClient.Builder().withSolrUrl(urlString).build();
-	}
 	
-	@Override
-	public CloudSolrClient getCloudSearchClient(String urlString, String tableName) {
-		log.debug("Getting Cloud Search Client for collection/table: {}", tableName);
-		
-		// Using already running Search nodes
-		return new CloudSolrClient.Builder().withSolrUrl(urlString).build();
-	}
 
 	@Override
 	public SearchClientAdapterResponse getSearchClientAdapter(String urlString, String tableName) {
