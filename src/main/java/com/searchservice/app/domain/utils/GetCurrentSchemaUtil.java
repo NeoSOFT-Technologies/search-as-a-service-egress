@@ -63,14 +63,15 @@ public class GetCurrentSchemaUtil {
 		String ingressToken = "";
 		String url = baseIngresstokenUrl;
 		log.debug("GET Ingress Token");
-		Request request = new Request.Builder().url(url).post(body).build();
+		
 		try {
+			Request request = new Request.Builder().url(url).post(body).build();
 			Response response = client.newCall(request).execute();
 			String requestData = response.body().string();
 			 JSONObject responseObject = new JSONObject(requestData);
 			 ingressToken = responseObject.getString("token");
 			 log.debug("Token Successfully Retrieved From Ingress Microservice");
-		} catch (IOException e) {
+		} catch (IOException | IllegalArgumentException e) {
 			log.error(MICROSERVICE_INTERACT_ISSUE, e);
 		
 		}
