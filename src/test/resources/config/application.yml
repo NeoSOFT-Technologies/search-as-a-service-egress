@@ -139,6 +139,7 @@ table-schema-attributes:
 base-microservice-url: http://localhost:8081
 microservice-url:
   get-table: /api/v1/manage/table
+  user-token: /user/token
 #================================================================
 
 #================================================================
@@ -160,3 +161,5 @@ keycloak:
   public-client: false
   use-resource-role-mappings: true
 #================================================================
+token-userName: demo
+token-password : demo
