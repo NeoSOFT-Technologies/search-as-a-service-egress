@@ -12,6 +12,7 @@ import com.searchservice.app.domain.dto.user.UserDTO;
 import com.searchservice.app.domain.port.api.UserServicePort;
 
 import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 
 @RestController
 @RequestMapping("/user/token")
@@ -24,7 +25,7 @@ public class UserResource {
     }
 	
 	@PostMapping
-    @Operation(summary = "/ Get token by providing username and password. ")
+    @Operation(summary = "/GET AUTHORIZATION TOKEN BY PROVIDING USERNAME AND PASSWORD ",security = @SecurityRequirement(name = "bearerAuth"))
     public ResponseEntity<Response> getToken(@RequestBody UserDTO userDTO) {
         Response responseDTO = userServicePort.getToken(userDTO.getUsername(), userDTO.getPassword());
         if(responseDTO.getStatusCode()==200){

@@ -31,8 +31,14 @@ public class TableService implements TableServicePort {
 	private String baseIngressMicroserviceUrl;
 	@Value("${microservice-url.get-table}")
 	private String getTableUrl;
-
-	String message = "";
+	
+	@Value("${microservice-url.user-token}")
+	private String userTokenUrl;
+	
+	@Value("${token-userName}")
+	private String userName;   
+	@Value("${token-password}")
+	private String password;	
 
 	@Autowired
 	SearchClientAdapter searchClientAdapter;
@@ -66,8 +72,11 @@ public class TableService implements TableServicePort {
 	private GetCurrentSchemaUtil extracted(String tableName, int clientId) {
 
 		getCurrentSchemaUtil.setBaseIngressMicroserviceUrl(baseIngressMicroserviceUrl + getTableUrl);
+		getCurrentSchemaUtil.setBaseIngresstokenUrl(baseIngressMicroserviceUrl + userTokenUrl);
 		getCurrentSchemaUtil.setTableName(tableName);
 		getCurrentSchemaUtil.setClientId(clientId);
+		getCurrentSchemaUtil.setUserName(userName);
+		getCurrentSchemaUtil.setPassword(password);
 
 		return getCurrentSchemaUtil;
 	}

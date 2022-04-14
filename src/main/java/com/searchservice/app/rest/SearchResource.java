@@ -43,10 +43,9 @@ public class SearchResource {
 
     @Autowired
     SearchResult searchResult;
-
     
     @GetMapping(value = "/{tenantId}/{tableName}")
-    @Operation(summary = "GET RECORDS" ,security = @SecurityRequirement(name = "bearerAuth"))
+    @Operation(summary = "GET RECORDS BASED ON A SPECIFIC COLUMN AND ITS VALUE" ,security = @SecurityRequirement(name = "bearerAuth"))
     public ResponseEntity<SearchResponse> searchRecordsViaQueryField(
     		@PathVariable int tenantId, 
     		@PathVariable String tableName, 
@@ -75,7 +74,7 @@ public class SearchResource {
     
     
     @GetMapping(value = "/query/{tenantId}/{tableName}")
-    @Operation(summary = "GET RECORDS VIA QUERY" ,security = @SecurityRequirement(name = "bearerAuth"))
+    @Operation(summary = "GET RECORDS WITH THE HELP OF CUSTOM QUERY" ,security = @SecurityRequirement(name = "bearerAuth"))
     public ResponseEntity<SearchResponse> searchRecordsViaQuery(
     		@PathVariable int tenantId, 
     		@PathVariable String tableName, 
