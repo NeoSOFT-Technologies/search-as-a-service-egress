@@ -2,12 +2,11 @@ package com.searchservice.app.domain.dtos;
 
 import static org.junit.Assert.assertEquals;
 
-import org.junit.Assert;
 import org.junit.jupiter.api.Test;
 
 import com.searchservice.app.domain.dto.Response;
 
-public class ResponseTest {
+ class ResponseTest {
 	Response res1=new Response("test");
 	Response res2=new Response("test2");
 	

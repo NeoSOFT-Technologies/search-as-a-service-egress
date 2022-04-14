@@ -1,8 +1,5 @@
 package com.searchservice.app.domain.utils;
 
-import java.io.IOException;
-
-
 import org.apache.solr.client.solrj.SolrClient;
 import org.apache.solr.client.solrj.impl.HttpSolrClient;
 

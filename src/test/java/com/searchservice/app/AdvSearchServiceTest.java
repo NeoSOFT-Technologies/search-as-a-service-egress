@@ -37,6 +37,7 @@ import org.mockito.junit.MockitoJUnitRunner;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.test.context.TestPropertySource;
@@ -76,7 +77,6 @@ class AdvSearchServiceTest {
 	@MockBean
 	TableService tableService;
 	
-	// @Autowired
 	@MockBean
 	private SearchClientAdapter solrAPIAdapterMock;
 
@@ -87,21 +87,9 @@ class AdvSearchServiceTest {
 
 	@InjectMocks
 	private AdvSearchService solrSearchRecordsService;
-
-	// SolrClient client=
-	// "{responseHeader={zkConnected=true,status=0,QTime=3,params={q=category:
-	// shubham AND category: karthik,start=0,sort=id
-	// asc,rows=5,wt=javabin,version=2}},response={numFound=1,numFoundExact=true,start=0,docs=[SolrDocument{id=7,
-	// title=the aaaaaaaaaa, category=[shubham, mangesh, karthik, abc],
-	// _version_=1726096559946334208}]}}";
-
-
-
-	// QueryResponse clintjson= new QueryResponse(client);
-
+	
 	String query = "q=*&start=0&rows=5&sort=id+asc";
 
-	private SearchClientAdapter solrAPIAdapter = new SearchClientAdapter();
 	
 String json = "{\r\n"
 		+ "\"books\" :[\r\n"
@@ -120,23 +108,10 @@ String json = "{\r\n"
 	@Mock
 	SolrClient solrClient;
 
-	/*
-	 * void setUpMockitoForInvalidCollection(String invalidCollection) {
-	 * SolrClientAdapterResponse solrApiResponseDTO = solrAPIAdapter
-	 * .getSolrClientAdapter(SOLR_URL, invalidCollection);
-	 * 
-	 * int responseStatusCode = solrApiResponseDTO.getStatusCode();
-	 * if(responseStatusCode == 200) { solrClient =
-	 * solrApiResponseDTO.getSolrClient();
-	 * when(solrAPIAdapterMock.getSolrClient(Mockito.any(), Mockito.any()))
-	 * .thenReturn(solrClient); } else {
-	 * when(solrAPIAdapterMock.getSolrClient(Mockito.any(), Mockito.any()))
-	 * .thenReturn(null); } }
-	 */
 	Loggers loggersDTO = new Loggers();
-	private SearchResponse responseDTO = new SearchResponse();
-
 	Map<String, Object> id = new HashMap<String, Object>() {
+		private static final long serialVersionUID = 1L;
+
 		{
 			put("name", "id");
 			put("type", "string");
@@ -146,7 +121,6 @@ String json = "{\r\n"
 			put("stored", "true");
 		}
 	};
-	private BaseCloudSolrClient baseCloudSolrClient;
 
 	@SuppressWarnings("deprecation")
 	@BeforeEach
@@ -178,9 +152,6 @@ String json = "{\r\n"
 		when(solrAPIAdapterMock.getSearchClient(Mockito.any(), Mockito.any())).thenReturn(solrClient);
 		QueryResponse emptyResponse = new QueryResponse();
 		emptyResponse.setResponse(new NamedList<>(Map.of("response", list)));
-		//QueryResponse response = createAndInitEmptySolrQueryReponseMock();
-		// when(solrClient.query( Mockito.any(),Mockito.any(SolrQuery.class)));
-		
 		List<Map<String, Object>> listmap = new ArrayList<Map<String, Object>>();
 		Map<String, Object> map = new HashMap<String, Object>();
 		map.put("id", "7");
@@ -188,7 +159,7 @@ String json = "{\r\n"
 		map.put("category", "shubham");
 		listmap.add(map);
 
-		Mockito.when(solrAPIAdapterMock.getresponse(Mockito.any(), Mockito.any())).thenReturn(emptyResponse);
+		Mockito.when(solrAPIAdapterMock.getQueryResponse(Mockito.any(), Mockito.any())).thenReturn(emptyResponse);
 		Mockito.when(tableService.getValidDocumentsList(Mockito.any(), Mockito.any())).thenReturn(listmap);			
 	}
 

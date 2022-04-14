@@ -51,7 +51,6 @@ public class SearchUtil {
 	public static boolean validateInputs(String startRecord, String pageSize, String order) {
 		boolean testResult = true;
 		String startRecordRegex = "^[0-9]{0,5}+$";
-		//String pageSizeRegex = "^[0-9]{5}+$";
 		String orderRegex = "^(ASC|DESC)$";
 		if(!validateUsingRegex(startRecordRegex, startRecord.trim().toUpperCase()))
 			throw new OperationNotAllowedException(406, "Start Record must be of type Integer, Range : 0-99999");

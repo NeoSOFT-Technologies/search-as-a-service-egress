@@ -57,7 +57,7 @@ public class UserService implements UserServicePort{
 		headers.setContentType(MediaType.APPLICATION_FORM_URLENCODED);
 
 		// Creating Body parameters
-		MultiValueMap<String, String> map = new LinkedMultiValueMap<String, String>();
+		MultiValueMap<String, String> map = new LinkedMultiValueMap<>();
 		map.add("grant_type", "password");
 		map.add("client_id", clientId);
 		map.add("client_secret", clientSecret);

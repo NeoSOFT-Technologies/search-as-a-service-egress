@@ -35,7 +35,7 @@ public class TableService implements TableServicePort {
 	String message = "";
 
 	@Autowired
-	SearchClientAdapter searchAPIAdapter = new SearchClientAdapter();
+	SearchClientAdapter searchClientAdapter;
 
 	GetCurrentSchemaUtil getCurrentSchemaUtil = new GetCurrentSchemaUtil();
 
@@ -43,24 +43,24 @@ public class TableService implements TableServicePort {
 	public List<String> getCurrentTableSchemaColumns(String tableName, int clientId) {
 		logger.debug("Get current table schema from Ingress microservice");
 
-		GetCurrentSchemaUtil getCurrentSchemaUtil = extracted(tableName, clientId);
-		GetCurrentSchemaUtil.GetCurrentSchemaUtilResponse response = getCurrentSchemaUtil.get();
+		GetCurrentSchemaUtil getCurrentSchema = extracted(tableName, clientId);
+		GetCurrentSchemaUtil.GetCurrentSchemaUtilResponse response = getCurrentSchema.get();
 
 		String responseString = response.getResponseString();
 
-		return getCurrentSchemaUtil.getCurrentSchemaColumns(responseString);
+		return getCurrentSchema.getCurrentSchemaColumns(responseString);
 	}
 
 	@Override
 	public JSONArray getCurrentTableSchema(String tableName, int clientId) {
 		logger.debug("Get current table schema from Ingress microservice");
 
-		GetCurrentSchemaUtil getCurrentSchemaUtil = extracted(tableName, clientId);
-		GetCurrentSchemaUtil.GetCurrentSchemaUtilResponse response = getCurrentSchemaUtil.get();
+		GetCurrentSchemaUtil getCurrentSchema = extracted(tableName, clientId);
+		GetCurrentSchemaUtil.GetCurrentSchemaUtilResponse response = getCurrentSchema.get();
 
 		String responseString = response.getResponseString();
 
-		return getCurrentSchemaUtil.getCurrentSchemaDetails(responseString);
+		return getCurrentSchema.getCurrentSchemaDetails(responseString);
 	}
 
 	private GetCurrentSchemaUtil extracted(String tableName, int clientId) {

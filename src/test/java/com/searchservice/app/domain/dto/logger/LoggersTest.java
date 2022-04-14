@@ -1,8 +1,10 @@
 package com.searchservice.app.domain.dto.logger;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
+
 import org.junit.jupiter.api.Test;
 
-public class LoggersTest {
+ class LoggersTest {
 
 	Loggers l1=new Loggers();
 	Loggers l2=new Loggers();
@@ -12,7 +14,8 @@ public class LoggersTest {
 	
 	@Test
 	void testloggers()
-	{
+	{ 
+		String name="TestingEgress";
 		l3.equals(l4);
 		l3.hashCode();
 		l3.toString();
@@ -29,12 +32,14 @@ public class LoggersTest {
 		l3.getServicename();
 		l3.getTimestamp();
 		l3.getUsername();
+		assertEquals(name,l3.getServicename());
 		
 	}
 	
 	@Test
 	void testloggers2()
 	{
+		String address="2";
 		l1.equals(l2);
 		l1.hashCode();
 		l1.toString();
@@ -51,5 +56,6 @@ public class LoggersTest {
 		l1.getServicename();
 		l1.getTimestamp();
 		l1.getUsername();
+		assertEquals(address,l1.getIpaddress());
 	}
 }

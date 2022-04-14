@@ -30,19 +30,17 @@ public class SecurityConfiguration extends KeycloakWebSecurityConfigurerAdapter 
 	@Autowired KeycloakConfigProperties keycloakConfigProperties;
 	
 	@Value("${keycloak.realm}")
-	private String realm_name;
+	private String realmName;
 	
 	@Value("${keycloak.resource}")
-	private String client_id;
+	private String clientId;
 	
 	@Value("${keycloak.credentials.secret}")
-	private String client_Secret;
+	private String clientSecret;
 	
 // Register Keycloak as the Authentication Provider
     @Autowired
     public void configureGlobal(AuthenticationManagerBuilder auth) {
-//        SimpleAuthorityMapper grantedAuthorityMapper = new SimpleAuthorityMapper();
-//        grantedAuthorityMapper.setPrefix("ROLE_");
 
         KeycloakAuthenticationProvider keycloakAuthenticationProvider = keycloakAuthenticationProvider();
         keycloakAuthenticationProvider.setGrantedAuthoritiesMapper(new SimpleAuthorityMapper());
@@ -53,7 +51,6 @@ public class SecurityConfiguration extends KeycloakWebSecurityConfigurerAdapter 
     @Bean
     @Override
     protected SessionAuthenticationStrategy sessionAuthenticationStrategy() {
-    	//return new RegisterSessionAuthenticationStrategy(new SessionRegistryImpl());
     	return new NullAuthenticatedSessionStrategy();
     }
     
@@ -66,7 +63,6 @@ public class SecurityConfiguration extends KeycloakWebSecurityConfigurerAdapter 
     
     @Override
 	public void configure(WebSecurity web) throws Exception {
-    	//web.ignoring().mvcMatchers("/swagger-ui/**").mvcMatchers("/test/**");
     	web.ignoring().antMatchers("/user/token").antMatchers("/v3/api-docs/**").antMatchers("/swagger-ui/**").antMatchers("/test/**");
 	}
 
@@ -82,6 +78,6 @@ public class SecurityConfiguration extends KeycloakWebSecurityConfigurerAdapter 
                 .and();
         
         // Add JWT token filter
-       http = http.addFilterBefore(new JwtTokenFilterService(keycloakConfigProperties,restTemplate), UsernamePasswordAuthenticationFilter.class);
+        http.addFilterBefore(new JwtTokenFilterService(keycloakConfigProperties,restTemplate), UsernamePasswordAuthenticationFilter.class);
     }
 }

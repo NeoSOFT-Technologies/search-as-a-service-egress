@@ -1,4 +1,4 @@
-package com.Searchutil.app;
+package com.searchservice.app.domian.utils;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
@@ -16,7 +16,7 @@ import com.searchservice.app.domain.utils.GetCurrentSchemaUtil.GetCurrentSchemaU
 import com.squareup.okhttp.OkHttpClient;
 
 
-public class GetCurrentSchemaUtilTest {
+ class GetCurrentSchemaUtilTest {
 	private final Logger logger = LoggerFactory.getLogger(GetCurrentSchemaUtil.class); 
 	 @MockBean
 	 private OkHttpClient okHttpClient;
