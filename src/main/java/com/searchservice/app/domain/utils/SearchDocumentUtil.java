@@ -18,7 +18,6 @@ package com.searchservice.app.domain.utils;
  */
 
 import java.io.IOException;
-import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
@@ -28,11 +27,10 @@ import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
-
 import org.apache.solr.common.SolrDocument;
 import org.apache.solr.common.SolrDocumentBase;
 import org.apache.solr.common.util.NamedList;
-import org.springframework.data.annotation.Transient;
+
 
 /**
  * A concrete representation of a document within a Solr index. Unlike a lucene
