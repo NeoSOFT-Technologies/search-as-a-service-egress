@@ -1,7 +1,5 @@
 package com.searchservice.app.domain.service;
 
-import java.io.IOException;
-
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
@@ -10,7 +8,6 @@ import java.util.Map;
 import org.apache.solr.client.solrj.SolrClient;
 import org.apache.solr.client.solrj.SolrQuery;
 import org.apache.solr.client.solrj.SolrQuery.SortClause;
-import org.apache.solr.client.solrj.SolrServerException;
 import org.apache.solr.client.solrj.response.QueryResponse;
 import org.apache.solr.common.SolrDocumentList;
 import org.json.JSONArray;
@@ -36,19 +33,16 @@ public class AdvSearchService implements AdvSearchServicePort {
 	private static final String PAGE_SIZE = "rows";
 	private static final String SEARCH_QUERY = "q";
 	private static final String START_PAGE = "start";
-	/*
-	 * Search Records for given collection- Egress Service
-	 */  
 	private final Logger logger = LoggerFactory.getLogger(AdvSearchService.class); 
 	private static final String SUCCESS_MSG = "Records fetched successfully";
 	private static final String FAILURE_MSG = "Records couldn't be fetched for given collection";
 	private static final String SUCCESS_LOG = "Server search operation is peformed successfully for given collection";
-	private static final String FAILURE_LOG = "An exception occured while performing Server Search Operation! ";
 	
+
 	SearchResult searchResult = new SearchResult();
-	SearchResponse searchResponseDTO = new SearchResponse();
+	SearchResponse searchResponseDTO;
 	@Autowired
-	SearchClientAdapter searchSchemaAPIAdapter = new SearchClientAdapter();
+	SearchClientAdapter searchClientAdapter;
 	@Autowired
 	TableService tableService;
 	
@@ -78,7 +72,7 @@ public class AdvSearchService implements AdvSearchServicePort {
 		/* Egress API -- table records -- SEARCH via query-field */
 		logger.debug("Performing records-search via query field & search term provided for given table");
 
-		SolrClient client = searchSchemaAPIAdapter.getSearchClient(searchUrl, tableName);
+		SolrClient client = searchClientAdapter.getSearchClient(searchUrl, tableName);
 		SolrQuery query = new SolrQuery();
 		
 		// VALIDATE queryField
@@ -120,7 +114,7 @@ public class AdvSearchService implements AdvSearchServicePort {
 		/* Egress API -- table records -- SEARCH VIA QUERY */
 		logger.debug("Performing Search VIA QUERY for given collection");
 
-		SolrClient client = searchSchemaAPIAdapter.getSearchClient(searchUrl, tableName);
+		SolrClient client = searchClientAdapter.getSearchClient(searchUrl, tableName);
 		
 		SolrQuery query = new SolrQuery();
 		query.set(SEARCH_QUERY, searchQuery);
@@ -128,8 +122,7 @@ public class AdvSearchService implements AdvSearchServicePort {
 		query.set(PAGE_SIZE, pageSize);
 		SortClause sortClause = new SortClause(tag, order);
 		query.setSort(sortClause);
-		searchResponseDTO = processSearchQuery(client, query, validSchemaColumns);
-		
+		searchResponseDTO = processSearchQuery(client, query, validSchemaColumns);		
 		return searchResponseDTO;
 	}
 	
@@ -137,9 +130,10 @@ public class AdvSearchService implements AdvSearchServicePort {
 	// Auxiliary methods
 	public SearchResponse processSearchQuery(SolrClient client, SolrQuery query, List<String> validSchemaColumns) {
 		try {
-			searchResult = new SearchResult();			
-			QueryResponse response = client.query(query);			
-			SolrDocumentList docs = response.getResults();			
+			searchResponseDTO = new SearchResponse();
+			searchResult = new SearchResult();					
+			QueryResponse response =searchClientAdapter.getQueryResponse(client, query);			
+			SolrDocumentList docs = response.getResults();		
 			List<Map<String, Object>> searchDocuments = new ArrayList<>();
 			// Sync Table documents with soft deleted schema; add valid documents
 			if(validSchemaColumns.isEmpty())
@@ -147,9 +141,9 @@ public class AdvSearchService implements AdvSearchServicePort {
 			else
 				searchDocuments = tableService.getValidDocumentsList(
 					docs, validSchemaColumns);
-
-			response = client.query(query);
-			
+	
+			response = searchClientAdapter.getQueryResponse(client, query);
+	
 			response.getDebugMap();
 			long numDocs = docs.getNumFound();
 			searchResult.setNumDocs(numDocs);
@@ -161,18 +155,8 @@ public class AdvSearchService implements AdvSearchServicePort {
 			searchResponseDTO.setResults(searchResult);
 			logger.debug(SUCCESS_LOG);
 			return searchResponseDTO;
-		} catch (SolrServerException | IOException | NullPointerException e) {
-			if(e.getMessage().contains("Server refused connection")) {
-				searchResponseDTO.setStatusCode(503);
-				searchResponseDTO.setStatus(HttpStatus.SERVICE_UNAVAILABLE);
-				searchResponseDTO.setMessage("Unable to connect Solr server");
-			}else {
-				searchResponseDTO.setStatusCode(400);
-				searchResponseDTO.setStatus(HttpStatus.BAD_REQUEST);
-				searchResponseDTO.setMessage(FAILURE_MSG);
-			}
-			logger.error(FAILURE_LOG, e);
-		} catch(Exception e) {
+		}
+		catch(Exception e) {
 			searchResponseDTO.setStatusCode(400);
 			searchResponseDTO.setStatus(HttpStatus.BAD_REQUEST);
 			if(e.getMessage().contains("Cannot parse")) {				

@@ -25,6 +25,7 @@ public class GetCurrentSchemaUtil {
 	private String tableName;
 	private int clientId;
 	public GetCurrentSchemaUtilResponse get() {
+
 	 String ingressServiceToken = getIngressToken();
 		if(!ingressServiceToken.isBlank()) {
 		OkHttpClient client = new OkHttpClient();
@@ -33,15 +34,17 @@ public class GetCurrentSchemaUtil {
 		Request request = new Request.Builder().url(url)
 				.addHeader("Authorization", "Bearer " + ingressServiceToken)
 				.build();
+
 		try {
 			Response response = client.newCall(request).execute();
-			return new GetCurrentSchemaUtilResponse(
-					true, "Table Retrieved Successfully!", response.body().string());
+			return new GetCurrentSchemaUtilResponse(true, "Table Retrieved Successfully!", response.body().string());
 
 		} catch (IOException e) {
+
 			log.error(MICROSERVICE_INTERACT_ISSUE);
 			return new GetCurrentSchemaUtilResponse(
 					false, "Table could not be retrieved! IOException.", "");
+
 		}
         }else {
         	log.error(MICROSERVICE_INTERACT_ISSUE);
@@ -50,6 +53,7 @@ public class GetCurrentSchemaUtil {
         }
 
 	}
+
 	
 	public String getIngressToken() {
 		OkHttpClient client = new OkHttpClient();
@@ -59,14 +63,15 @@ public class GetCurrentSchemaUtil {
 		String ingressToken = "";
 		String url = baseIngresstokenUrl;
 		log.debug("GET Ingress Token");
-		Request request = new Request.Builder().url(url).post(body).build();
+		
 		try {
+			Request request = new Request.Builder().url(url).post(body).build();
 			Response response = client.newCall(request).execute();
 			String requestData = response.body().string();
 			 JSONObject responseObject = new JSONObject(requestData);
 			 ingressToken = responseObject.getString("token");
 			 log.debug("Token Successfully Retrieved From Ingress Microservice");
-		} catch (IOException e) {
+		} catch (IOException | IllegalArgumentException e) {
 			log.error(MICROSERVICE_INTERACT_ISSUE, e);
 		
 		}
@@ -79,7 +84,6 @@ public class GetCurrentSchemaUtil {
 		boolean isTableRetrieved;
 		String message;
 		String responseString;
-		
 
 		public GetCurrentSchemaUtilResponse(boolean isTableRetrieved, String message, String responseString) {
 			this.isTableRetrieved = isTableRetrieved;
@@ -87,37 +91,36 @@ public class GetCurrentSchemaUtil {
 			this.responseString = responseString;
 		}
 	}
-	
-	
+
 	public List<String> getCurrentSchemaColumns(String response) {
 		try {
-		    JSONObject jsonObject = new JSONObject(response);	
-		    JSONObject data = (JSONObject) jsonObject.get("data");
-		    JSONArray columns = (JSONArray) data.get("columns");
-		    
-		    List<String> currentSchemaColumnNames = new ArrayList<>();
-		    columns.forEach(col -> {
-		    	JSONObject obj = (JSONObject)col;
-		    	// add custom cols
-		    	currentSchemaColumnNames.add(obj.getString("name"));
-		    });
+			JSONObject jsonObject = new JSONObject(response);
+			JSONObject data = (JSONObject) jsonObject.get("data");
+			JSONArray columns = (JSONArray) data.get("columns");
+
+			List<String> currentSchemaColumnNames = new ArrayList<>();
+			columns.forEach(col -> {
+				JSONObject obj = (JSONObject) col;
+				// add custom cols
+				currentSchemaColumnNames.add(obj.getString("name"));
+			});
 
 			return currentSchemaColumnNames;
-		     
-		}catch (Exception err){
+
+		} catch (Exception err) {
 			log.error(err.toString());
 		}
 		return new ArrayList<>();
 	}
-	
+
 	public JSONArray getCurrentSchemaDetails(String response) {
 		try {
-		    JSONObject jsonObject = new JSONObject(response);	
-		    JSONObject data = (JSONObject) jsonObject.get("data");
-		    
+			JSONObject jsonObject = new JSONObject(response);
+			JSONObject data = (JSONObject) jsonObject.get("data");
+
 			return (JSONArray) data.get("columns");
-		     
-		}catch (Exception err){
+
+		} catch (Exception err) {
 			log.error(err.toString());
 		}
 		return new JSONArray();

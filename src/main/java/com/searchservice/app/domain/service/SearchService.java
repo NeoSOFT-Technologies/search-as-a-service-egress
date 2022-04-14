@@ -1,7 +1,6 @@
 package com.searchservice.app.domain.service;
 
 import java.time.ZoneOffset;
-
 import java.time.ZonedDateTime;
 import java.util.List;
 
@@ -30,23 +29,22 @@ public class SearchService implements SearchServicePort {
 	// Table service
 	@Autowired
 	TableService tableService;
-	
+
 	private AdvSearchServicePort searchRecordsServicePort;
 	private SearchResponse searchResponseDTO;
 
-	public SearchService(AdvSearchServicePort searchRecordsServicePort,
-			SearchResponse searchResponseDTO) {
+	public SearchService(AdvSearchServicePort searchRecordsServicePort, SearchResponse searchResponseDTO) {
 		this.searchRecordsServicePort = searchRecordsServicePort;
 		this.searchResponseDTO = searchResponseDTO;
 	}
 
-	
 
 
 	@Override
 	public SearchResponse searchQuery(int clientId, String tableName, String searchQuery, String startRecord,
 			String pageSize, String sortTag, String sortOrder) {
 		logger.debug("Query search for the given table");
+
 
 
 		// Get Current Table Schema (communicating with SAAS Microservice)
@@ -57,15 +55,16 @@ public class SearchService implements SearchServicePort {
 				searchQuery, 
 				startRecord, pageSize, sortTag, sortOrder);
 
+
 		if (searchResponseDTO == null) {
 			throw new NullPointerOccurredException(404, ResponseMessages.NULL_RESPONSE_MESSAGE);
 		} else if (searchResponseDTO.getStatusCode() == 200) {
 			return searchResponseDTO;
-		} else if(searchResponseDTO.getStatusCode() == 503) {
+		} else if (searchResponseDTO.getStatusCode() == 503) {
 			return searchResponseDTO;
-		}else {
+		} else {
 			searchResponseDTO.setStatusCode(400);
-			//throw new BadRequestOccurredException(400, ResponseMessages.BAD_REQUEST_MSG);
+
 			return searchResponseDTO;
 		}
 	}
@@ -77,20 +76,17 @@ public class SearchService implements SearchServicePort {
 
 		// Get Current Table Schema (communicating with SAAS Microservice)
 		boolean isMicroserviceDown = false;
-		List<String> currentListOfColumnsOfTableSchema = tableService.getCurrentTableSchemaColumns(tableName.split("_")[0], clientId);
+		List<String> currentListOfColumnsOfTableSchema = tableService
+				.getCurrentTableSchemaColumns(tableName.split("_")[0], clientId);
 		JSONArray currentTableSchema = tableService.getCurrentTableSchema(tableName.split("_")[0], clientId);
-
-		if(currentTableSchema.isEmpty())
+		if (currentTableSchema.isEmpty())
 			isMicroserviceDown = true;
-		
+
 		// Search documents
 		searchResponseDTO = searchRecordsServicePort.setUpSelectQuerySearchViaQueryField(
-				currentListOfColumnsOfTableSchema, 
-				currentTableSchema, 
-				tableName, 
-				queryField,
-				queryFieldSearchTerm,				
+				currentListOfColumnsOfTableSchema, currentTableSchema, tableName, queryField, queryFieldSearchTerm,
 				startRecord, pageSize, sortTag, sortOrder);
+
 		if(isMicroserviceDown)
 			searchResponseDTO.setMessage(
 					searchResponseDTO.getMessage()
@@ -101,15 +97,15 @@ public class SearchService implements SearchServicePort {
 		else if (searchResponseDTO.getStatusCode() == 200) {
 			searchResponseDTO.setStatus(HttpStatus.OK);
 			return searchResponseDTO;
-		}else if(searchResponseDTO.getStatusCode() == 403) {
+		} else if (searchResponseDTO.getStatusCode() == 403) {
 			throw new BadRequestOccurredException(400, searchResponseDTO.getMessage());
-		} else if(searchResponseDTO.getStatusCode() == 503) {
+		} else if (searchResponseDTO.getStatusCode() == 503) {
 			return searchResponseDTO;
-		}else {
+		} else {
 			searchResponseDTO.setStatusCode(400);
 			throw new BadRequestOccurredException(400, ResponseMessages.BAD_REQUEST_MSG);
 		}
-		
+
 	}
-	
+
 }

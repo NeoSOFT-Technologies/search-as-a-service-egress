@@ -32,7 +32,9 @@ public class SearchResource {
     
     ZonedDateTime utc = ZonedDateTime.now(ZoneOffset.UTC);
     
+
     private SearchServicePort searchservice;
+
 
     public SearchResource(    	
             SearchService searchservice) {      

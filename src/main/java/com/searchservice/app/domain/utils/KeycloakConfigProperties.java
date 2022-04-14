@@ -1,12 +1,11 @@
 package com.searchservice.app.domain.utils;
 
 
-import lombok.Getter;
-import lombok.Setter;
 import org.springframework.boot.context.properties.ConfigurationProperties;
 import org.springframework.context.annotation.Configuration;
 
-import java.util.List;
+import lombok.Getter;
+import lombok.Setter;
 
 @Configuration
 @ConfigurationProperties(prefix = "keycloak")
@@ -17,10 +16,10 @@ public class KeycloakConfigProperties {
     private Credentials credentials;
     private String realm;
     private String resource;
-    private String auth_server_url;
-    private String ssl_required;
-    private String public_client;
-    private String use_resource_role_mappings;
+    private String authServerUrl;
+    private String sslRequired;
+    private String publicClient;
+    private String useResourceRoleMappings;
     @Getter
     @Setter
     public static class Credentials {

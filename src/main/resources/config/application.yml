@@ -126,14 +126,6 @@ basic-auth:
   username: solr
   password: SolrRocks
   
-
-#================================================================
-#Table schema soft delete sync
-table-schema-attributes:
-  delete-file-path: src\\main\\resources\\SchemaDeleteRecord.txt
-#================================================================
-
-
 #================================================================
 #Sync with soft delete schema in microservice
 base-microservice-url: http://localhost:8081

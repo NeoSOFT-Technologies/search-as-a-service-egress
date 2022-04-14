@@ -2,7 +2,6 @@ package com.searchservice.app.rest.errors;
 
 import java.time.LocalDateTime;
 
-
 import org.springframework.http.HttpStatus;
 
 import com.fasterxml.jackson.annotation.JsonFormat;
@@ -21,7 +20,9 @@ public class RestApiError {
 	   private RestApiError() {
 	       timestamp = LocalDateTime.now();
 	   }
-
+      static RestApiError getInstance() {
+    	  return new RestApiError();
+      }
 	   RestApiError(HttpStatus status) {
 	       this();
 	       this.status = status;

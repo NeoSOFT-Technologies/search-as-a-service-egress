@@ -1,8 +1,12 @@
 package com.searchservice.app.infrastructure.adaptor;
 
+import java.io.IOException;
+
 import org.apache.solr.client.solrj.SolrClient;
-import org.apache.solr.client.solrj.impl.CloudSolrClient;
+import org.apache.solr.client.solrj.SolrQuery;
+import org.apache.solr.client.solrj.SolrServerException;
 import org.apache.solr.client.solrj.impl.HttpSolrClient;
+import org.apache.solr.client.solrj.response.QueryResponse;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
@@ -25,21 +29,7 @@ public class SearchClientAdapter implements SearchClientAdapterPort {
 		return new HttpSolrClient.Builder(urlString+"/"+tableName).build();
 	}
 
-	@Override
-	public SolrClient getSearchCloudClient(String urlString, String tableName) {
-		log.debug("Getting Search Cloud Client for collection/table: {}", tableName);
-		
-		// Using already running Search nodes
-		return new CloudSolrClient.Builder().withSolrUrl(urlString).build();
-	}
 	
-	@Override
-	public CloudSolrClient getCloudSearchClient(String urlString, String tableName) {
-		log.debug("Getting Cloud Search Client for collection/table: {}", tableName);
-		
-		// Using already running Search nodes
-		return new CloudSolrClient.Builder().withSolrUrl(urlString).build();
-	}
 
 	@Override
 	public SearchClientAdapterResponse getSearchClientAdapter(String urlString, String tableName) {
@@ -60,6 +50,17 @@ public class SearchClientAdapter implements SearchClientAdapterPort {
 				responseDTO.setResponseMessage("Couldn't find Search Client for given collection");
 				return responseDTO;
 			}
+	}
+
+	@Override
+	public QueryResponse getQueryResponse(SolrClient client, SolrQuery query) {
+		QueryResponse res = new QueryResponse();
+		try {
+			 res =	 client.query(query);
+		} catch (SolrServerException  | IOException e) {
+			log.error("exception occured",e);			
+		} 
+		return res;
 	}
  
 }

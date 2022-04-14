@@ -1,6 +1,7 @@
-package com.Searchutil.app;
+package com.searchservice.app.domian.utils;
 
 import static org.junit.jupiter.api.Assertions.*;
+
 
 import java.util.ArrayList;
 import java.util.Arrays;

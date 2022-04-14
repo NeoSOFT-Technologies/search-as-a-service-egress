@@ -21,15 +21,16 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.Iterator;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
-
 import org.apache.solr.common.SolrDocument;
 import org.apache.solr.common.SolrDocumentBase;
 import org.apache.solr.common.util.NamedList;
+
 
 /**
  * A concrete representation of a document within a Solr index. Unlike a lucene
@@ -43,24 +44,28 @@ import org.apache.solr.common.util.NamedList;
  * @since solr 1.3
  */
 public class SearchDocumentUtil extends SolrDocumentBase<Object, SolrDocument>
-		implements Iterable<Map.Entry<String, Object>> {
+		implements Iterable<Map.Entry<String, Object>>{
+
+	/**
+	 * 
+	 */
 	private static final long serialVersionUID = 1L;
 
-	protected final Map<String, Object> _fields;
+	protected final Map<String, Object> fields;
 
-	private List<SolrDocument> _childDocuments;
+	private List<SolrDocument> childDocuments;
 
 	public SearchDocumentUtil() {
-		_fields = new LinkedHashMap<>();
+		fields = new LinkedHashMap<>();
 	}
 
 	@Override
 	public void writeMap(EntryWriter ew) throws IOException {
-		_fields.forEach(ew.getBiConsumer());
+		fields.forEach(ew.getBiConsumer());
 	}
 
 	public SearchDocumentUtil(Map<String, Object> fields) {
-		this._fields = fields;
+		this.fields = fields;
 	}
 
 	/**
@@ -82,10 +87,10 @@ public class SearchDocumentUtil extends SolrDocumentBase<Object, SolrDocument>
 	 */
 	@Override
 	public void clear() {
-		_fields.clear();
+		fields.clear();
 
-		if (_childDocuments != null) {
-			_childDocuments.clear();
+		if (childDocuments != null) {
+			childDocuments.clear();
 		}
 	}
 
@@ -116,7 +121,7 @@ public class SearchDocumentUtil extends SolrDocumentBase<Object, SolrDocument>
 			}
 			value = lst;
 		}
-		_fields.put(name, value);
+		fields.put(name, value);
 	}
 
 	/**
@@ -135,7 +140,7 @@ public class SearchDocumentUtil extends SolrDocumentBase<Object, SolrDocument>
 	@SuppressWarnings("unchecked")
 	@Override
 	public void addField(String name, Object value) {
-		Object existing = _fields.get(name);
+		Object existing = fields.get(name);
 		if (existing == null) {
 			if (value instanceof Collection) {
 				Collection<Object> c = new ArrayList<>(3);
@@ -164,12 +169,12 @@ public class SearchDocumentUtil extends SolrDocumentBase<Object, SolrDocument>
 			}
 		} else if (value instanceof Object[]) {
 			for (Object o : (Object[]) value) {
-				vals.add(o);
+				Collections.addAll(vals,o);
 			}
 		} else {
 			vals.add(value);
 		}
-		_fields.put(name, vals);
+		fields.put(name, vals);
 	}
 
 	///////////////////////////////////////////////////////////////////
@@ -180,12 +185,12 @@ public class SearchDocumentUtil extends SolrDocumentBase<Object, SolrDocument>
 	 * returns the first value for a field
 	 */
 	public Object getFirstValue(String name) {
-		Object v = _fields.get(name);
-		if (v == null || !(v instanceof Collection))
+		Object v = fields.get(name);
+		if (!(v instanceof Collection))
 			return v;
 		@SuppressWarnings({ "rawtypes" })
 		Collection c = (Collection) v;
-		if (c.size() > 0) {
+		if (c.isEmpty()) {
 			return c.iterator().next();
 		}
 		return null;
@@ -196,7 +201,7 @@ public class SearchDocumentUtil extends SolrDocumentBase<Object, SolrDocument>
 	 */
 	@Override
 	public Object getFieldValue(String name) {
-		return _fields.get(name);
+		return fields.get(name);
 	}
 
 	/**
@@ -205,7 +210,7 @@ public class SearchDocumentUtil extends SolrDocumentBase<Object, SolrDocument>
 	@SuppressWarnings("unchecked")
 	@Override
 	public Collection<Object> getFieldValues(String name) {
-		Object v = _fields.get(name);
+		Object v = fields.get(name);
 		if (v instanceof Collection) {
 			return (Collection<Object>) v;
 		}
@@ -219,7 +224,7 @@ public class SearchDocumentUtil extends SolrDocumentBase<Object, SolrDocument>
 
 	@Override
 	public String toString() {
-		return "SearchDocument" + _fields;
+		return "SearchDocument" + fields;
 	}
 
 	/**
@@ -227,7 +232,7 @@ public class SearchDocumentUtil extends SolrDocumentBase<Object, SolrDocument>
 	 */
 	@Override
 	public Iterator<Entry<String, Object>> iterator() {
-		return _fields.entrySet().iterator();
+		return fields.entrySet().iterator();
 	}
 
 	// -----------------------------------------------------------------------------------------
@@ -313,22 +318,22 @@ public class SearchDocumentUtil extends SolrDocumentBase<Object, SolrDocument>
 		// Easily Supported methods
 		@Override
 		public boolean containsKey(Object key) {
-			return _fields.containsKey(key);
+			return fields.containsKey(key);
 		}
 
 		@Override
 		public Set<String> keySet() {
-			return _fields.keySet();
+			return fields.keySet();
 		}
 
 		@Override
 		public int size() {
-			return _fields.size();
+			return fields.size();
 		}
 
 		@Override
 		public boolean isEmpty() {
-			return _fields.isEmpty();
+			return fields.isEmpty();
 		}
 
 		// Unsupported operations. These are not necessary for JSTL
@@ -344,7 +349,7 @@ public class SearchDocumentUtil extends SolrDocumentBase<Object, SolrDocument>
 
 		@Override
 		public Set<java.util.Map.Entry<String, Object>> entrySet() {
-			return _fields.entrySet();
+			return fields.entrySet();
 		}
 
 		@Override
@@ -369,7 +374,7 @@ public class SearchDocumentUtil extends SolrDocumentBase<Object, SolrDocument>
 
 		@Override
 		public String toString() {
-			return _fields.toString();
+			return fields.toString();
 		}
 	};
 	
@@ -393,67 +398,67 @@ public class SearchDocumentUtil extends SolrDocumentBase<Object, SolrDocument>
 
 	@Override
 	public boolean containsKey(Object key) {
-		return _fields.containsKey(key);
+		return fields.containsKey(key);
 	}
 
 	@Override
 	public boolean containsValue(Object value) {
-		return _fields.containsValue(value);
+		return fields.containsValue(value);
 	}
 
 	@Override
 	public Set<Entry<String, Object>> entrySet() {
-		return _fields.entrySet();
+		return fields.entrySet();
 	}
 
 	// Shouldn't the input parameter here be a String? The _fields map
 	// requires a String.
 	@Override
 	public Object get(Object key) {
-		return _fields.get(key);
+		return fields.get(key);
 	}
 
 	@Override
 	public boolean isEmpty() {
-		return _fields.isEmpty();
+		return fields.isEmpty();
 	}
 
 	@Override
 	public Set<String> keySet() {
-		return _fields.keySet();
+		return fields.keySet();
 	}
 
 	@Override
 	public Object put(String key, Object value) {
-		return _fields.put(key, value);
+		return fields.put(key, value);
 	}
 
 	@Override
 	public void putAll(Map<? extends String, ? extends Object> t) {
-		_fields.putAll(t);
+		fields.putAll(t);
 	}
 
 	@Override
 	public Object remove(Object key) {
-		return _fields.remove(key);
+		return fields.remove(key);
 	}
 
 	@Override
 	public int size() {
-		return _fields.size();
+		return fields.size();
 	}
 
 	@Override
 	public Collection<Object> values() {
-		return _fields.values();
+		return fields.values();
 	}
 
 	@Override
 	public void addChildDocument(SolrDocument child) {
-		if (_childDocuments == null) {
-			_childDocuments = new ArrayList<>();
+		if (childDocuments == null) {
+			childDocuments = new ArrayList<>();
 		}
-		_childDocuments.add(child);
+		childDocuments.add(child);
 	}
 
 	@Override
@@ -465,21 +470,19 @@ public class SearchDocumentUtil extends SolrDocumentBase<Object, SolrDocument>
 
 	@Override
 	public List<SolrDocument> getChildDocuments() {
-		return _childDocuments;
+		return childDocuments;
 	}
 
 	@Override
 	public boolean hasChildDocuments() {
-		boolean isEmpty = (_childDocuments == null || _childDocuments.isEmpty());
+		boolean isEmpty = (childDocuments == null || childDocuments.isEmpty());
 		return !isEmpty;
 	}
 
 	@Override
-
-	@Deprecated
 	public int getChildDocumentCount() {
-		if (_childDocuments == null)
+		if (childDocuments == null)
 			return 0;
-		return _childDocuments.size();
+		return childDocuments.size();
 	}
 }
