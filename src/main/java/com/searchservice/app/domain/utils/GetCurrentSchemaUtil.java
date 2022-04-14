@@ -1,6 +1,5 @@
 package com.searchservice.app.domain.utils;
 
-import com.searchservice.app.domain.service.JwtTokenFilterService;
 import com.squareup.okhttp.*;
 import lombok.Data;
 import lombok.NoArgsConstructor;
@@ -8,8 +7,6 @@ import org.json.JSONArray;
 import org.json.JSONObject;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Value;
-
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
@@ -23,6 +20,7 @@ public class GetCurrentSchemaUtil {
 	private String password;
 	private String baseIngresstokenUrl;
 	private final Logger log = LoggerFactory.getLogger(GetCurrentSchemaUtil.class);	
+	private static final String MICROSERVICE_INTERACT_ISSUE = "Couldn't interact with microservice to retrieve current schema details!";
 	private String baseIngressMicroserviceUrl;
 	private String tableName;
 	private int clientId;
@@ -41,12 +39,12 @@ public class GetCurrentSchemaUtil {
 					true, "Table Retrieved Successfully!", response.body().string());
 
 		} catch (IOException e) {
-			log.error("Couldn't interact with microservice to retrieve current schema details!");
+			log.error(MICROSERVICE_INTERACT_ISSUE);
 			return new GetCurrentSchemaUtilResponse(
 					false, "Table could not be retrieved! IOException.", "");
 		}
         }else {
-        	log.error("Couldn't interact with microservice to retrieve current schema details!");
+        	log.error(MICROSERVICE_INTERACT_ISSUE);
 			return new GetCurrentSchemaUtilResponse(
 					false, "Ingress Miscroservice Authorization Failed!!", "");
         }
@@ -69,7 +67,7 @@ public class GetCurrentSchemaUtil {
 			 ingressToken = responseObject.getString("token");
 			 log.debug("Token Successfully Retrieved From Ingress Microservice");
 		} catch (IOException e) {
-			log.error("Couldn't interact with microservice to retrieve current schema details!", e);
+			log.error(MICROSERVICE_INTERACT_ISSUE, e);
 		
 		}
 		return ingressToken;
