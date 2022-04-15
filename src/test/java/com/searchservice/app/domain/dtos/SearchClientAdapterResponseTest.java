@@ -10,7 +10,7 @@ import org.junit.jupiter.api.Test;
 
 import com.searchservice.app.domain.dto.SearchClientAdapterResponse;
 
-public class SearchClientAdapterResponseTest {
+ class SearchClientAdapterResponseTest {
 	SolrClient searchClient;
 	SearchClientAdapterResponse res1=new SearchClientAdapterResponse();
 	SearchClientAdapterResponse res2=new SearchClientAdapterResponse();

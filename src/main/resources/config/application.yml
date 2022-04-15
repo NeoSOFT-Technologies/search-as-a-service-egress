@@ -131,6 +131,7 @@ basic-auth:
 base-microservice-url: http://localhost:8081
 microservice-url:
   get-table: /api/v1/manage/table
+  user-token: /user/token
 #================================================================
 
 #================================================================
@@ -142,12 +143,15 @@ base-url:
 #================================================================
 # Keycloak Server Configurations
 keycloak:
-  realm: ravi_realm
+  realm: Subrat_realm
   credentials: 
-    secret: 2MGBo1s8upyPn8lRsHW0scW6WkrLOj8K
-  resource: search-as-a-service-egress
+    secret: 50QSatCwRBXiI76zspdMbN59TtkFtZMH
+  resource: search-as-service-egress
   auth-server-url: http://localhost:8080/auth
   ssl-required: external
   public-client: false
   use-resource-role-mappings: true
 #================================================================
+#Keycloack UserName and Password For Ingress Token
+token-userName: demo
+token-password : demo

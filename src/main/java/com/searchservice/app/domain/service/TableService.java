@@ -31,11 +31,17 @@ public class TableService implements TableServicePort {
 	private String baseIngressMicroserviceUrl;
 	@Value("${microservice-url.get-table}")
 	private String getTableUrl;
-
-	String message = "";
+	
+	@Value("${microservice-url.user-token}")
+	private String userTokenUrl;
+	
+	@Value("${token-userName}")
+	private String userName;   
+	@Value("${token-password}")
+	private String password;	
 
 	@Autowired
-	SearchClientAdapter searchAPIAdapter = new SearchClientAdapter();
+	SearchClientAdapter searchClientAdapter;
 
 	GetCurrentSchemaUtil getCurrentSchemaUtil = new GetCurrentSchemaUtil();
 
@@ -43,31 +49,34 @@ public class TableService implements TableServicePort {
 	public List<String> getCurrentTableSchemaColumns(String tableName, int clientId) {
 		logger.debug("Get current table schema from Ingress microservice");
 
-		GetCurrentSchemaUtil getCurrentSchemaUtil = extracted(tableName, clientId);
-		GetCurrentSchemaUtil.GetCurrentSchemaUtilResponse response = getCurrentSchemaUtil.get();
+		GetCurrentSchemaUtil getCurrentSchema = extracted(tableName, clientId);
+		GetCurrentSchemaUtil.GetCurrentSchemaUtilResponse response = getCurrentSchema.get();
 
 		String responseString = response.getResponseString();
 
-		return getCurrentSchemaUtil.getCurrentSchemaColumns(responseString);
+		return getCurrentSchema.getCurrentSchemaColumns(responseString);
 	}
 
 	@Override
 	public JSONArray getCurrentTableSchema(String tableName, int clientId) {
 		logger.debug("Get current table schema from Ingress microservice");
 
-		GetCurrentSchemaUtil getCurrentSchemaUtil = extracted(tableName, clientId);
-		GetCurrentSchemaUtil.GetCurrentSchemaUtilResponse response = getCurrentSchemaUtil.get();
+		GetCurrentSchemaUtil getCurrentSchema = extracted(tableName, clientId);
+		GetCurrentSchemaUtil.GetCurrentSchemaUtilResponse response = getCurrentSchema.get();
 
 		String responseString = response.getResponseString();
 
-		return getCurrentSchemaUtil.getCurrentSchemaDetails(responseString);
+		return getCurrentSchema.getCurrentSchemaDetails(responseString);
 	}
 
 	private GetCurrentSchemaUtil extracted(String tableName, int clientId) {
 
 		getCurrentSchemaUtil.setBaseIngressMicroserviceUrl(baseIngressMicroserviceUrl + getTableUrl);
+		getCurrentSchemaUtil.setBaseIngresstokenUrl(baseIngressMicroserviceUrl + userTokenUrl);
 		getCurrentSchemaUtil.setTableName(tableName);
 		getCurrentSchemaUtil.setClientId(clientId);
+		getCurrentSchemaUtil.setUserName(userName);
+		getCurrentSchemaUtil.setPassword(password);
 
 		return getCurrentSchemaUtil;
 	}

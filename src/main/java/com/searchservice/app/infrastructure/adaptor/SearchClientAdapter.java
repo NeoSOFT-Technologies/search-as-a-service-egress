@@ -5,7 +5,6 @@ import java.io.IOException;
 import org.apache.solr.client.solrj.SolrClient;
 import org.apache.solr.client.solrj.SolrQuery;
 import org.apache.solr.client.solrj.SolrServerException;
-import org.apache.solr.client.solrj.impl.CloudSolrClient;
 import org.apache.solr.client.solrj.impl.HttpSolrClient;
 import org.apache.solr.client.solrj.response.QueryResponse;
 import org.slf4j.Logger;
@@ -54,7 +53,7 @@ public class SearchClientAdapter implements SearchClientAdapterPort {
 	}
 
 	@Override
-	public QueryResponse getresponse(SolrClient client, SolrQuery query) {
+	public QueryResponse getQueryResponse(SolrClient client, SolrQuery query) {
 		QueryResponse res = new QueryResponse();
 		try {
 			 res =	 client.query(query);

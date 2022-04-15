@@ -1,13 +1,13 @@
 package com.searchservice.app.domain.dto.user;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
+
 import org.junit.jupiter.api.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.boot.test.mock.mockito.MockBean;
 
-import com.searchservice.app.domain.utils.GetCurrentSchemaUtil;
-
-public class UserDTOTest {
+ class UserDTOTest {
 	private final Logger logger = LoggerFactory.getLogger(UserDTO.class); 
 	 @MockBean
 	UserDTO userDTO=new UserDTO("testing","admin");
@@ -17,6 +17,7 @@ public class UserDTOTest {
 	@Test
 	void testUserDTO()
 	{
+		String password="admin";
 		userDTO.setPassword("admin");
 		userDTO.setUsername("testing");
 		logger.info("Testing: "+userDTO.getPassword());
@@ -28,6 +29,7 @@ public class UserDTOTest {
 		userDTO4.hashCode();
 		userDTO.equals(userDTO1);
 		userDTO3.equals(userDTO4);
+		assertEquals(password,userDTO.getPassword());
 	}
 	
 }

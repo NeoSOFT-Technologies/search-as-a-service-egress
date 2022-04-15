@@ -1,7 +1,5 @@
 package com.searchservice.app.rest.errors;
 
-import java.lang.reflect.InvocationTargetException;
-
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.core.Ordered;
@@ -69,7 +67,6 @@ public class RestControllerAdvice {
 			fieldName = ex.getPropertyName();
 			return frameRestApiException(new RestApiError(HttpStatus.BAD_REQUEST,400, "Unrecognized Field : "+fieldName));
 		}else if(exception.getCause() instanceof InvalidFormatException) {
-			//String targetType = "";
 			InvalidFormatException ex = (InvalidFormatException)exception.getCause();
 			if (ex.getPath() != null && !ex.getPath().isEmpty()) {
 		        JsonMappingException.Reference path = ex.getPath().get(ex.getPath().size() - 1);
@@ -77,7 +74,7 @@ public class RestControllerAdvice {
 		    }
 			String value = (null != ex.getValue())?ex.getValue().toString():"";
 			return frameRestApiException(new RestApiError(HttpStatus.BAD_REQUEST,400, "Value for field : "+fieldName+" is not expected as : "+value));
-			//targetType = ex.getTargetType().getName();
+		
 		}else if(exception.getCause() instanceof JsonMappingException) {
 			JsonMappingException ex = (JsonMappingException)exception.getCause();
 			if(ex.getCause() instanceof BadRequestOccurredException) {
@@ -88,7 +85,7 @@ public class RestControllerAdvice {
 		}else {
 			return frameRestApiException(new RestApiError(HttpStatus.BAD_REQUEST,400, "Provide valid JSON Input"));
 		}
-		//return frameRestApiException(new RestApiError(HttpStatus.BAD_REQUEST, "Unrecognized Field : "+fieldName));
+		
 	}
 	
 	@ExceptionHandler(MethodArgumentTypeMismatchException.class)
@@ -96,7 +93,6 @@ public class RestControllerAdvice {
 		String fieldName = "";
 		String requiredType = "";
 		if(exception.getCause() instanceof NumberFormatException) {
-			//NumberFormatException ex = (NumberFormatException)exception.getCause();
 			fieldName = (null != exception.getName())?exception.getName():"";
 			requiredType = (null != exception.getRequiredType())?exception.getRequiredType().getName():"";
 		}

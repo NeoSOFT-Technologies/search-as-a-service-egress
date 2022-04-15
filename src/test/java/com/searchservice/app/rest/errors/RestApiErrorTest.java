@@ -1,11 +1,13 @@
 package com.searchservice.app.rest.errors;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
+
 import org.junit.jupiter.api.Test;
 import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.http.HttpStatus;
 
 
-public class RestApiErrorTest {
+ class RestApiErrorTest {
 
 	RestApiError r1 = RestApiError.getInstance();	
 	RestApiError r8 = RestApiError.getInstance();
@@ -15,6 +17,7 @@ public class RestApiErrorTest {
 	@Test
 	void testRestApiError()
 	{
+		String message="Tester";
 		r1.setMessage("Tester");
 		r1.setStatus(null);
 		r1.setStatusCode(101);
@@ -27,12 +30,14 @@ public class RestApiErrorTest {
 		r1.equals(r8);
 		r1.canEqual(r8);
 		r1.toString();
+		assertEquals(message,r1.getMessage());
 		
 	}
 	
 	@Test 
 	void testRestApiErrorHttpStatus()
 	{
+		int code=200;
 		RestApiError r2 = new RestApiError(status);
 		RestApiError r7 = new RestApiError(status);
 		r2.setStatusCode(200);
@@ -46,11 +51,13 @@ public class RestApiErrorTest {
 		r2.equals(r7);
 		r2.canEqual(r7);
 		r2.toString();
+		assertEquals(code,r2.getStatusCode());
 	}
 	
 	@Test 
 	void testRestApiErrorHttpStatusAndThrowable()
 	{
+		int code=200;
 		RestApiError r3 = new RestApiError(status, new Throwable("Test"));
 		RestApiError r6 = new RestApiError(status, new Throwable("Test"));
 		r3.setStatusCode(200);
@@ -64,11 +71,13 @@ public class RestApiErrorTest {
 		r3.equals(r6);
 		r3.canEqual(r6);
 		r3.toString();
+		assertEquals(code,r3.getStatusCode());
 	}
 	
 	@Test 
 	void testRestApiErrorHttpStatusMessageandStatusCode()
 	{
+		int code=200;
 		RestApiError r4 = new RestApiError(status,400,"Checking");
 		RestApiError r5 = new RestApiError(status,400,"Checking");
 		r4.setStatusCode(200);
@@ -82,5 +91,6 @@ public class RestApiErrorTest {
 		r4.equals(r5);
 		r4.canEqual(r5);
 		r4.toString();
+		assertEquals(code,r4.getStatusCode());
 	}
 }

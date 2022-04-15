@@ -19,23 +19,18 @@ import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.util.LinkedMultiValueMap;
 import org.springframework.util.MultiValueMap;
-import org.springframework.web.client.ResourceAccessException;
 import org.springframework.web.client.RestTemplate;
 import org.springframework.web.filter.OncePerRequestFilter;
 
-import com.fasterxml.jackson.core.exc.StreamWriteException;
-import com.fasterxml.jackson.databind.DatabindException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.searchservice.app.domain.utils.KeycloakConfigProperties;
 
 //@Component
 public class JwtTokenFilterService extends OncePerRequestFilter{
-	
-//	private String realm_name;
-//	private String client_id;
-//	private String client_Secret;
+
 	private RestTemplate restTemplate;
 	private KeycloakConfigProperties keycloakConfigProperties;
+	private static final String UNAUTHORIZED = "Unauthorized";
 	private final Logger log = LoggerFactory.getLogger(JwtTokenFilterService.class);
 	private ObjectMapper mapper = new ObjectMapper();
 	Map<String, Object> errorDetails = new HashMap<>();
@@ -57,7 +52,7 @@ public class JwtTokenFilterService extends OncePerRequestFilter{
         final String header = request.getHeader(HttpHeaders.AUTHORIZATION);
         log.info("[JwtTokenFilterService][doFilterInternal] Authorization Header Value : "+header);
         if (null == header || header.isEmpty() || !header.startsWith("Bearer ")) {
-        	errorDetails.put("Unauthorized", "Invalid token");
+        	errorDetails.put(UNAUTHORIZED, "Invalid token");
 	        response.setStatus(HttpStatus.UNAUTHORIZED.value());
 	        response.setContentType(MediaType.APPLICATION_JSON_VALUE);
 	        mapper.writeValue(response.getWriter(), errorDetails);
@@ -68,24 +63,23 @@ public class JwtTokenFilterService extends OncePerRequestFilter{
         final String token = header.split(" ")[1].trim();
         log.info("[JwtTokenFilterService][doFilterInternal] Token Value : "+token);
         if (!validate(token, response)) {
-        	errorDetails.put("Unauthorized", "Invalid token");
+        	errorDetails.put(UNAUTHORIZED, "Invalid token");
 	        response.setStatus(HttpStatus.UNAUTHORIZED.value());
 	        response.setContentType(MediaType.APPLICATION_JSON_VALUE);
 	        mapper.writeValue(response.getWriter(), errorDetails);
-            return;
         }else {
         	chain.doFilter(request, response);
         }
     }
 	 
-	 private boolean validate(String token, HttpServletResponse response) throws StreamWriteException, DatabindException, IOException {
+	 private boolean validate(String token, HttpServletResponse response) throws  IOException {
 		 boolean active = false;
 		try {
-			String url = keycloakConfigProperties.getAuth_server_url()+"/realms/"+keycloakConfigProperties.getRealm()+"/protocol/openid-connect/token/introspect";
+			String url = keycloakConfigProperties.getAuthServerUrl()+"/realms/"+keycloakConfigProperties.getRealm()+"/protocol/openid-connect/token/introspect";
 	    	log.info("[JwtTokenFilterService][validate] Token Value : "+token);
 	    	log.info("[JwtTokenFilterService][validate] realm_name : "+keycloakConfigProperties.getRealm());
 	    	log.info("[JwtTokenFilterService][validate] client_Secret : "+keycloakConfigProperties.getCredentials().getSecret());
-	    	log.info("[JwtTokenFilterService][validate] Auth-Server-Url : "+keycloakConfigProperties.getAuth_server_url());
+	    	log.info("[JwtTokenFilterService][validate] Auth-Server-Url : "+keycloakConfigProperties.getAuthServerUrl());
 	    	log.info("[JwtTokenFilterService][validate] url : "+url);
 	    	
 	    // creating and setting the Header
@@ -109,7 +103,7 @@ public class JwtTokenFilterService extends OncePerRequestFilter{
 	    	log.info("[JwtTokenFilterService][validate] active : "+active);
 		} catch (Exception e) {
 			if(null != e.getMessage() && e.getMessage().contains("Connection refused")) {
-				errorDetails.put("Unauthorized", "Invalid token : Unable to connect with Keycloak server");
+				errorDetails.put(UNAUTHORIZED, "Invalid token : Unable to connect with Keycloak server");
 		        response.setStatus(HttpStatus.UNAUTHORIZED.value());
 		        response.setContentType(MediaType.APPLICATION_JSON_VALUE);
 		        mapper.writeValue(response.getWriter(), errorDetails);
@@ -117,4 +111,5 @@ public class JwtTokenFilterService extends OncePerRequestFilter{
 		}	
         return active;
     }
+	
 }

@@ -1,7 +1,6 @@
 package com.searchservice.app.domain.service;
 
 import java.time.ZoneOffset;
-
 import java.time.ZonedDateTime;
 import java.util.List;
 
@@ -15,10 +14,8 @@ import org.springframework.transaction.annotation.Transactional;
 
 import com.searchservice.app.domain.dto.ResponseMessages;
 import com.searchservice.app.domain.dto.SearchResponse;
-import com.searchservice.app.domain.dto.logger.Loggers;
 import com.searchservice.app.domain.port.api.AdvSearchServicePort;
 import com.searchservice.app.domain.port.api.SearchServicePort;
-import com.searchservice.app.domain.utils.LoggerUtils;
 import com.searchservice.app.rest.errors.BadRequestOccurredException;
 import com.searchservice.app.rest.errors.NullPointerOccurredException;
 

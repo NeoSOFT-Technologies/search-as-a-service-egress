@@ -8,7 +8,7 @@ import org.junit.jupiter.api.Test;
 import com.searchservice.app.domain.dto.SearchResponse;
 import com.searchservice.app.infrastructure.adaptor.SearchResult;
 
-public class SearchResponseTest {
+ class SearchResponseTest {
 
 	HttpStatus status=new HttpStatus(); 
 	 SearchResult solrSearchResultResponse=new  SearchResult();
