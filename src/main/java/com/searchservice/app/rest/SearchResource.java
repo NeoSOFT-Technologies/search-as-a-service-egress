@@ -45,11 +45,11 @@ public class SearchResource {
     SearchResult searchResult;
 
     
-    @GetMapping(value = "/{tenantId}/{tableName}")
+    @GetMapping(value = "/{tableName}")
     @Operation(summary = "GET RECORDS" ,security = @SecurityRequirement(name = "bearerAuth"))
     public ResponseEntity<SearchResponse> searchRecordsViaQueryField(
-    		@PathVariable int tenantId, 
     		@PathVariable String tableName, 
+    		@RequestParam int tenantId, 
             @RequestParam(defaultValue = "*") String queryField, @RequestParam(defaultValue = "*") String searchTerm, 
             @RequestParam(defaultValue = "0") String startRecord,
             @RequestParam(defaultValue = "5") String pageSize, 
@@ -74,11 +74,12 @@ public class SearchResource {
     }
     
     
-    @GetMapping(value = "/query/{tenantId}/{tableName}")
+    @GetMapping(value = "/query/{tableName}")
     @Operation(summary = "GET RECORDS VIA QUERY" ,security = @SecurityRequirement(name = "bearerAuth"))
     public ResponseEntity<SearchResponse> searchRecordsViaQuery(
-    		@PathVariable int tenantId, 
+    		 
     		@PathVariable String tableName, 
+    		@RequestParam int tenantId,
             @RequestParam(defaultValue = "*") String searchQuery, 
             @RequestParam(defaultValue = "0") String startRecord,
             @RequestParam(defaultValue = "5") String pageSize, 

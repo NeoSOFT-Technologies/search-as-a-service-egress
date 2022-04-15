@@ -90,7 +90,7 @@ class SearchServiceResourceTest {
 	@Test
 	void testsearchRecordsViaQuery() throws Exception {
 		setMockitoSucccessResponseForService();
-		restAMockMvc.perform(MockMvcRequestBuilders.get(apiEndpoint + "/query/" + tenantId + "/" + tableName)
+		restAMockMvc.perform(MockMvcRequestBuilders.get(apiEndpoint + "/query/" + tableName+ "/?tenantId="+tenantId)
 				.contentType(MediaType.APPLICATION_PROBLEM_JSON)
 				.content(inputString))
 				.andExpect(status().isOk());
@@ -100,7 +100,7 @@ class SearchServiceResourceTest {
 	@Test
 	void testsearchRecordsViaQueryFields() throws Exception {
 		setMockitoSucccessResponseForService();
-		restAMockMvc.perform(MockMvcRequestBuilders.get(apiEndpoint + "/" + tenantId + "/" + tableName)
+		restAMockMvc.perform(MockMvcRequestBuilders.get(apiEndpoint + "/" + tableName+ "/?tenantId="+tenantId)
 				.contentType(MediaType.APPLICATION_PROBLEM_JSON)
 				.content(inputString))
 				.andExpect(status().isOk());
@@ -110,7 +110,7 @@ class SearchServiceResourceTest {
 	@Test
 	void testbadsearchRecordsViaQuery() throws Exception{
 		setMockitoBadResponseForService();
-		restAMockMvc.perform(MockMvcRequestBuilders.get(apiEndpoint + "/query/" + tenantId + "/" + tableName)
+		restAMockMvc.perform(MockMvcRequestBuilders.get(apiEndpoint + "/query/"  + tableName+ "/?tenantId="+tenantId)
 				.contentType(MediaType.APPLICATION_PROBLEM_JSON)
 				.content(inputString))
 		        .andExpect(status().isBadRequest());
@@ -119,7 +119,7 @@ class SearchServiceResourceTest {
 	@Test
 	void testbadsearchRecordsViaQueryFields() throws Exception{
 		setMockitoBadResponseForService();
-		restAMockMvc.perform(MockMvcRequestBuilders.get(apiEndpoint + "/" + tenantId + "/" + tableName)
+		restAMockMvc.perform(MockMvcRequestBuilders.get(apiEndpoint + "/" + tableName+ "/?tenantId="+tenantId)
 				.contentType(MediaType.APPLICATION_PROBLEM_JSON)
 				.content(inputString))
 		        .andExpect(status().isBadRequest());
