@@ -74,7 +74,7 @@ public class TableService implements TableServicePort {
 		getCurrentSchemaUtil.setBaseIngressMicroserviceUrl(baseIngressMicroserviceUrl + getTableUrl);
 		getCurrentSchemaUtil.setBaseIngresstokenUrl(baseIngressMicroserviceUrl + userTokenUrl);
 		getCurrentSchemaUtil.setTableName(tableName);
-		getCurrentSchemaUtil.setClientId(clientId);
+		getCurrentSchemaUtil.setTenantId(clientId);
 		getCurrentSchemaUtil.setUserName(userName);
 		getCurrentSchemaUtil.setPassword(password);
 

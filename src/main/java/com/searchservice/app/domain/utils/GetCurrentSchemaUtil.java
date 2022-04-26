@@ -20,16 +20,16 @@ public class GetCurrentSchemaUtil {
 	private String password;
 	private String baseIngresstokenUrl;
 	private final Logger log = LoggerFactory.getLogger(GetCurrentSchemaUtil.class);	
-	private static final String MICROSERVICE_INTERACT_ISSUE = "Couldn't interact with microservice to retrieve current schema details!";
+	private static final String MICROSERVICE_INTERACT_ISSUE = "Couldn't interact with Ingress microservice to retrieve current schema details!";
 	private String baseIngressMicroserviceUrl;
 	private String tableName;
-	private int clientId;
+	private int tenantId;
 	public GetCurrentSchemaUtilResponse get() {
 
 	 String ingressServiceToken = getIngressToken();
 		if(!ingressServiceToken.isBlank()) {
 		OkHttpClient client = new OkHttpClient();
-		String url = baseIngressMicroserviceUrl + "/"+clientId + "/"+tableName;
+		String url = baseIngressMicroserviceUrl  + "/"+tableName + "?tenantId=" +tenantId;
 		log.debug("GET table");
 		Request request = new Request.Builder().url(url)
 				.addHeader("Authorization", "Bearer " + ingressServiceToken)
