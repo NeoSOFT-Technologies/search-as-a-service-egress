@@ -50,8 +50,8 @@ jobs:
           # SonarCloud access token should be generated from https://sonarcloud.io/account/security/
           SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}  
       
-      - name: Build & Push Docker Image to DockerHub
-        run: |
-          echo "${{ secrets.DOCKER_PASSWORD }}" | docker login -u "neosoftcoe" --password-stdin
-          docker build -t neosoftcoe/search-service-egress .
-          docker push neosoftcoe/search-service-egress
+#       - name: Build & Push Docker Image to DockerHub
+#         run: |
+#           echo "${{ secrets.DOCKER_PASSWORD }}" | docker login -u "neosoftcoe" --password-stdin
+#           docker build -t neosoftcoe/search-service-egress .
+#           docker push neosoftcoe/search-service-egress
