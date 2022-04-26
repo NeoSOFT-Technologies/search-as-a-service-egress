@@ -90,7 +90,7 @@ public class SearchService implements SearchServicePort {
 		if(isMicroserviceDown)
 			searchResponseDTO.setMessage(
 					searchResponseDTO.getMessage()
-					+". Microservice is down, so 'multiValue' query-field verification incomplete; will be treated as single-valued for now");
+					+". Ingress Microservice is down, so 'multiValue' query-field verification incomplete; will be treated as single-valued for now");
 		
 		if (searchResponseDTO == null)
 			throw new NullPointerOccurredException(404, ResponseMessages.NULL_RESPONSE_MESSAGE);
