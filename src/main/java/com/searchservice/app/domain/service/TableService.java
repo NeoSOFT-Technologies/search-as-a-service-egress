@@ -15,6 +15,7 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import com.fasterxml.jackson.core.JsonProcessingException;
+import com.searchservice.app.domain.dto.IngressSchemaResponse;
 import com.searchservice.app.domain.port.api.TableServicePort;
 import com.searchservice.app.domain.utils.GetCurrentSchemaUtil;
 import com.searchservice.app.domain.utils.SearchDocumentUtil;
@@ -58,15 +59,17 @@ public class TableService implements TableServicePort {
 	}
 
 	@Override
-	public JSONArray getCurrentTableSchema(String tableName, int clientId) {
+	public IngressSchemaResponse getCurrentTableSchema(String tableName, int clientId) {
 		logger.debug("Get current table schema from Ingress microservice");
 
 		GetCurrentSchemaUtil getCurrentSchema = extracted(tableName, clientId);
 		GetCurrentSchemaUtil.GetCurrentSchemaUtilResponse response = getCurrentSchema.get();
 
 		String responseString = response.getResponseString();
+		JSONArray jsonArray = getCurrentSchema.getCurrentSchemaDetails(responseString);
+		IngressSchemaResponse finalResponse = new IngressSchemaResponse(jsonArray, response.getMessage());
 
-		return getCurrentSchema.getCurrentSchemaDetails(responseString);
+		return finalResponse;
 	}
 
 	private GetCurrentSchemaUtil extracted(String tableName, int clientId) {

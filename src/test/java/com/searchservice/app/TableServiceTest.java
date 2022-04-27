@@ -32,6 +32,7 @@ import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMock
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
 
+import com.searchservice.app.domain.dto.IngressSchemaResponse;
 import com.searchservice.app.domain.dto.SearchResponse;
 import com.searchservice.app.domain.dto.logger.Loggers;
 import com.searchservice.app.domain.port.api.AdvSearchServicePort;
@@ -132,7 +133,8 @@ class TableServiceTest {
 	void testsearchtableSchemacolumn() throws Exception {		
 			JSONArray jarray = jobj.getJSONArray("books");
 		setMockitoSucccessResponseForService();
-		JSONArray responseDTO = tableService.getCurrentTableSchema( tableName,tenantId);
+		IngressSchemaResponse ingressResponse = tableService.getCurrentTableSchema( tableName,tenantId);
+		JSONArray responseDTO = ingressResponse.getJsonArray();
 		assertEquals(responseDTO,jarray );
 	}
 	

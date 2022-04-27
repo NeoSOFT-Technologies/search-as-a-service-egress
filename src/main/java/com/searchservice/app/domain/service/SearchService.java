@@ -12,6 +12,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import com.searchservice.app.domain.dto.IngressSchemaResponse;
 import com.searchservice.app.domain.dto.ResponseMessages;
 import com.searchservice.app.domain.dto.SearchResponse;
 import com.searchservice.app.domain.port.api.AdvSearchServicePort;
@@ -78,7 +79,9 @@ public class SearchService implements SearchServicePort {
 		boolean isMicroserviceDown = false;
 		List<String> currentListOfColumnsOfTableSchema = tableService
 				.getCurrentTableSchemaColumns(tableName.split("_")[0], clientId);
-		JSONArray currentTableSchema = tableService.getCurrentTableSchema(tableName.split("_")[0], clientId);
+		//JSONArray currentTableSchema = tableService.getCurrentTableSchema(tableName.split("_")[0], clientId);
+		IngressSchemaResponse currentTableSchemaResponse = tableService.getCurrentTableSchema(tableName.split("_")[0], clientId);
+		JSONArray currentTableSchema = currentTableSchemaResponse.getJsonArray();
 		if (currentTableSchema.isEmpty())
 			isMicroserviceDown = true;
 
@@ -87,10 +90,17 @@ public class SearchService implements SearchServicePort {
 				currentListOfColumnsOfTableSchema, currentTableSchema, tableName, queryField, queryFieldSearchTerm,
 				startRecord, pageSize, sortTag, sortOrder);
 
-		if(isMicroserviceDown)
-			searchResponseDTO.setMessage(
-					searchResponseDTO.getMessage()
-					+". Ingress Microservice is down, so 'multiValue' query-field verification incomplete; will be treated as single-valued for now");
+		if(isMicroserviceDown) {
+			if(!currentTableSchemaResponse.getMessage().isEmpty())
+				searchResponseDTO.setMessage(
+						searchResponseDTO.getMessage()
+						+". "+currentTableSchemaResponse.getMessage()+", so 'multiValue' query-field verification incomplete; will be treated as single-valued for now");
+			else
+				searchResponseDTO.setMessage(
+						searchResponseDTO.getMessage()
+						+". Couldn't interact with Ingress microservice, so 'multiValue' query-field verification incomplete; will be treated as single-valued for now");
+		}
+
 		
 		if (searchResponseDTO == null)
 			throw new NullPointerOccurredException(404, ResponseMessages.NULL_RESPONSE_MESSAGE);
