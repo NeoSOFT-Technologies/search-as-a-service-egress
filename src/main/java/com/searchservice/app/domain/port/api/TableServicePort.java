@@ -4,15 +4,15 @@ import java.util.List;
 import java.util.Map;
 
 import org.apache.solr.common.SolrDocumentList;
-import org.json.JSONArray;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
+import com.searchservice.app.domain.dto.IngressSchemaResponse;
 
 
 public interface TableServicePort {	
 	List<String> getCurrentTableSchemaColumns(String tableName, int clientId);
 	
-	JSONArray getCurrentTableSchema(String tableName, int clientId);
+	IngressSchemaResponse getCurrentTableSchema(String tableName, int clientId);
 	
 	 List<Map<String, Object>> getValidDocumentsList(SolrDocumentList docs, List<String> validColumns);
 	 

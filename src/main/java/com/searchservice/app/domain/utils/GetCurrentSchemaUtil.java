@@ -26,31 +26,29 @@ public class GetCurrentSchemaUtil {
 	private int tenantId;
 	public GetCurrentSchemaUtilResponse get() {
 
-	 String ingressServiceToken = getIngressToken();
-		if(!ingressServiceToken.isBlank()) {
-		OkHttpClient client = new OkHttpClient();
-		String url = baseIngressMicroserviceUrl  + "/"+tableName + "?tenantId=" +tenantId;
-		log.debug("GET table");
-		Request request = new Request.Builder().url(url)
-				.addHeader("Authorization", "Bearer " + ingressServiceToken)
-				.build();
+		String ingressServiceToken = getIngressToken();
+		if (!ingressServiceToken.isBlank()) {
+			OkHttpClient client = new OkHttpClient();
+			String url = baseIngressMicroserviceUrl + "/" + tableName + "?tenantId=" + tenantId;
+			log.debug("GET table");
+			Request request = new Request.Builder().url(url).addHeader("Authorization", "Bearer " + ingressServiceToken)
+					.build();
 
-		try {
-			Response response = client.newCall(request).execute();
-			return new GetCurrentSchemaUtilResponse(true, "Table Retrieved Successfully!", response.body().string());
+			try {
+				Response response = client.newCall(request).execute();
+				return new GetCurrentSchemaUtilResponse(true, "Table Retrieved Successfully!",
+						response.body().string());
 
-		} catch (IOException e) {
+			} catch (IOException e) {
 
+				log.error(MICROSERVICE_INTERACT_ISSUE);
+				return new GetCurrentSchemaUtilResponse(false, "Table could not be retrieved! IOException.", "");
+
+			}
+		} else {
 			log.error(MICROSERVICE_INTERACT_ISSUE);
-			return new GetCurrentSchemaUtilResponse(
-					false, "Table could not be retrieved! IOException.", "");
-
+			return new GetCurrentSchemaUtilResponse(false, "Ingress Miscroservice Authorization Failed!!", "");
 		}
-        }else {
-        	log.error(MICROSERVICE_INTERACT_ISSUE);
-			return new GetCurrentSchemaUtilResponse(
-					false, "Ingress Miscroservice Authorization Failed!!", "");
-        }
 
 	}
 
@@ -71,9 +69,8 @@ public class GetCurrentSchemaUtil {
 			 JSONObject responseObject = new JSONObject(requestData);
 			 ingressToken = responseObject.getString("token");
 			 log.debug("Token Successfully Retrieved From Ingress Microservice");
-		} catch (IOException | IllegalArgumentException e) {
+		} catch (Exception e) {
 			log.error(MICROSERVICE_INTERACT_ISSUE, e);
-		
 		}
 		return ingressToken;
 	}

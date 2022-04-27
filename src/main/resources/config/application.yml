@@ -128,7 +128,7 @@ basic-auth:
   
 #================================================================
 #Sync with soft delete schema in microservice
-base-microservice-url: http://localhost:8081
+base-microservice-url: http://ssi-container:8081
 microservice-url:
   get-table: /api/v1/manage/table
   user-token: /user/token
@@ -143,10 +143,10 @@ base-url:
 #================================================================
 # Keycloak Server Configurations
 keycloak:
-  realm: ${KEYCLOAK_REALM_NAME:Demo_Realm}
-  credentials:
-    secret: ${KEYCLOAK_CLIENT_SECRET:EM2zUo5CTPiaTGRjEXzfuSc21tuin2qo}
-  resource: ${KEYCLOAK_CLIENT_NAME:saas-ingress-microservice}
+  realm: ${KEYCLOAK_REALM_NAME:saas-realm}
+  credentials: 
+    secret: ${KEYCLOAK_CLIENT_SECRET:Fn7lKppwFB7J9kCWD6g9cuF6pSvfEAdk}
+  resource: ${KEYCLOAK_CLIENT_NAME:saas-client}
   auth-server-url: http://${KEYCLOAK_CONTAINER_NAME:localhost}:8080/auth
   ssl-required: external
   public-client: false
