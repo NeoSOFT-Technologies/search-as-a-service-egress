@@ -79,7 +79,6 @@ public class SearchService implements SearchServicePort {
 		boolean isMicroserviceDown = false;
 		List<String> currentListOfColumnsOfTableSchema = tableService
 				.getCurrentTableSchemaColumns(tableName.split("_")[0], clientId);
-		//JSONArray currentTableSchema = tableService.getCurrentTableSchema(tableName.split("_")[0], clientId);
 		IngressSchemaResponse currentTableSchemaResponse = tableService.getCurrentTableSchema(tableName.split("_")[0], clientId);
 		JSONArray currentTableSchema = currentTableSchemaResponse.getJsonArray();
 		if (currentTableSchema.isEmpty())
