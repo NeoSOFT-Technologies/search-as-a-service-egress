@@ -153,5 +153,5 @@ keycloak:
   use-resource-role-mappings: true
 #================================================================
 #Keycloack UserName and Password For Ingress Token
-token-userName: demo
-token-password : demo
+token-userName: admin
+token-password : adminPassword@1
