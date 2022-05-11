@@ -120,6 +120,8 @@ dependencies {
 	
     //Memcache 
 	implementation group: 'net.spy', name: 'spymemcached', version: '2.12.3'
+	
+	implementation group: 'org.jboss.logging', name: 'jboss-logging', version: '3.5.0.Final'
 }
 
 

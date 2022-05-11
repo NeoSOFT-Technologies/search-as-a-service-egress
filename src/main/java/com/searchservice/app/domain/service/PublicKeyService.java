@@ -16,7 +16,6 @@ import com.searchservice.app.domain.port.api.PublicKeyServicePort;
 import lombok.Data;
 
 @Service
-@Data
 public class PublicKeyService implements PublicKeyServicePort{
 
 	private static final String CACHE_NAME = "publicKeyCache";
@@ -63,13 +62,17 @@ public class PublicKeyService implements PublicKeyServicePort{
 		return publicKey;
 	}
 
-	public void checkIfPublicKeyExistsInCache() {
+	@Override
+	public boolean checkIfPublicKeyExistsInCache() {
+		boolean isPublicKeyPresent = false;
 		String realmName = authConfigProperties.getRealmName();
 		Cache cache = cacheManager.getCache(PublicKeyService.CACHE_NAME);
 		if(cache.get(authConfigProperties.getRealmName())!=null) {
 			log.debug("Public Key Found in Cache For Realm: {}",realmName);
 			updatePublicKey(realmName);
+			isPublicKeyPresent = true;
 		}
+		return isPublicKeyPresent;
 	}
 	
 	
