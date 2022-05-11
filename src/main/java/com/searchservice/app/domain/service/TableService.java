@@ -38,6 +38,7 @@ public class TableService implements TableServicePort {
 	
 	@Value("${token-userName}")
 	private String userName;   
+	
 	@Value("${token-password}")
 	private String password;	
 

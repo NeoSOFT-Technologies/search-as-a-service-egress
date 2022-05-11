@@ -1,6 +1,7 @@
 package com.searchservice.app.config;
 
 import java.net.InetAddress;
+
 import org.springframework.http.ResponseEntity;
 import com.searchservice.app.domain.dto.Response;
 
