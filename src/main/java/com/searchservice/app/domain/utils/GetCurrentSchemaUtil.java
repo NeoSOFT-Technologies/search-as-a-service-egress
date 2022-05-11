@@ -55,7 +55,7 @@ public class GetCurrentSchemaUtil {
 	
 	public String getIngressToken() {
 		OkHttpClient client = new OkHttpClient();
-		String json = "{\"userName\":\""+userName+"\",\"password\":\""+password+"\"}";
+		String json = "{\"username\":\""+userName+"\",\"password\":\""+password+"\"}";
 		RequestBody body = RequestBody.create(
 		MediaType.parse("application/json"), json);
 		String ingressToken = "";
