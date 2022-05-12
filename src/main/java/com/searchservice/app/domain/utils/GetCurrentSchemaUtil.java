@@ -21,12 +21,12 @@ public class GetCurrentSchemaUtil {
 	private String baseIngressMicroserviceUrl;
 	private String tableName;
 	private int tenantId;
-	public GetCurrentSchemaUtilResponse get(String tokenValue) {
+	public GetCurrentSchemaUtilResponse get(String tokenHeaderForIngress) {
 
 			OkHttpClient client = new OkHttpClient();
 			String url = baseIngressMicroserviceUrl + "/" + tableName + "?tenantId=" + tenantId;
 			log.debug("GET table");
-			Request request = new Request.Builder().url(url).addHeader("Authorization", "Bearer " + tokenValue)
+			Request request = new Request.Builder().url(url).addHeader("Authorization", tokenHeaderForIngress+"12")
 					.build();
 			try {
 				Response response = client.newCall(request).execute();

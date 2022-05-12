@@ -64,7 +64,7 @@ public class SearchResource {
         SearchResponse searchResponseDTO = searchservice.searchField(
         		tenantId, tableName, 
         		queryField, searchTerm, 
-        		startRecord, pageSize, orderBy, order, getTokenValue(request));
+        		startRecord, pageSize, orderBy, order, getTokenHeader(request));
 
 		
         if (searchResponseDTO.getStatusCode() == 200) {
@@ -94,7 +94,7 @@ public class SearchResource {
         SearchResponse searchResponseDTO = searchservice.searchQuery(
         		tenantId, tableName, 
         		searchQuery, 
-        		startRecord, pageSize, orderBy, order, getTokenValue(request));
+        		startRecord, pageSize, orderBy, order, getTokenHeader(request));
        
         if (searchResponseDTO.getStatusCode() == 200) {
             return ResponseEntity.status(HttpStatus.OK).body(searchResponseDTO);
@@ -103,10 +103,10 @@ public class SearchResource {
         }
     }
     
-    private String getTokenValue(HttpServletRequest request) {
+    private String getTokenHeader(HttpServletRequest request) {
     	String header = request.getHeader(HttpHeaders.AUTHORIZATION);
     	if(header!=null) {
-    		return header.split(" ")[1].trim();
+    		return header;
     	}else {
     		return "";
     	}

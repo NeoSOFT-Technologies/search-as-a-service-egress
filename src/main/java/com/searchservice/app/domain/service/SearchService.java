@@ -42,14 +42,14 @@ public class SearchService implements SearchServicePort {
 
 
 	@Override
-	public SearchResponse searchQuery(int clientId, String tableName, String searchQuery, String startRecord,
-			String pageSize, String sortTag, String sortOrder, String token) {
+	public SearchResponse searchQuery(int tenantId, String tableName, String searchQuery, String startRecord,
+			String pageSize, String sortTag, String sortOrder, String tokenHeader) {
 		logger.debug("Query search for the given table");
 
 
 
 		// Get Current Table Schema (communicating with SAAS Microservice)
-		List<String> currentListOfColumnsOfTableSchema = tableService.getCurrentTableSchemaColumns(tableName.split("_")[0], clientId, token);
+		List<String> currentListOfColumnsOfTableSchema = tableService.getCurrentTableSchemaColumns(tableName.split("_")[0], tenantId, tokenHeader);
 		searchResponseDTO = searchRecordsServicePort.setUpSelectQuerySearchViaQuery(
 				currentListOfColumnsOfTableSchema, 
 				tableName, 
@@ -71,15 +71,15 @@ public class SearchService implements SearchServicePort {
 	}
 
 	@Override
-	public SearchResponse searchField(int clientId, String tableName, String queryField, String queryFieldSearchTerm,
-			String startRecord, String pageSize, String sortTag, String sortOrder, String token) {
+	public SearchResponse searchField(int tenantId, String tableName, String queryField, String queryFieldSearchTerm,
+			String startRecord, String pageSize, String sortTag, String sortOrder, String tokenHeader) {
 		logger.debug("Advanced search for the given table");
 
 		// Get Current Table Schema (communicating with SAAS Microservice)
 		boolean isMicroserviceDown = false;
 		List<String> currentListOfColumnsOfTableSchema = tableService
-				.getCurrentTableSchemaColumns(tableName.split("_")[0], clientId, token);
-		IngressSchemaResponse currentTableSchemaResponse = tableService.getCurrentTableSchema(tableName.split("_")[0], clientId, token);
+				.getCurrentTableSchemaColumns(tableName.split("_")[0], tenantId, tokenHeader);
+		IngressSchemaResponse currentTableSchemaResponse = tableService.getCurrentTableSchema(tableName.split("_")[0], tenantId, tokenHeader);
 		JSONArray currentTableSchema = currentTableSchemaResponse.getJsonArray();
 		if (currentTableSchema.isEmpty())
 			isMicroserviceDown = true;

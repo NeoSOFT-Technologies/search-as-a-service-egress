@@ -10,9 +10,9 @@ import com.searchservice.app.domain.dto.IngressSchemaResponse;
 
 
 public interface TableServicePort {	
-	List<String> getCurrentTableSchemaColumns(String tableName, int clientId, String tokenValue);
+	List<String> getCurrentTableSchemaColumns(String tableName, int tenantId, String tokenHeaderForIngress);
 	
-	IngressSchemaResponse getCurrentTableSchema(String tableName, int clientId, String tokenValue);
+	IngressSchemaResponse getCurrentTableSchema(String tableName, int tenantId, String tokenHeaderForIngress);
 	
 	 List<Map<String, Object>> getValidDocumentsList(SolrDocumentList docs, List<String> validColumns);
 	 

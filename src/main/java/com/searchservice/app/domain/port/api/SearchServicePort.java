@@ -5,12 +5,12 @@ import com.searchservice.app.domain.dto.SearchResponse;
 
 public interface SearchServicePort {	
 	SearchResponse searchQuery(
-			int clientId, String tableName, 
+			int tenantId, String tableName, 
 			String searchQuery, 
-			String startRecord, String pageSize, String sortTag, String sortOrder, String token);
+			String startRecord, String pageSize, String sortTag, String sortOrder, String tokenHeader);
 	
-	SearchResponse searchField(int clientId, String tableName, String queryField, String queryFieldSearchTerm,
-			String startRecord, String pageSize, String sortTag, String sortOrder, String token);
+	SearchResponse searchField(int tenantId, String tableName, String queryField, String queryFieldSearchTerm,
+			String startRecord, String pageSize, String sortTag, String sortOrder, String tokenHeader);
 	
 	
 }
