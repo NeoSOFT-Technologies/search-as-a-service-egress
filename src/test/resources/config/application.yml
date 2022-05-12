@@ -154,5 +154,3 @@ keycloak:
   public-client: false
   use-resource-role-mappings: true
 #================================================================
-token-userName: demo
-token-password : demo

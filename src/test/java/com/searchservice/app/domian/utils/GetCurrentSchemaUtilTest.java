@@ -81,7 +81,7 @@ import com.squareup.okhttp.OkHttpClient;
 		schemaUtil.setBaseIngressMicroserviceUrl("http:local:8081");
 		schemaUtil.setTableName("TestTable");
 		schemaUtil.setTenantId(101);
-		assertEquals(false,schemaUtil.get().isTableRetrieved());
+		assertEquals(false,schemaUtil.get("").isTableRetrieved());
 	}
 
 }

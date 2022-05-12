@@ -19,7 +19,6 @@ import org.springframework.http.MediaType;
 import org.springframework.web.filter.OncePerRequestFilter;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.searchservice.app.config.AuthConfigProperties;
-import com.searchservice.app.domain.service.PublicKeyService;
 import io.jsonwebtoken.Jwts;
 
 
@@ -67,6 +66,7 @@ public class JwtTokenFilterService extends OncePerRequestFilter {
 
 		} else {
 			chain.doFilter(request, response);
+			authConfigProperties.setToken(token);
 		}
 	}
 

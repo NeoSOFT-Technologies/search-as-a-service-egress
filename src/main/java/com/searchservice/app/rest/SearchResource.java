@@ -4,9 +4,12 @@ import java.time.ZoneOffset;
 
 import java.time.ZonedDateTime;
 
+import javax.servlet.http.HttpServletRequest;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -45,9 +48,8 @@ public class SearchResource {
     SearchResult searchResult;
    
    @GetMapping(value = "/{tableName}")
-    @Operation(summary = "GET RECORDS BASED ON A SPECIFIC COLUMN AND ITS VALUE" ,security = @SecurityRequirement(name = "bearerAuth"))
-
-    public ResponseEntity<SearchResponse> searchRecordsViaQueryField(
+   @Operation(summary = "GET RECORDS BASED ON A SPECIFIC COLUMN AND ITS VALUE" ,security = @SecurityRequirement(name = "bearerAuth"))
+    public ResponseEntity<SearchResponse> searchRecordsViaQueryField(HttpServletRequest request,
     		@PathVariable String tableName, 
     		@RequestParam int tenantId, 
             @RequestParam(defaultValue = "*") String queryField, @RequestParam(defaultValue = "*") String searchTerm, 
@@ -58,12 +60,11 @@ public class SearchResource {
 
 		// Validate inputs
 		SearchUtil.validateInputs(startRecord, pageSize, order);
-
         tableName = tableName + "_" + tenantId;
         SearchResponse searchResponseDTO = searchservice.searchField(
         		tenantId, tableName, 
         		queryField, searchTerm, 
-        		startRecord, pageSize, orderBy, order);
+        		startRecord, pageSize, orderBy, order, getTokenValue(request));
 
 		
         if (searchResponseDTO.getStatusCode() == 200) {
@@ -74,12 +75,10 @@ public class SearchResource {
     }
     
     
-
     @GetMapping(value = "/query/{tableName}")
     @Operation(summary = "GET RECORDS WITH THE HELP OF CUSTOM QUERY" ,security = @SecurityRequirement(name = "bearerAuth"))
-
     public ResponseEntity<SearchResponse> searchRecordsViaQuery(
-    		 
+    		HttpServletRequest request,
     		@PathVariable String tableName, 
     		@RequestParam int tenantId,
             @RequestParam(defaultValue = "*") String searchQuery, 
@@ -95,13 +94,22 @@ public class SearchResource {
         SearchResponse searchResponseDTO = searchservice.searchQuery(
         		tenantId, tableName, 
         		searchQuery, 
-        		startRecord, pageSize, orderBy, order);
+        		startRecord, pageSize, orderBy, order, getTokenValue(request));
        
         if (searchResponseDTO.getStatusCode() == 200) {
             return ResponseEntity.status(HttpStatus.OK).body(searchResponseDTO);
         } else {
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(searchResponseDTO);
         }
+    }
+    
+    private String getTokenValue(HttpServletRequest request) {
+    	String header = request.getHeader(HttpHeaders.AUTHORIZATION);
+    	if(header!=null) {
+    		return header.split(" ")[1].trim();
+    	}else {
+    		return "";
+    	}
     }
     
 }

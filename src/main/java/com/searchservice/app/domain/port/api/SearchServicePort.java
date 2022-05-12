@@ -7,10 +7,10 @@ public interface SearchServicePort {
 	SearchResponse searchQuery(
 			int clientId, String tableName, 
 			String searchQuery, 
-			String startRecord, String pageSize, String sortTag, String sortOrder);
+			String startRecord, String pageSize, String sortTag, String sortOrder, String token);
 	
 	SearchResponse searchField(int clientId, String tableName, String queryField, String queryFieldSearchTerm,
-			String startRecord, String pageSize, String sortTag, String sortOrder);
+			String startRecord, String pageSize, String sortTag, String sortOrder, String token);
 	
 	
 }

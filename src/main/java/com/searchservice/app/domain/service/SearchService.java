@@ -43,13 +43,13 @@ public class SearchService implements SearchServicePort {
 
 	@Override
 	public SearchResponse searchQuery(int clientId, String tableName, String searchQuery, String startRecord,
-			String pageSize, String sortTag, String sortOrder) {
+			String pageSize, String sortTag, String sortOrder, String token) {
 		logger.debug("Query search for the given table");
 
 
 
 		// Get Current Table Schema (communicating with SAAS Microservice)
-		List<String> currentListOfColumnsOfTableSchema = tableService.getCurrentTableSchemaColumns(tableName.split("_")[0], clientId);
+		List<String> currentListOfColumnsOfTableSchema = tableService.getCurrentTableSchemaColumns(tableName.split("_")[0], clientId, token);
 		searchResponseDTO = searchRecordsServicePort.setUpSelectQuerySearchViaQuery(
 				currentListOfColumnsOfTableSchema, 
 				tableName, 
@@ -72,14 +72,14 @@ public class SearchService implements SearchServicePort {
 
 	@Override
 	public SearchResponse searchField(int clientId, String tableName, String queryField, String queryFieldSearchTerm,
-			String startRecord, String pageSize, String sortTag, String sortOrder) {
+			String startRecord, String pageSize, String sortTag, String sortOrder, String token) {
 		logger.debug("Advanced search for the given table");
 
 		// Get Current Table Schema (communicating with SAAS Microservice)
 		boolean isMicroserviceDown = false;
 		List<String> currentListOfColumnsOfTableSchema = tableService
-				.getCurrentTableSchemaColumns(tableName.split("_")[0], clientId);
-		IngressSchemaResponse currentTableSchemaResponse = tableService.getCurrentTableSchema(tableName.split("_")[0], clientId);
+				.getCurrentTableSchemaColumns(tableName.split("_")[0], clientId, token);
+		IngressSchemaResponse currentTableSchemaResponse = tableService.getCurrentTableSchema(tableName.split("_")[0], clientId, token);
 		JSONArray currentTableSchema = currentTableSchemaResponse.getJsonArray();
 		if (currentTableSchema.isEmpty())
 			isMicroserviceDown = true;

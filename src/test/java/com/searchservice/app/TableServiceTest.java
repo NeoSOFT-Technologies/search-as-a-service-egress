@@ -65,6 +65,7 @@ class TableServiceTest {
 	int tenantId = 101;
 	String tableName = "book";
 	String tablename1 = "book_101";
+	String tokenValue = "";
 
 	private SearchResponse responseDTO = new SearchResponse();
 	@InjectMocks
@@ -112,7 +113,7 @@ class TableServiceTest {
 	public void setMockitoSucccessResponseForService() {
 		getCurrentSchemaUtilResponse = new GetCurrentSchemaUtilResponse(true,message,"book");
 		JSONArray jarray = jobj.getJSONArray("books");
-		Mockito.when(getCurrentSchemaUtil.get()).thenReturn(getCurrentSchemaUtilResponse);
+		Mockito.when(getCurrentSchemaUtil.get(Mockito.anyString())).thenReturn(getCurrentSchemaUtilResponse);
 		Mockito.when(getCurrentSchemaUtil.getCurrentSchemaColumns(Mockito.any())).thenReturn(new LinkedList<>(List.of("book")));
 		Mockito.when(getCurrentSchemaUtil.getCurrentSchemaDetails(Mockito.any())).thenReturn(jarray);		
 	}
@@ -124,7 +125,7 @@ class TableServiceTest {
 	void testsearchtableSchema() throws Exception {
 		List<String> currentListOfColumnsOfTableSchema = new LinkedList<>(List.of("book"));
 		setMockitoSucccessResponseForService();
-		List<String> responseDTO = tableService.getCurrentTableSchemaColumns( tableName,tenantId);
+		List<String> responseDTO = tableService.getCurrentTableSchemaColumns( tableName,tenantId, tokenValue);
 		assertEquals(responseDTO,currentListOfColumnsOfTableSchema );
 
 	}
@@ -133,7 +134,7 @@ class TableServiceTest {
 	void testsearchtableSchemacolumn() throws Exception {		
 			JSONArray jarray = jobj.getJSONArray("books");
 		setMockitoSucccessResponseForService();
-		IngressSchemaResponse ingressResponse = tableService.getCurrentTableSchema( tableName,tenantId);
+		IngressSchemaResponse ingressResponse = tableService.getCurrentTableSchema( tableName,tenantId, tokenValue);
 		JSONArray responseDTO = ingressResponse.getJsonArray();
 		assertEquals(responseDTO,jarray );
 	}

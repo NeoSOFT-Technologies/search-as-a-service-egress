@@ -145,9 +145,6 @@ base-url:
 authentication:
   realmName: master
   keyUrl: https://iam-keycloak.neosofttech.com/auth/realms/
-  
-#Keycloack UserName and Password For Ingress Token
-token-userName: admin
-token-password : adminPassword@1
+  token: 
 
 base-token-url: https://iam-dev.neosofttech.com/api/login
