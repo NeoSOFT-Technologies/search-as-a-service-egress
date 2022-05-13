@@ -154,3 +154,6 @@ keycloak:
   public-client: false
   use-resource-role-mappings: true
 #================================================================
+
+schedular-durations:
+   public-key-update: 60000

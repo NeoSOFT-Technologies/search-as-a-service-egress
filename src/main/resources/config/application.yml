@@ -148,3 +148,6 @@ authentication:
   token: 
 
 base-token-url: https://iam-dev.neosofttech.com/api/login
+
+schedular-durations:
+   public-key-update: 60000

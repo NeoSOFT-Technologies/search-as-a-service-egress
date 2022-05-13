@@ -89,7 +89,7 @@ public class SearchService implements SearchServicePort {
 				currentListOfColumnsOfTableSchema, currentTableSchema, tableName, queryField, queryFieldSearchTerm,
 				startRecord, pageSize, sortTag, sortOrder);
 
-		if(isMicroserviceDown) {
+		if(isMicroserviceDown && searchResponseDTO.getStatusCode() == 200) {
 			if(!currentTableSchemaResponse.getMessage().isEmpty())
 				searchResponseDTO.setMessage(
 						searchResponseDTO.getMessage()

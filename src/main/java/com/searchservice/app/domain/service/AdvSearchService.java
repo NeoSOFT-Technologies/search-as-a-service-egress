@@ -100,7 +100,7 @@ public class AdvSearchService implements AdvSearchServicePort {
 		query.set(PAGE_SIZE, pageSize);
 		SortClause sortClause = new SortClause(tag, order);
 		query.setSort(sortClause);
-		searchResponseDTO = processSearchQuery(client, query, validSchemaColumns);
+		searchResponseDTO = processSearchQuery(tableName, client, query, validSchemaColumns);
 		
 		return searchResponseDTO;
 	}
@@ -122,13 +122,13 @@ public class AdvSearchService implements AdvSearchServicePort {
 		query.set(PAGE_SIZE, pageSize);
 		SortClause sortClause = new SortClause(tag, order);
 		query.setSort(sortClause);
-		searchResponseDTO = processSearchQuery(client, query, validSchemaColumns);		
+		searchResponseDTO = processSearchQuery(tableName,client, query, validSchemaColumns);		
 		return searchResponseDTO;
 	}
 	
 	
 	// Auxiliary methods
-	public SearchResponse processSearchQuery(SolrClient client, SolrQuery query, List<String> validSchemaColumns) {
+	public SearchResponse processSearchQuery(String tableName, SolrClient client, SolrQuery query, List<String> validSchemaColumns) {
 		try {
 			searchResponseDTO = new SearchResponse();
 			searchResult = new SearchResult();					
@@ -163,7 +163,8 @@ public class AdvSearchService implements AdvSearchServicePort {
 				searchResponseDTO.setMessage("Couldn't parse the search query. Please provide query in correct format");
 			}else if(e.getMessage().contains("404 Not Found")) {
 				searchResponseDTO.setStatusCode(403);
-				searchResponseDTO.setMessage("Resource not found");
+				searchResponseDTO.setMessage("Table " +tableName.split("_")[0]+" Having TenantID: "+
+						tableName.split("_")[1]+" Not Found");
 			} else
 				searchResponseDTO.setMessage(FAILURE_MSG);
 		}
