@@ -58,8 +58,6 @@ class SearchServiceTest {
 	String order = "asc";
 	String searchQueryfield = "category";
 	String queryFieldSearchTerm = "shubham";
-	String tokenValue = "";
-
 	private SearchResponse responseDTO = new SearchResponse();
 
 	String jarray = "{\r\n" + "\"schema\" :[\r\n" + "  {\r\n" + "    \"id\" : 1,\r\n"
@@ -100,12 +98,12 @@ class SearchServiceTest {
 		searchClientAdapter.getSearchClientAdapter(searchQueryfield, tableName);		
 		List<String> currentListOfColumnsOfTableSchema = new ArrayList<>(List.of("id", "category"));
 		// tableService = spy(new TableService());
-		Mockito.when(tableService.getCurrentTableSchemaColumns(Mockito.anyString(), Mockito.anyInt(), Mockito.anyString()))
+		Mockito.when(tableService.getCurrentTableSchemaColumns(Mockito.anyString(), Mockito.anyInt()))
 				.thenReturn(currentListOfColumnsOfTableSchema);
 		JSONObject jobj = new JSONObject(jarray);
 		JSONArray jsonarray = jobj.getJSONArray("schema");
 		IngressSchemaResponse ingressResponse = new IngressSchemaResponse(jsonarray, "message");
-		Mockito.when(tableService.getCurrentTableSchema(Mockito.anyString(), Mockito.anyInt(), Mockito.anyString())).thenReturn(ingressResponse);
+		Mockito.when(tableService.getCurrentTableSchema(Mockito.anyString(), Mockito.anyInt())).thenReturn(ingressResponse);
 	}
 
 	public void setMockitoSucccessResponseForService() {
@@ -139,7 +137,7 @@ class SearchServiceTest {
 		int statusCode = 200;
 		setMockitoSucccessResponseForService();
 		SearchResponse responseDTO = search.searchQuery(tenantId, tablename1, searchQuery, startRecord, pageSize,
-				orderBy, order, tokenValue);
+				orderBy, order);
 		assertEquals(statusCode, responseDTO.getStatusCode());
 
 	}
@@ -150,7 +148,7 @@ class SearchServiceTest {
 		setMockitoSucccessResponseForService();
 
 		SearchResponse responseDTO = search.searchField(tenantId, tablename1, "*", "*", startRecord, pageSize, orderBy,
-				order, tokenValue);
+				order);
 		assertEquals(statusCode, responseDTO.getStatusCode());
 
 	}
@@ -160,7 +158,7 @@ class SearchServiceTest {
 		int statusCode = 400;
 		setMockitoBadResponseForService();
 		SearchResponse responseDTO = search.searchQuery(tenantId, "1", searchQuery, startRecord, pageSize, orderBy,
-				order, tokenValue);
+				order);
 
 		assertEquals(statusCode, responseDTO.getStatusCode());
 
@@ -171,7 +169,7 @@ class SearchServiceTest {
 		int statusCode =400;
 		setMockitoBadResponseForService();
 try {
-		SearchResponse responseDTO = search.searchField(tenantId, "1", "*", "*", startRecord, pageSize, orderBy, order, tokenValue);		
+		SearchResponse responseDTO = search.searchField(tenantId, "1", "*", "*", startRecord, pageSize, orderBy, order);		
 		assertEquals(statusCode, responseDTO.getStatusCode());
 }catch (Exception e) {
 	

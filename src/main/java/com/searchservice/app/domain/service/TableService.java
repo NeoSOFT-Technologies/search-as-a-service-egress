@@ -6,6 +6,9 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import javax.servlet.http.HttpServletRequest;
+
+import org.apache.http.HttpHeaders;
 import org.apache.solr.common.SolrDocumentList;
 import org.json.JSONArray;
 import org.slf4j.Logger;
@@ -36,15 +39,18 @@ public class TableService implements TableServicePort {
 
 	@Autowired
 	SearchClientAdapter searchClientAdapter;
+	
+	@Autowired
+	private HttpServletRequest request;
 
 	GetCurrentSchemaUtil getCurrentSchemaUtil = new GetCurrentSchemaUtil();
 
 	@Override
-	public List<String> getCurrentTableSchemaColumns(String tableName, int tenantId, String tokenHeaderForIngress) {
+	public List<String> getCurrentTableSchemaColumns(String tableName, int tenantId) {
 		logger.debug("Get current table schema from Ingress microservice");
 
 		GetCurrentSchemaUtil getCurrentSchema = extracted(tableName, tenantId);
-		GetCurrentSchemaUtil.GetCurrentSchemaUtilResponse response = getCurrentSchema.get(tokenHeaderForIngress);
+		GetCurrentSchemaUtil.GetCurrentSchemaUtilResponse response = getCurrentSchema.get(getTokenHeaderForIngress(request));
 
 		String responseString = response.getResponseString();
 
@@ -52,11 +58,10 @@ public class TableService implements TableServicePort {
 	}
 
 	@Override
-	public IngressSchemaResponse getCurrentTableSchema(String tableName, int tenantId, String tokenHeaderForIngress) {
+	public IngressSchemaResponse getCurrentTableSchema(String tableName, int tenantId) {
 		logger.debug("Get current table schema from Ingress microservice");
-
 		GetCurrentSchemaUtil getCurrentSchema = extracted(tableName, tenantId);
-		GetCurrentSchemaUtil.GetCurrentSchemaUtilResponse response = getCurrentSchema.get(tokenHeaderForIngress);
+		GetCurrentSchemaUtil.GetCurrentSchemaUtilResponse response = getCurrentSchema.get(getTokenHeaderForIngress(request));
 
 		String responseString = response.getResponseString();
 		JSONArray jsonArray = getCurrentSchema.getCurrentSchemaDetails(responseString);
@@ -100,4 +105,13 @@ public class TableService implements TableServicePort {
 		}
 		return map;
 	}
+	
+	 private String getTokenHeaderForIngress(HttpServletRequest request) {
+	    	String header = request.getHeader(HttpHeaders.AUTHORIZATION);
+	    	if(header!=null) {
+	    		return header;
+	    	}else {
+	    		return "";
+	    	}
+	    }
 }

@@ -26,7 +26,7 @@ public class GetCurrentSchemaUtil {
 			OkHttpClient client = new OkHttpClient();
 			String url = baseIngressMicroserviceUrl + "/" + tableName + "?tenantId=" + tenantId;
 			log.debug("GET table");
-			Request request = new Request.Builder().url(url).addHeader("Authorization", tokenHeaderForIngress+"12")
+			Request request = new Request.Builder().url(url).addHeader("Authorization", tokenHeaderForIngress)
 					.build();
 			try {
 				Response response = client.newCall(request).execute();

@@ -43,13 +43,13 @@ public class SearchService implements SearchServicePort {
 
 	@Override
 	public SearchResponse searchQuery(int tenantId, String tableName, String searchQuery, String startRecord,
-			String pageSize, String sortTag, String sortOrder, String tokenHeader) {
+			String pageSize, String sortTag, String sortOrder) {
 		logger.debug("Query search for the given table");
 
 
 
 		// Get Current Table Schema (communicating with SAAS Microservice)
-		List<String> currentListOfColumnsOfTableSchema = tableService.getCurrentTableSchemaColumns(tableName.split("_")[0], tenantId, tokenHeader);
+		List<String> currentListOfColumnsOfTableSchema = tableService.getCurrentTableSchemaColumns(tableName.split("_")[0], tenantId);
 		searchResponseDTO = searchRecordsServicePort.setUpSelectQuerySearchViaQuery(
 				currentListOfColumnsOfTableSchema, 
 				tableName, 
@@ -72,14 +72,14 @@ public class SearchService implements SearchServicePort {
 
 	@Override
 	public SearchResponse searchField(int tenantId, String tableName, String queryField, String queryFieldSearchTerm,
-			String startRecord, String pageSize, String sortTag, String sortOrder, String tokenHeader) {
+			String startRecord, String pageSize, String sortTag, String sortOrder) {
 		logger.debug("Advanced search for the given table");
 
 		// Get Current Table Schema (communicating with SAAS Microservice)
 		boolean isMicroserviceDown = false;
 		List<String> currentListOfColumnsOfTableSchema = tableService
-				.getCurrentTableSchemaColumns(tableName.split("_")[0], tenantId, tokenHeader);
-		IngressSchemaResponse currentTableSchemaResponse = tableService.getCurrentTableSchema(tableName.split("_")[0], tenantId, tokenHeader);
+				.getCurrentTableSchemaColumns(tableName.split("_")[0], tenantId);
+		IngressSchemaResponse currentTableSchemaResponse = tableService.getCurrentTableSchema(tableName.split("_")[0], tenantId);
 		JSONArray currentTableSchema = currentTableSchemaResponse.getJsonArray();
 		if (currentTableSchema.isEmpty())
 			isMicroserviceDown = true;

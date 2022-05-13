@@ -49,7 +49,7 @@ public class SearchResource {
    
    @GetMapping(value = "/{tableName}")
    @Operation(summary = "GET RECORDS BASED ON A SPECIFIC COLUMN AND ITS VALUE" ,security = @SecurityRequirement(name = "bearerAuth"))
-    public ResponseEntity<SearchResponse> searchRecordsViaQueryField(HttpServletRequest request,
+    public ResponseEntity<SearchResponse> searchRecordsViaQueryField(
     		@PathVariable String tableName, 
     		@RequestParam int tenantId, 
             @RequestParam(defaultValue = "*") String queryField, @RequestParam(defaultValue = "*") String searchTerm, 
@@ -64,7 +64,7 @@ public class SearchResource {
         SearchResponse searchResponseDTO = searchservice.searchField(
         		tenantId, tableName, 
         		queryField, searchTerm, 
-        		startRecord, pageSize, orderBy, order, getTokenHeader(request));
+        		startRecord, pageSize, orderBy, order);
 
 		
         if (searchResponseDTO.getStatusCode() == 200) {
@@ -94,7 +94,7 @@ public class SearchResource {
         SearchResponse searchResponseDTO = searchservice.searchQuery(
         		tenantId, tableName, 
         		searchQuery, 
-        		startRecord, pageSize, orderBy, order, getTokenHeader(request));
+        		startRecord, pageSize, orderBy, order);
        
         if (searchResponseDTO.getStatusCode() == 200) {
             return ResponseEntity.status(HttpStatus.OK).body(searchResponseDTO);
@@ -103,13 +103,6 @@ public class SearchResource {
         }
     }
     
-    private String getTokenHeader(HttpServletRequest request) {
-    	String header = request.getHeader(HttpHeaders.AUTHORIZATION);
-    	if(header!=null) {
-    		return header;
-    	}else {
-    		return "";
-    	}
-    }
+   
     
 }
