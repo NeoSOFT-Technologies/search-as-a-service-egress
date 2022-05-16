@@ -14,13 +14,17 @@ public enum HttpStatusCode {
     
     SERVER_UNAVAILABLE(503,"Unable to Connect To the Server"),
     
-    OPERATION_NOT_ALLOWED(406 , "Operation Not Allowed !"),
+    OPERATION_NOT_ALLOWED(406 , "Operation Not Allowed!."),
     
     REQUEST_FORBIDDEN(403, "requested resource is forbidden"),
 	
 	UNRECOGNIZED_FIELD(106,"Unrecognized Field : {}"),
 	
-	BAD_REQUEST_EXCEPTION(400,"Bad Request call made. Unable to perform the request");
+	BAD_REQUEST_EXCEPTION(400,"Bad Request call made. "),
+	
+	INVALID_QUERY_FORMAT(117, "Couldn't parse the search query."),
+	
+	INVALID_QUERY_FIELD(118, "Query-field validation unsuccessful. Query-field entry can only be in alphanumeric format");
 	
 	private int code;
 	private String message;
@@ -36,6 +40,15 @@ public enum HttpStatusCode {
 
 	public String getMessage() {
 		return message;
+	}
+	
+	public static HttpStatusCode  getHttpStatus(int statusCode) {
+		for( HttpStatusCode httpStatusCode: HttpStatusCode.values()) {
+			if(httpStatusCode.getCode() == statusCode) {
+				return httpStatusCode;
+			}
+		}
+		return null;
 	}
 
 	

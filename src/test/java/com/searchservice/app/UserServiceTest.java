@@ -29,6 +29,7 @@ import com.searchservice.app.domain.dto.Response;
 
 import com.searchservice.app.domain.dto.user.UserDTO;
 import com.searchservice.app.domain.service.UserService;
+import com.searchservice.app.domain.utils.HttpStatusCode;
 
 
 @ExtendWith(MockitoExtension.class)
@@ -107,7 +108,7 @@ import com.searchservice.app.domain.service.UserService;
 		userDTO.setPassword(password);
 		setMockitoBadResponse(true);
 		Response tokenResponse = userService.getToken(userDTO);
-		assertEquals(400, tokenResponse.getStatusCode());
+		assertEquals(HttpStatusCode.BAD_REQUEST_EXCEPTION.getCode(), tokenResponse.getStatusCode());
 	}
 	
 	@Test
@@ -116,7 +117,7 @@ import com.searchservice.app.domain.service.UserService;
 		userDTO.setPassword(password+"p0");
 		setMockitoExceptionResponse();
 		Response tokenResponse = userService.getToken(userDTO);
-		assertEquals(400, tokenResponse.getStatusCode());
+		assertEquals(HttpStatusCode.BAD_REQUEST_EXCEPTION.getCode(), tokenResponse.getStatusCode());
 		 
 	}
 	

@@ -16,6 +16,7 @@ import org.springframework.web.client.RestTemplate;
 import com.searchservice.app.domain.dto.Response;
 import com.searchservice.app.domain.dto.user.UserDTO;
 import com.searchservice.app.domain.port.api.UserServicePort;
+import com.searchservice.app.domain.utils.HttpStatusCode;
 
 
 @Service
@@ -33,7 +34,7 @@ public class UserService implements UserServicePort{
 	public Response getToken(UserDTO user) {
 		if (user.getUsername().isBlank() || user.getUsername().isEmpty() || user.getPassword().isBlank() || user.getPassword().isEmpty()) {
 			return createResponse(ERROR, "username and password must bot be blank.", 
-					400);
+					HttpStatusCode.BAD_REQUEST_EXCEPTION.getCode());
 		}
 		HttpHeaders headers = new HttpHeaders();
 	    headers.setAccept(Arrays.asList(MediaType.APPLICATION_JSON));
@@ -43,7 +44,7 @@ public class UserService implements UserServicePort{
 			response = restTemplate.postForEntity(baseTokenUrl, request, String.class);
 		} catch (Exception e) {
 			e.printStackTrace();
-			return createResponse(null, "Invalid credentials", 400);
+			return createResponse(null, "Invalid credentials", HttpStatusCode.BAD_REQUEST_EXCEPTION.getCode());
 		}
 		JSONObject obj = new JSONObject(response.getBody());
 		if (obj.has("access_token")) {
@@ -53,9 +54,9 @@ public class UserService implements UserServicePort{
 		if (obj.has(ERROR)) {
 			String errorDesc = obj.getString("error_description");
 			String error = obj.getString(ERROR);
-			return createResponse(error, errorDesc, 400);
+			return createResponse(error, errorDesc, HttpStatusCode.BAD_REQUEST_EXCEPTION.getCode());
 		}
-		return createResponse(null, "Something went wrong! Please try again...", 400);
+		return createResponse(null, "Something went wrong! Please try again...", HttpStatusCode.BAD_REQUEST_EXCEPTION.getCode());
 	}
 
 	public Response createResponse(String token, String message, int statusCode) {
