@@ -21,6 +21,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import com.searchservice.app.domain.dto.SearchResponse;
 import com.searchservice.app.domain.port.api.AdvSearchServicePort;
+import com.searchservice.app.domain.utils.HttpStatusCode;
 import com.searchservice.app.domain.utils.SearchUtil;
 import com.searchservice.app.infrastructure.adaptor.SearchClientAdapter;
 import com.searchservice.app.infrastructure.adaptor.SearchResult;
@@ -162,9 +163,9 @@ public class AdvSearchService implements AdvSearchServicePort {
 			if(e.getMessage().contains("Cannot parse")) {				
 				searchResponseDTO.setMessage("Couldn't parse the search query. Please provide query in correct format");
 			}else if(e.getMessage().contains("404 Not Found")) {
-				searchResponseDTO.setStatusCode(403);
+				searchResponseDTO.setStatusCode(HttpStatusCode.TABLE_NOT_FOUND.getCode());
 				searchResponseDTO.setMessage("Table " +tableName.split("_")[0]+" Having TenantID: "+
-						tableName.split("_")[1]+" Not Found");
+						tableName.split("_")[1]+" "+ HttpStatusCode.TABLE_NOT_FOUND.getMessage());
 			} else
 				searchResponseDTO.setMessage(FAILURE_MSG);
 		}

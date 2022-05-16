@@ -14,6 +14,7 @@ import org.springframework.web.method.annotation.MethodArgumentTypeMismatchExcep
 import com.fasterxml.jackson.databind.JsonMappingException;
 import com.fasterxml.jackson.databind.exc.InvalidFormatException;
 import com.fasterxml.jackson.databind.exc.UnrecognizedPropertyException;
+import com.searchservice.app.domain.utils.HttpStatusCode;
 
 @Order(Ordered.HIGHEST_PRECEDENCE)
 @ControllerAdvice
@@ -21,30 +22,11 @@ public class RestControllerAdvice {
 
 	  private final Logger log = LoggerFactory.getLogger(RestControllerAdvice.class);
 	  
-	@ExceptionHandler(BadRequestOccurredException.class)
-	public ResponseEntity<Object> handleBadRequestOccurred(BadRequestOccurredException exception) {
-		return frameRestApiException(new RestApiError(HttpStatus.BAD_REQUEST,exception.getExceptionCode(),exception.getExceptionMessage()));
+	@ExceptionHandler(CustomException.class)
+	public ResponseEntity<Object> handleCustomExceptionOccured(CustomException exception) {
+		return frameRestApiException(new RestApiError(exception.getStatus(),exception.getExceptionCode(),exception.getExceptionMessage()));
 	}
 	
-	
-	@ExceptionHandler(OperationNotAllowedException.class)
-	public ResponseEntity<Object> handleOperationNotAllowed(
-			OperationNotAllowedException exception) {
-		return frameRestApiException(new RestApiError(
-										HttpStatus.NOT_ACCEPTABLE,exception.getExceptionCode(), 
-										exception.getExceptionMessage()));
-	}
-	
-	
-	@ExceptionHandler(NullPointerOccurredException.class)
-	public ResponseEntity<Object> handleNullPointerOccurredException(
-			NullPointerOccurredException exception) {
-		return frameRestApiException(new RestApiError(
-										HttpStatus.NOT_FOUND,exception.getExceptionCode(), 
-										exception.getExceptionMessage()));
-	}
-	
-
 	@ExceptionHandler(Exception.class)
 	public ResponseEntity<Object> handleUncaughtException(
 			Exception exception) {
@@ -65,7 +47,8 @@ public class RestControllerAdvice {
 		if(exception.getCause() instanceof UnrecognizedPropertyException) {
 			UnrecognizedPropertyException ex = (UnrecognizedPropertyException)exception.getCause();
 			fieldName = ex.getPropertyName();
-			return frameRestApiException(new RestApiError(HttpStatus.BAD_REQUEST,400, "Unrecognized Field : "+fieldName));
+			return frameRestApiException(new RestApiError(HttpStatusCode.UNRECOGNIZED_FIELD, HttpStatusCode.UNRECOGNIZED_FIELD.getCode(),
+					String.format(HttpStatusCode.UNRECOGNIZED_FIELD.getMessage(), fieldName)));
 		}else if(exception.getCause() instanceof InvalidFormatException) {
 			InvalidFormatException ex = (InvalidFormatException)exception.getCause();
 			if (ex.getPath() != null && !ex.getPath().isEmpty()) {
@@ -73,17 +56,20 @@ public class RestControllerAdvice {
 		       fieldName = (null != path)?path.getFieldName():"";
 		    }
 			String value = (null != ex.getValue())?ex.getValue().toString():"";
-			return frameRestApiException(new RestApiError(HttpStatus.BAD_REQUEST,400, "Value for field : "+fieldName+" is not expected as : "+value));
+			return frameRestApiException(new RestApiError(HttpStatusCode.INVALID_FIELD_VALUE, HttpStatusCode.INVALID_FIELD_VALUE.getCode(),
+					String.format(HttpStatusCode.INVALID_FIELD_VALUE.getMessage(), fieldName, value)));
 		
 		}else if(exception.getCause() instanceof JsonMappingException) {
 			JsonMappingException ex = (JsonMappingException)exception.getCause();
-			if(ex.getCause() instanceof BadRequestOccurredException) {
-				BadRequestOccurredException exc = (BadRequestOccurredException)ex.getCause();
-				return frameRestApiException(new RestApiError(HttpStatus.BAD_REQUEST,400, exc.getExceptionMessage()));
+			if(ex.getCause() instanceof CustomException) {
+				CustomException exc = (CustomException)ex.getCause();
+				return frameRestApiException(new RestApiError(exc.getStatus(),exc.getExceptionCode(), exc.getExceptionMessage()));
 			}else
-				return frameRestApiException(new RestApiError(HttpStatus.BAD_REQUEST,400, "Provide valid JSON Input"));
+				return frameRestApiException(new RestApiError(HttpStatusCode.INVALID_JSON_INPUT, HttpStatusCode.INVALID_JSON_INPUT.getCode(),
+						HttpStatusCode.INVALID_JSON_INPUT.getMessage()));
 		}else {
-			return frameRestApiException(new RestApiError(HttpStatus.BAD_REQUEST,400, "Provide valid JSON Input"));
+			return frameRestApiException(new RestApiError(HttpStatusCode.INVALID_JSON_INPUT, HttpStatusCode.INVALID_JSON_INPUT.getCode(),
+					HttpStatusCode.INVALID_JSON_INPUT.getMessage()));
 		}
 		
 	}
@@ -96,6 +82,7 @@ public class RestControllerAdvice {
 			fieldName = (null != exception.getName())?exception.getName():"";
 			requiredType = (null != exception.getRequiredType())?exception.getRequiredType().getName():"";
 		}
-		return frameRestApiException(new RestApiError(HttpStatus.BAD_REQUEST,400, fieldName+" must be of type "+requiredType));
+		return frameRestApiException(new RestApiError(HttpStatusCode.INVALID_TYPE, HttpStatusCode.INVALID_TYPE.getCode(),
+				String.format(HttpStatusCode.INVALID_TYPE.getMessage(), fieldName, requiredType)));
 	}
 }
