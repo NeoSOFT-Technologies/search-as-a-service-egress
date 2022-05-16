@@ -1,6 +1,7 @@
 package com.searchservice.app;
 
 import static org.hamcrest.CoreMatchers.any;
+
 import static org.junit.Assert.assertEquals;
 import static org.mockito.Mockito.doThrow;
 import static org.mockito.Mockito.mock;
@@ -45,7 +46,7 @@ import com.searchservice.app.domain.service.TableService;
 import com.searchservice.app.domain.utils.GetCurrentSchemaUtil;
 import com.searchservice.app.domain.utils.GetCurrentSchemaUtil.GetCurrentSchemaUtilResponse;
 import com.searchservice.app.domain.utils.LoggerUtils;
-import com.searchservice.app.rest.errors.BadRequestOccurredException;
+import com.searchservice.app.rest.errors.CustomException;
 import com.squareup.okhttp.Request;
 
 @AutoConfigureMockMvc

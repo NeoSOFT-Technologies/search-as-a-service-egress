@@ -1,6 +1,7 @@
 package com.searchservice.app.domain.service;
 
 import java.time.ZoneOffset;
+
 import java.time.ZonedDateTime;
 import java.util.List;
 
@@ -16,8 +17,8 @@ import com.searchservice.app.domain.dto.SearchResponse;
 import com.searchservice.app.domain.port.api.AdvSearchServicePort;
 import com.searchservice.app.domain.port.api.SearchServicePort;
 import com.searchservice.app.domain.utils.HttpStatusCode;
-import com.searchservice.app.rest.errors.BadRequestOccurredException;
-import com.searchservice.app.rest.errors.NullPointerOccurredException;
+import com.searchservice.app.rest.errors.CustomException;
+import com.searchservice.app.rest.errors.CustomException;
 
 @Service
 @Transactional
@@ -57,7 +58,7 @@ public class SearchService implements SearchServicePort {
 
 
 		if (searchResponseDTO == null) {
-			throw new NullPointerOccurredException(404, HttpStatusCode.NULL_POINTER_EXCEPTION.getMessage());
+			throw new CustomException(HttpStatusCode.NULL_POINTER_EXCEPTION.getCode(), HttpStatusCode.NULL_POINTER_EXCEPTION,HttpStatusCode.NULL_POINTER_EXCEPTION.getMessage());
 		} else if (searchResponseDTO.getStatusCode() == 200) {
 			return searchResponseDTO;
 		} else if (searchResponseDTO.getStatusCode() == 503) {
@@ -99,17 +100,17 @@ public class SearchService implements SearchServicePort {
 						+". Couldn't interact with Ingress microservice, so 'multiValue' query-field verification incomplete; will be treated as single-valued for now");
 		}	
 		if (searchResponseDTO == null)
-			throw new NullPointerOccurredException(404, HttpStatusCode.NULL_POINTER_EXCEPTION.getMessage());
+			throw new CustomException(HttpStatusCode.NULL_POINTER_EXCEPTION.getCode(), HttpStatusCode.NULL_POINTER_EXCEPTION,HttpStatusCode.NULL_POINTER_EXCEPTION.getMessage());
 		else if (searchResponseDTO.getStatusCode() == 200) {
 			searchResponseDTO.setStatus(HttpStatus.OK);
 			return searchResponseDTO;
 		} else if (searchResponseDTO.getStatusCode() == 403) {
-			throw new BadRequestOccurredException(400, searchResponseDTO.getMessage());
+			throw new CustomException(HttpStatusCode.BAD_REQUEST_EXCEPTION.getCode(),HttpStatusCode.BAD_REQUEST_EXCEPTION, searchResponseDTO.getMessage());
 		} else if (searchResponseDTO.getStatusCode() == 503) {
 			return searchResponseDTO;
 		} else {
 			searchResponseDTO.setStatusCode(400);
-			throw new BadRequestOccurredException(400, HttpStatusCode.BAD_REQUEST_EXCEPTION.getMessage());
+			throw new CustomException(HttpStatusCode.BAD_REQUEST_EXCEPTION.getCode(),HttpStatusCode.BAD_REQUEST_EXCEPTION, HttpStatusCode.BAD_REQUEST_EXCEPTION.getMessage());
 		}
 
 	}

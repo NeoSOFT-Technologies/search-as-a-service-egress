@@ -14,7 +14,7 @@ public enum HttpStatusCode {
     
     SERVER_UNAVAILABLE(503,"Unable to Connect To the Server"),
     
-    INVALID_QUERY_FIELD(406 , "Query-field validation unsuccessful. Query-field entry can only be in alphanumeric format"),
+    OPERATION_NOT_ALLOWED(406 , "Operation Not Allowed !"),
     
     REQUEST_FORBIDDEN(403, "requested resource is forbidden"),
 	

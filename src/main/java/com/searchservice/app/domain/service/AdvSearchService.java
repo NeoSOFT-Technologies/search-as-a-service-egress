@@ -1,6 +1,7 @@
 package com.searchservice.app.domain.service;
 
 import java.util.ArrayList;
+
 import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
@@ -25,7 +26,7 @@ import com.searchservice.app.domain.utils.HttpStatusCode;
 import com.searchservice.app.domain.utils.SearchUtil;
 import com.searchservice.app.infrastructure.adaptor.SearchClientAdapter;
 import com.searchservice.app.infrastructure.adaptor.SearchResult;
-import com.searchservice.app.rest.errors.OperationNotAllowedException;
+import com.searchservice.app.rest.errors.CustomException;
 
 
 @Service
@@ -79,9 +80,8 @@ public class AdvSearchService implements AdvSearchServicePort {
 		// VALIDATE queryField
 		boolean isQueryFieldValidated = SearchUtil.checkIfNameIsAlphaNumeric(queryField.trim()) || queryField.trim().equals("*");
 		if(!isQueryFieldValidated)
-			throw new OperationNotAllowedException(
-					406, 
-					"Query-field validation unsuccessful. Query-field entry can only be in alphanumeric format");
+			throw new CustomException(HttpStatusCode.OPERATION_NOT_ALLOWED.getCode(),HttpStatusCode.OPERATION_NOT_ALLOWED,HttpStatusCode.OPERATION_NOT_ALLOWED.getMessage()+
+					" Query-field validation unsuccessful. Query-field entry can only be in alphanumeric format");
 		// VALIDATE queryField & searchTerm
 		boolean isQueryFieldMultivalued = SearchUtil.isQueryFieldMultivalued(
 				queryField, 
