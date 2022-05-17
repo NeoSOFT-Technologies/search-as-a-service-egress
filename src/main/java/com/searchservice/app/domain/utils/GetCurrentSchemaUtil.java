@@ -1,5 +1,6 @@
 package com.searchservice.app.domain.utils;
 
+import com.searchservice.app.rest.errors.CustomException;
 import com.squareup.okhttp.*;
 import lombok.Data;
 import lombok.NoArgsConstructor;
@@ -31,7 +32,7 @@ public class GetCurrentSchemaUtil {
 			try {
 				Response response = client.newCall(request).execute();
 				String responseBody = response.body().string();
-				if(!checkIsRequestUnauhtorized(responseBody)) {
+				if(!checkIsRequestValid(responseBody)) {
 					return new GetCurrentSchemaUtilResponse(true, "Table Retrieved Successfully!",responseBody);
 				}else {
 					log.error(MICROSERVICE_INTERACT_ISSUE);
@@ -44,9 +45,16 @@ public class GetCurrentSchemaUtil {
 			}
 	} 
 	
-	public boolean checkIsRequestUnauhtorized(String response) {
+	public boolean checkIsRequestValid(String response) {
 		JSONObject responseObject = new JSONObject(response);
-		return responseObject.has("Unauthorized");
+		boolean isRequestValid = false;
+		if(responseObject.has("Unauthorized")) {
+			isRequestValid = true;
+		}else if(responseObject.has("statusCode") && responseObject.getInt("statusCode") == HttpStatusCode.UNDER_DELETION_PROCESS.getCode()) {
+			throw new CustomException(HttpStatusCode.UNDER_DELETION_PROCESS.getCode(),
+					HttpStatusCode.UNDER_DELETION_PROCESS, responseObject.getString("message"));
+		}
+		return isRequestValid;
 	}
 
 	@Data

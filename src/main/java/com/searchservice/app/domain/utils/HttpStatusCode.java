@@ -24,6 +24,8 @@ public enum HttpStatusCode {
 	
 	INVALID_QUERY_FORMAT(117, "Couldn't parse the search query."),
 	
+	UNDER_DELETION_PROCESS(107,"under deletion process"),
+	
 	INVALID_QUERY_FIELD(118, "Query-field validation unsuccessful. Query-field entry can only be in alphanumeric format");
 	
 	private int code;
