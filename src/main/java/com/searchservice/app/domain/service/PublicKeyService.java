@@ -9,6 +9,7 @@ import org.springframework.cache.CacheManager;
 import org.springframework.cache.annotation.CachePut;
 import org.springframework.cache.annotation.Cacheable;
 import org.springframework.http.ResponseEntity;
+import org.springframework.lang.Nullable;
 import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestTemplate;
 
@@ -21,6 +22,9 @@ public class PublicKeyService implements PublicKeyServicePort{
 	private static final String CACHE_NAME = "publicKeyCache";
 
 	private final Logger log = LoggerFactory.getLogger(PublicKeyService.class);
+	
+	@Nullable
+	private Cache cache;
 	
 	@Autowired
 	private RestTemplate restTemplate;
@@ -62,16 +66,17 @@ public class PublicKeyService implements PublicKeyServicePort{
 		return publicKey;
 	}
 
+	
 	@Override
 	public boolean checkIfPublicKeyExistsInCache() {
 		boolean isPublicKeyPresent = false;
 		String realmName = authConfigProperties.getRealmName();
-		Cache cache = cacheManager.getCache(PublicKeyService.CACHE_NAME);
-		if(cache.get(authConfigProperties.getRealmName())!=null) {
-			log.debug("Public Key Found in Cache For Realm: {}",realmName);
-			updatePublicKey(realmName);
-			isPublicKeyPresent = true;
-		}
+	    cache = cacheManager.getCache("${cache-name}");
+	    if(cache!=null && cache.get(authConfigProperties.getRealmName())!=null) {
+				log.debug("Public Key Found in Cache For Realm: {}",realmName);
+				updatePublicKey(realmName);
+				isPublicKeyPresent = true;
+	    }
 		return isPublicKeyPresent;
 	}
 	

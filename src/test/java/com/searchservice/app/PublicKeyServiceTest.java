@@ -14,6 +14,7 @@ import org.springframework.cache.CacheManager;
 import org.springframework.cache.concurrent.ConcurrentMapCache;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.test.context.TestPropertySource;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
 import org.springframework.test.util.ReflectionTestUtils;
 import org.springframework.web.client.HttpClientErrorException;
@@ -21,7 +22,6 @@ import org.springframework.web.client.RestTemplate;
 import com.searchservice.app.config.AuthConfigProperties;
 import com.searchservice.app.domain.service.PublicKeyService;
 
-import static org.junit.Assert.assertTrue;
 import static org.junit.jupiter.api.Assertions.*;
 import org.junit.jupiter.api.BeforeAll;
 
@@ -30,6 +30,11 @@ import org.junit.jupiter.api.BeforeAll;
 @ExtendWith(SpringExtension.class)
 @SpringBootTest
 @TestInstance(Lifecycle.PER_CLASS)
+@TestPropertySource(
+        properties = {
+           "cache-name: cacheTest"
+        }
+)
 class PublicKeyServiceTest {
 
 	@InjectMocks
@@ -37,15 +42,15 @@ class PublicKeyServiceTest {
 	
 	@Autowired
 	private AuthConfigProperties authConfigProperties;
-	
+
 	@Mock
     private RestTemplate restTemplate;
 	
 	@Mock
 	private CacheManager cache;
-	
+		
 	private String expectedPublicKeyJson = "{\"realm\":\"master\",\"public_key\":\"Public-Key-Test\"}";
-	ConcurrentMapCache keyCache = new ConcurrentMapCache("publicKeyCache");
+	ConcurrentMapCache keyCache = new ConcurrentMapCache("${cache-name}");
 	
 	@BeforeAll
 	void setUp() {
@@ -56,7 +61,7 @@ class PublicKeyServiceTest {
 		Mockito.lenient().when(this.restTemplate.getForEntity(authConfigProperties.getKeyUrl()
 				+ authConfigProperties.getRealmName(), String.class)).
 		thenReturn(new ResponseEntity<String>(expectedPublicKeyJson, HttpStatus.OK));
-		Mockito.when(cache.getCache("publicKeyCache")).thenReturn(keyCache);	
+		Mockito.when(cache.getCache("${cache-name}")).thenReturn(keyCache);	
 	}
 	
 	void setErrorResponse() {

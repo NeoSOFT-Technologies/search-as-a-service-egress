@@ -21,7 +21,7 @@ import com.searchservice.app.domain.utils.HttpStatusCode;
 
 @IntegrationTest
 @AutoConfigureMockMvc(addFilters = false)
-public class UserResourceTest {
+class UserResourceTest {
 
 	ObjectMapper mapper = new ObjectMapper();
 	@Autowired

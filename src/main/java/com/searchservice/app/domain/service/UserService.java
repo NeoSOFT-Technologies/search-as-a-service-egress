@@ -3,6 +3,8 @@ package com.searchservice.app.domain.service;
 import java.util.Arrays;
 
 import org.json.JSONObject;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpEntity;
@@ -24,6 +26,9 @@ public class UserService implements UserServicePort{
 	
 	private static final String ERROR = "error";
 
+	private final Logger log = LoggerFactory.getLogger(UserService.class);
+	
+	
 	@Autowired
 	RestTemplate restTemplate;
 	
@@ -43,7 +48,7 @@ public class UserService implements UserServicePort{
 	    try {
 			response = restTemplate.postForEntity(baseTokenUrl, request, String.class);
 		} catch (Exception e) {
-			e.printStackTrace();
+			log.error("Something went wrong while getting token");
 			return createResponse(null, "Invalid credentials", HttpStatusCode.BAD_REQUEST_EXCEPTION.getCode());
 		}
 		JSONObject obj = new JSONObject(response.getBody());
