@@ -50,7 +50,7 @@ public class JwtTokenFilterService extends OncePerRequestFilter{
 		
       // Get authorization header and validate
         final String header = request.getHeader(HttpHeaders.AUTHORIZATION);
-        log.info("[JwtTokenFilterService][doFilterInternal] Authorization Header Value : "+header);
+        log.info("[JwtTokenFilterService][doFilterInternal] Authorization Header Value : {}",header);
         if (null == header || header.isEmpty() || !header.startsWith("Bearer ")) {
         	errorDetails.put(UNAUTHORIZED, "Invalid token");
 	        response.setStatus(HttpStatus.UNAUTHORIZED.value());
@@ -61,7 +61,7 @@ public class JwtTokenFilterService extends OncePerRequestFilter{
 
       // Get jwt token and validate
         final String token = header.split(" ")[1].trim();
-        log.info("[JwtTokenFilterService][doFilterInternal] Token Value : "+token);
+        log.info("[JwtTokenFilterService][doFilterInternal] Token Value : {} ",token);
         if (!validate(token, response)) {
         	errorDetails.put(UNAUTHORIZED, "Invalid token");
 	        response.setStatus(HttpStatus.UNAUTHORIZED.value());
@@ -76,18 +76,18 @@ public class JwtTokenFilterService extends OncePerRequestFilter{
 		 boolean active = false;
 		try {
 			String url = keycloakConfigProperties.getAuthServerUrl()+"/realms/"+keycloakConfigProperties.getRealm()+"/protocol/openid-connect/token/introspect";
-	    	log.info("[JwtTokenFilterService][validate] Token Value : "+token);
+	    	log.info("[JwtTokenFilterService][validate] Token Value {} : ",token);
 	    	log.info("[JwtTokenFilterService][validate] realm_name : "+keycloakConfigProperties.getRealm());
 	    	log.info("[JwtTokenFilterService][validate] client_Secret : "+keycloakConfigProperties.getCredentials().getSecret());
 	    	log.info("[JwtTokenFilterService][validate] Auth-Server-Url : "+keycloakConfigProperties.getAuthServerUrl());
-	    	log.info("[JwtTokenFilterService][validate] url : "+url);
+	    	log.info("[JwtTokenFilterService][validate] url : {} ",url);
 	    	
 	    // creating and setting the Header
 	    	HttpHeaders headers = new HttpHeaders();
 	    	headers.setContentType(MediaType.APPLICATION_FORM_URLENCODED);
 	    	
 	    // creating Body parameters	
-	    	MultiValueMap<String, String> map= new LinkedMultiValueMap<String, String>();
+	    	MultiValueMap<String, String> map= new LinkedMultiValueMap<>();
 	    	map.add("token", token);
 	    	map.add("client_id", keycloakConfigProperties.getResource());
 	    	map.add("client_secret", keycloakConfigProperties.getCredentials().getSecret());
@@ -97,10 +97,10 @@ public class JwtTokenFilterService extends OncePerRequestFilter{
 	    
 	    // Consuming rest API
 	    	ResponseEntity<String> keycloakResponse = restTemplate.postForEntity( url, request , String.class );
-	    	log.info("[JwtTokenFilterService][validate] Final Response : "+keycloakResponse.getBody());
+	    	log.info("[JwtTokenFilterService][validate] Final Response : {}",keycloakResponse.getBody());
 	    	JSONObject obj = new JSONObject(keycloakResponse.getBody());
 	    	active = obj.getBoolean("active");
-	    	log.info("[JwtTokenFilterService][validate] active : "+active);
+	    	log.info("[JwtTokenFilterService][validate] active : {}",active);
 		} catch (Exception e) {
 			if(null != e.getMessage() && e.getMessage().contains("Connection refused")) {
 				errorDetails.put(UNAUTHORIZED, "Invalid token : Unable to connect with Keycloak server");
