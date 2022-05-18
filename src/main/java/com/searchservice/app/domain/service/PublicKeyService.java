@@ -11,9 +11,9 @@ import org.springframework.cache.annotation.Cacheable;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestTemplate;
+
 import com.searchservice.app.config.AuthConfigProperties;
 import com.searchservice.app.domain.port.api.PublicKeyServicePort;
-import lombok.Data;
 
 @Service
 public class PublicKeyService implements PublicKeyServicePort{

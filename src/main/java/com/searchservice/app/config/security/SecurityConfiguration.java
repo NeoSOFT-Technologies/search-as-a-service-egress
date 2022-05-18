@@ -28,7 +28,6 @@ public class SecurityConfiguration extends WebSecurityConfigurerAdapter{
 
     @Override
 	public void configure(WebSecurity web) throws Exception {
-    	//web.ignoring().mvcMatchers("/swagger-ui/**").mvcMatchers("/test/**");
     	web.ignoring().antMatchers("/user/token").antMatchers("/v3/api-docs/**").antMatchers("/swagger-ui/**").antMatchers("/test/**");
 	}
 

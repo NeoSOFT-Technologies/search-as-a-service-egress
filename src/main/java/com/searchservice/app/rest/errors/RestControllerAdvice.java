@@ -83,9 +83,16 @@ public class RestControllerAdvice {
 	public ResponseEntity<Object> handleMethodArgumentTypeMismatchException(MethodArgumentTypeMismatchException exception){
 		String fieldName = "";
 		String requiredType = "";
-		if(exception.getCause() instanceof NumberFormatException) {
-			fieldName = (null != exception.getName())?exception.getName():"";
-			requiredType = (null != exception.getRequiredType())?exception.getRequiredType().getName():"";
+		if (exception.getCause() instanceof NumberFormatException) {
+			try {
+			fieldName = exception.getName();
+			Class<?> exceptionRequiredType=exception.getRequiredType();
+			if(exceptionRequiredType!=null){
+				requiredType = exceptionRequiredType.getName();
+			}
+			}catch(Exception e) {
+				log.error("Something Went Wrong!" , e);
+			}
 		}
 		return new ResponseEntity<>(new RestApiErrorHandling(
 				HttpStatusCode.INVALID_TYPE.getCode(), HttpStatusCode.INVALID_TYPE,
