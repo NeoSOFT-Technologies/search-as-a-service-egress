@@ -67,9 +67,7 @@ public class TableService implements TableServicePort {
 
 		String responseString = response.getResponseString();
 		JSONArray jsonArray = getCurrentSchema.getCurrentSchemaDetails(responseString);
-		IngressSchemaResponse finalResponse = new IngressSchemaResponse(jsonArray, response.getMessage());
-
-		return finalResponse;
+		return new IngressSchemaResponse(jsonArray, response.getMessage());
 	}
 
 	private GetCurrentSchemaUtil extracted(String tableName, int clientId) {
