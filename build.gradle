@@ -110,14 +110,19 @@ dependencies {
 	// https://mvnrepository.com/artifact/com.squareup.okhttp/okhttp
 	implementation group: 'com.squareup.okhttp', name: 'okhttp', version: '2.7.5'
 	
-	//Keycloak
-	implementation group: 'org.keycloak', name: 'keycloak-spring-boot-starter', version: '11.0.2'
-	
-	// Spring Security
-	implementation group: 'org.springframework.boot', name: 'spring-boot-starter-security', version: '2.6.3'
-	
 	//Spring Aop
 	implementation group: 'org.springframework.boot', name: 'spring-boot-starter-aop', version: '2.3.4.RELEASE'
+
+	// Spring Security
+	implementation group: 'org.springframework.boot', name: 'spring-boot-starter-security', version: '2.6.3'
+
+	//Keycloak
+	implementation group: 'org.keycloak', name: 'keycloak-spring-boot-starter', version: '11.0.2'
+	implementation group: 'org.keycloak', name: 'keycloak-admin-client', version: '18.0.0'
+
+	// Token decoder
+	implementation group: 'commons-codec', name: 'commons-codec', version: '1.15'
+
 }
 
 tasks.named('test') {
