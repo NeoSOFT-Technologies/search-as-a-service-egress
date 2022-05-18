@@ -1,6 +1,7 @@
 package com.searchservice.app;
 
 import static org.hamcrest.CoreMatchers.any;
+
 import static org.junit.Assert.assertEquals;
 import static org.mockito.Mockito.doThrow;
 import static org.mockito.Mockito.mock;
@@ -14,7 +15,9 @@ import java.util.List;
 import java.util.Map;
 
 import javax.management.RuntimeErrorException;
+import javax.servlet.http.HttpServletRequest;
 
+import org.apache.http.HttpHeaders;
 import org.json.JSONArray;
 import org.json.JSONObject;
 import org.junit.jupiter.api.BeforeEach;
@@ -43,7 +46,7 @@ import com.searchservice.app.domain.service.TableService;
 import com.searchservice.app.domain.utils.GetCurrentSchemaUtil;
 import com.searchservice.app.domain.utils.GetCurrentSchemaUtil.GetCurrentSchemaUtilResponse;
 import com.searchservice.app.domain.utils.LoggerUtils;
-import com.searchservice.app.rest.errors.BadRequestOccurredException;
+import com.searchservice.app.rest.errors.CustomException;
 import com.squareup.okhttp.Request;
 
 @AutoConfigureMockMvc
@@ -57,7 +60,9 @@ class TableServiceTest {
 	private String baseIngressMicroserviceUrl;
 	@Value("${microservice-url.get-table}")
 	private String getTableUrl;
-	
+
+	// mock HttpServletRequest
+	HttpServletRequest request = mock(HttpServletRequest.class);
 
 	int statusCode = 0;
 
@@ -65,16 +70,12 @@ class TableServiceTest {
 	int tenantId = 101;
 	String tableName = "book";
 	String tablename1 = "book_101";
-
 	private SearchResponse responseDTO = new SearchResponse();
 	@InjectMocks
 	TableService tableService;
 
 	Loggers loggersDTO = new Loggers();
-	
-	String token = "Unauthorized:Invalid token";
-	
-
+	Map<String, String> headers = new HashMap<>();
 	
 	String json = "{\r\n"
 			+ "\"books\" :[\r\n"
@@ -105,16 +106,16 @@ class TableServiceTest {
 		loggersDTO.setTimestamp(timestamp);
 		loggersDTO.setServicename("servicename");
 		loggersDTO.setUsername("username");
-
 		//Mockito.when(request.newBuilder().url(url).build()).thenReturn(request);
 			}
 
 	public void setMockitoSucccessResponseForService() {
 		getCurrentSchemaUtilResponse = new GetCurrentSchemaUtilResponse(true,message,"book");
 		JSONArray jarray = jobj.getJSONArray("books");
-		Mockito.when(getCurrentSchemaUtil.get()).thenReturn(getCurrentSchemaUtilResponse);
+		Mockito.when(getCurrentSchemaUtil.get(Mockito.anyString())).thenReturn(getCurrentSchemaUtilResponse);
 		Mockito.when(getCurrentSchemaUtil.getCurrentSchemaColumns(Mockito.any())).thenReturn(new LinkedList<>(List.of("book")));
-		Mockito.when(getCurrentSchemaUtil.getCurrentSchemaDetails(Mockito.any())).thenReturn(jarray);		
+		Mockito.when(getCurrentSchemaUtil.getCurrentSchemaDetails(Mockito.any())).thenReturn(jarray);	
+		Mockito.when(request.getHeader(Mockito.anyString())).thenReturn("Bearer TokenTest");
 	}
 
 

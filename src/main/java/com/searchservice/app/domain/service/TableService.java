@@ -6,6 +6,9 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import javax.servlet.http.HttpServletRequest;
+
+import org.apache.http.HttpHeaders;
 import org.apache.solr.common.SolrDocumentList;
 import org.json.JSONArray;
 import org.slf4j.Logger;
@@ -33,25 +36,21 @@ public class TableService implements TableServicePort {
 	@Value("${microservice-url.get-table}")
 	private String getTableUrl;
 	
-	@Value("${microservice-url.user-token}")
-	private String userTokenUrl;
-	
-	@Value("${token-userName}")
-	private String userName;   
-	@Value("${token-password}")
-	private String password;	
 
 	@Autowired
 	SearchClientAdapter searchClientAdapter;
+	
+	@Autowired
+	private HttpServletRequest request;
 
 	GetCurrentSchemaUtil getCurrentSchemaUtil = new GetCurrentSchemaUtil();
 
 	@Override
-	public List<String> getCurrentTableSchemaColumns(String tableName, int clientId) {
+	public List<String> getCurrentTableSchemaColumns(String tableName, int tenantId) {
 		logger.debug("Get current table schema from Ingress microservice");
 
-		GetCurrentSchemaUtil getCurrentSchema = extracted(tableName, clientId);
-		GetCurrentSchemaUtil.GetCurrentSchemaUtilResponse response = getCurrentSchema.get();
+		GetCurrentSchemaUtil getCurrentSchema = extracted(tableName, tenantId);
+		GetCurrentSchemaUtil.GetCurrentSchemaUtilResponse response = getCurrentSchema.get(getTokenHeaderForIngress(request));
 
 		String responseString = response.getResponseString();
 
@@ -59,11 +58,10 @@ public class TableService implements TableServicePort {
 	}
 
 	@Override
-	public IngressSchemaResponse getCurrentTableSchema(String tableName, int clientId) {
+	public IngressSchemaResponse getCurrentTableSchema(String tableName, int tenantId) {
 		logger.debug("Get current table schema from Ingress microservice");
-
-		GetCurrentSchemaUtil getCurrentSchema = extracted(tableName, clientId);
-		GetCurrentSchemaUtil.GetCurrentSchemaUtilResponse response = getCurrentSchema.get();
+		GetCurrentSchemaUtil getCurrentSchema = extracted(tableName, tenantId);
+		GetCurrentSchemaUtil.GetCurrentSchemaUtilResponse response = getCurrentSchema.get(getTokenHeaderForIngress(request));
 
 		String responseString = response.getResponseString();
 		JSONArray jsonArray = getCurrentSchema.getCurrentSchemaDetails(responseString);
@@ -73,12 +71,8 @@ public class TableService implements TableServicePort {
 	private GetCurrentSchemaUtil extracted(String tableName, int clientId) {
 
 		getCurrentSchemaUtil.setBaseIngressMicroserviceUrl(baseIngressMicroserviceUrl + getTableUrl);
-		getCurrentSchemaUtil.setBaseIngresstokenUrl(baseIngressMicroserviceUrl + userTokenUrl);
 		getCurrentSchemaUtil.setTableName(tableName);
 		getCurrentSchemaUtil.setTenantId(clientId);
-		getCurrentSchemaUtil.setUserName(userName);
-		getCurrentSchemaUtil.setPassword(password);
-
 		return getCurrentSchemaUtil;
 	}
 
@@ -111,4 +105,13 @@ public class TableService implements TableServicePort {
 		}
 		return map;
 	}
+	
+	 private String getTokenHeaderForIngress(HttpServletRequest request) {
+	    	String header = request.getHeader(HttpHeaders.AUTHORIZATION);
+	    	if(header!=null) {
+	    		return header;
+	    	}else {
+	    		return "";
+	    	}
+	    }
 }

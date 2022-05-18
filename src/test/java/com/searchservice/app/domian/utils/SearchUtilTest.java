@@ -9,7 +9,9 @@ import java.util.List;
 
 import org.junit.jupiter.api.Test;
 
+import com.searchservice.app.domain.utils.HttpStatusCode;
 import com.searchservice.app.domain.utils.SearchUtil;
+import com.searchservice.app.rest.errors.CustomException;
 
 
 class SearchUtilTest {
@@ -33,6 +35,43 @@ class SearchUtilTest {
 		assertTrue(isAlphaNumeric);
 		isAlphaNumeric = SearchUtil.isAlphaNumeric(NOT_JUST_ALPHA_NUMERIC_STRING);
 		assertFalse(isAlphaNumeric);
+	}
+	
+	@Test
+	void testIsAlphaNumericEmptyName() {
+		try {
+		 SearchUtil.checkIfNameIsAlphaNumeric("");
+		}catch(CustomException e) {
+			assertEquals(HttpStatusCode.NULL_POINTER_EXCEPTION.getCode(), e.getExceptionCode());
+		}
+	}
+	
+	@Test
+	void testValidateInvalidStartRecord() {
+		try {
+			 SearchUtil.validateInputs("A","5", "desc");
+			}catch(CustomException e) {
+				assertEquals(HttpStatusCode.OPERATION_NOT_ALLOWED.getCode(), e.getExceptionCode());
+		}
+	}
+	
+	@Test
+	void testValidateInvalidPageSize() {
+		try {
+			 SearchUtil.validateInputs("0","Five", "desc");
+			}catch(CustomException e) {
+				assertEquals(HttpStatusCode.OPERATION_NOT_ALLOWED.getCode(), e.getExceptionCode());
+		}
+	}
+	
+
+	@Test
+	void testValidateInvalidOrder() {
+		try {
+			 SearchUtil.validateInputs("0","5", "1");
+			}catch(CustomException e) {
+				assertEquals(HttpStatusCode.OPERATION_NOT_ALLOWED.getCode(), e.getExceptionCode());
+		}
 	}
 
 	

@@ -1,8 +1,9 @@
 package com.searchservice.app.rest;
 
 import java.time.ZoneOffset;
-
 import java.time.ZonedDateTime;
+
+import javax.servlet.http.HttpServletRequest;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -45,8 +46,7 @@ public class SearchResource {
     SearchResult searchResult;
    
    @GetMapping(value = "/{tableName}")
-    @Operation(summary = "GET RECORDS BASED ON A SPECIFIC COLUMN AND ITS VALUE" ,security = @SecurityRequirement(name = "bearerAuth"))
-
+   @Operation(summary = "GET RECORDS BASED ON A SPECIFIC COLUMN AND ITS VALUE" ,security = @SecurityRequirement(name = "bearerAuth"))
     public ResponseEntity<SearchResponse> searchRecordsViaQueryField(
     		@PathVariable String tableName, 
     		@RequestParam int tenantId, 
@@ -58,7 +58,6 @@ public class SearchResource {
 
 		// Validate inputs
 		SearchUtil.validateInputs(startRecord, pageSize, order);
-
         tableName = tableName + "_" + tenantId;
         SearchResponse searchResponseDTO = searchservice.searchField(
         		tenantId, tableName, 
@@ -74,12 +73,10 @@ public class SearchResource {
     }
     
     
-
     @GetMapping(value = "/query/{tableName}")
     @Operation(summary = "GET RECORDS WITH THE HELP OF CUSTOM QUERY" ,security = @SecurityRequirement(name = "bearerAuth"))
-
     public ResponseEntity<SearchResponse> searchRecordsViaQuery(
-    		 
+    		HttpServletRequest request,
     		@PathVariable String tableName, 
     		@RequestParam int tenantId,
             @RequestParam(defaultValue = "*") String searchQuery, 
@@ -103,5 +100,7 @@ public class SearchResource {
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(searchResponseDTO);
         }
     }
+    
+   
     
 }

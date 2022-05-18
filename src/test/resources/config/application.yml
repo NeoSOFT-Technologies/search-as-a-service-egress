@@ -23,16 +23,16 @@ server:
 #================================================================
 #Logger
 logging:
-   #file:
-    #path: logs
-    #name: logs/dailylogs.log
-    #max-history: '30'
-    #max-size: 10MB
-    
-   pattern:
+  #file:
+  #path: logs
+  #name: logs/dailylogs.log
+  #max-history: '30'
+  #max-size: 10MB
+
+  pattern:
     console: '%d{"yyyy/MM/dd HH:mm:ss,SSS", UTC} [%thread] %-5level %-50logger{40} : %msg%n'
     #rolling-file-name: logs/dailylogs-%d{yyyy-MM-dd}.%i.log
-   level:
+  level:
     ROOT: DEBUG
     org.springframework.web: "error"
     org.hibernate: "error"
@@ -125,11 +125,10 @@ base-configset: _default
 basic-auth:
   username: solr
   password: SolrRocks
-  
 
 #================================================================
 #Sync with soft delete schema in microservice
-base-microservice-url: http://localhost:8081
+base-microservice-url: http://localhost:8083
 microservice-url:
   get-table: /api/v1/manage/table
   user-token: /user/token
@@ -142,17 +141,13 @@ base-url:
     home: /search/api/v1
 
 #================================================================
-# Keycloak Server Configurations
-keycloak:
-  realm: Demo_Realm
-  credentials: 
-    secret: fkt2zezjwsvxd1YzyiKwJvqCv91HFBrW
-  resource: saas-egress-microservice
-  #auth-server-url: http://localhost:8080/auth
-  auth-server-url: http://host.docker.internal:8080/auth  #to run keycloak server via docker: temporary
-  ssl-required: external
-  public-client: false
-  use-resource-role-mappings: true
-#================================================================
-token-userName: demo
-token-password : demo
+# Authentication Server Configurations
+authentication:
+  realmName: master
+  keyUrl: https://iam-keycloak.neosofttech.com/auth/realms/
+  token:
+
+base-token-url: https://iam-dev.neosofttech.com/api/login
+
+schedular-durations:
+  public-key-update: 60000

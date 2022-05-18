@@ -1,10 +1,7 @@
 package com.searchservice.app;
 
-import static org.hamcrest.CoreMatchers.any;
 import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.mockito.Mockito.doNothing;
 import static org.mockito.Mockito.when;
-
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -13,15 +10,10 @@ import java.util.List;
 import java.util.Map;
 
 import org.apache.solr.client.solrj.SolrClient;
-import org.apache.solr.client.solrj.SolrQuery;
-import org.apache.solr.client.solrj.SolrRequest.METHOD;
 import org.apache.solr.client.solrj.SolrServerException;
-import org.apache.solr.client.solrj.impl.BaseCloudSolrClient;
 import org.apache.solr.client.solrj.response.QueryResponse;
 import org.apache.solr.common.SolrDocument;
 import org.apache.solr.common.SolrDocumentList;
-import org.apache.solr.common.SolrInputDocument;
-import org.apache.solr.common.params.SolrParams;
 import org.apache.solr.common.util.NamedList;
 import org.json.JSONArray;
 import org.json.JSONObject;
@@ -37,23 +29,20 @@ import org.mockito.junit.MockitoJUnitRunner;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.test.context.TestPropertySource;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
-
-
 import com.searchservice.app.domain.dto.SearchResponse;
 import com.searchservice.app.domain.dto.logger.Loggers;
 import com.searchservice.app.domain.port.api.SearchServicePort;
-import com.searchservice.app.domain.port.spi.SearchClientAdapterPort;
 import com.searchservice.app.domain.service.AdvSearchService;
-import com.searchservice.app.domain.service.SearchService;
 import com.searchservice.app.domain.service.TableService;
+import com.searchservice.app.domain.utils.HttpStatusCode;
 import com.searchservice.app.domain.utils.LoggerUtils;
 import com.searchservice.app.infrastructure.adaptor.SearchClientAdapter;
 import com.searchservice.app.infrastructure.adaptor.SearchResult;
+import com.searchservice.app.rest.errors.CustomException;
 
 
 @ExtendWith(MockitoExtension.class)
@@ -176,6 +165,15 @@ String json = "{\r\n"
 
 	}
 
+	@Test
+	void testSetUpSelectQueryfieldSearchInvalidField() {
+		logger.info("Solr Search ADVANCED service test is started..");
+		try {
+		solrSearchRecordsService.setUpSelectQuerySearchViaQueryField(validSchemaColumns, jarray, SOLR_COLLECTION, "f_name","*", "0", "5", "id", "asc");
+		}catch(CustomException e) {
+			assertEquals(HttpStatusCode.INVALID_QUERY_FIELD.getCode() , e.getExceptionCode());
+		}
+	}
 	
 	@Test
 	  

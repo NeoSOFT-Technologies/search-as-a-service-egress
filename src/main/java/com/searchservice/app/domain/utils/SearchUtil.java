@@ -8,8 +8,8 @@ import java.util.regex.Pattern;
 import org.json.JSONArray;
 import org.json.JSONObject;
 
-import com.searchservice.app.rest.errors.NullPointerOccurredException;
-import com.searchservice.app.rest.errors.OperationNotAllowedException;
+import com.searchservice.app.rest.errors.CustomException;
+
 
 import lombok.Data;
 
@@ -22,7 +22,7 @@ public class SearchUtil {
 	// VALIDATIONS
 	public static boolean checkIfNameIsAlphaNumeric(String name) {
 		if (null == name || name.isBlank() || name.isEmpty())
-			throw new NullPointerOccurredException(404, "Field can't be empty. Provide some value");
+			throw new CustomException(HttpStatusCode.NULL_POINTER_EXCEPTION.getCode(), HttpStatusCode.NULL_POINTER_EXCEPTION,HttpStatusCode.NULL_POINTER_EXCEPTION.getMessage());
 		Pattern pattern = Pattern.compile("^[a-zA-Z][a-zA-Z0-9]*$");
 		Matcher matcher = pattern.matcher(name);
 		return matcher.find();
@@ -53,11 +53,11 @@ public class SearchUtil {
 		String startRecordRegex = "^[0-9]{0,5}+$";
 		String orderRegex = "^(ASC|DESC)$";
 		if(!validateUsingRegex(startRecordRegex, startRecord.trim().toUpperCase()))
-			throw new OperationNotAllowedException(406, "Start Record must be of type Integer, Range : 0-99999");
+			throw new CustomException(HttpStatusCode.OPERATION_NOT_ALLOWED.getCode(),HttpStatusCode.OPERATION_NOT_ALLOWED,HttpStatusCode.OPERATION_NOT_ALLOWED.getMessage()+ " Start Record must be of type Integer, Range : 0-99999");
 		if(!validateUsingRegex(startRecordRegex, pageSize.trim().toUpperCase()))
-			throw new OperationNotAllowedException(406, "Page Size must be of type Integer, Range : 0-99999");
+			throw new CustomException(HttpStatusCode.OPERATION_NOT_ALLOWED.getCode(),HttpStatusCode.OPERATION_NOT_ALLOWED,HttpStatusCode.OPERATION_NOT_ALLOWED.getMessage()+ " Page Size must be of type Integer, Range : 0-99999");
 		if(!validateUsingRegex(orderRegex, order.trim().toUpperCase()))
-			throw new OperationNotAllowedException(406, "Order value must be : 'asc' OR 'desc");
+			throw new CustomException(HttpStatusCode.OPERATION_NOT_ALLOWED.getCode(),HttpStatusCode.OPERATION_NOT_ALLOWED,HttpStatusCode.OPERATION_NOT_ALLOWED.getMessage()+ " Order value must be : 'asc' OR 'desc");
 		return testResult;
 	}
 	

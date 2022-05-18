@@ -1,5 +1,6 @@
 package com.searchservice.app.domian.utils;
 
+import static org.junit.Assert.assertTrue;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 
@@ -12,6 +13,8 @@ import org.slf4j.LoggerFactory;
 import org.springframework.boot.test.mock.mockito.MockBean;
 
 import com.searchservice.app.domain.utils.GetCurrentSchemaUtil;
+import com.searchservice.app.domain.utils.HttpStatusCode;
+import com.searchservice.app.rest.errors.CustomException;
 import com.searchservice.app.domain.utils.GetCurrentSchemaUtil.GetCurrentSchemaUtilResponse;
 import com.squareup.okhttp.OkHttpClient;
 
@@ -33,6 +36,8 @@ import com.squareup.okhttp.OkHttpClient;
 			+ "{\"name\":\"id\",\"type\":\"string\",\"partialSearch\":false,"
 			+ "\"sortable\":false,\"storable\":true,\"multiValue\":false,\"filterable\":true,\"required\":true}]}}";
 	
+	String unauthorizedResponse = "{\"Unauthorized\":\"Invalid Token\"}";
+	String tableUnderDeletionResponse = "{\"statusCode\":107,\"message\":\"Table Under Deletion\"}";
 	@Test
 	void testgetCurrentSchemaColumns()
 	{
@@ -81,7 +86,17 @@ import com.squareup.okhttp.OkHttpClient;
 		schemaUtil.setBaseIngressMicroserviceUrl("http:local:8081");
 		schemaUtil.setTableName("TestTable");
 		schemaUtil.setTenantId(101);
-		assertEquals(false,schemaUtil.get().isTableRetrieved());
+		assertEquals(false,schemaUtil.get("").isTableRetrieved());
+	}
+	
+	@Test
+	void isRequestValidTest() {
+		assertTrue(schemaUtil.checkIsRequestValid(unauthorizedResponse));
+		try {
+		assertTrue(schemaUtil.checkIsRequestValid(tableUnderDeletionResponse));
+		}catch(CustomException e) {
+			assertEquals(HttpStatusCode.UNDER_DELETION_PROCESS.getCode(), e.getExceptionCode());
+		}
 	}
 
 }

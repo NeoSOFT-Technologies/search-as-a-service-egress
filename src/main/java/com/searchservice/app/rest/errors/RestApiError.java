@@ -5,6 +5,7 @@ import java.time.LocalDateTime;
 import org.springframework.http.HttpStatus;
 
 import com.fasterxml.jackson.annotation.JsonFormat;
+import com.searchservice.app.domain.utils.HttpStatusCode;
 
 import lombok.Data;
 
@@ -12,6 +13,7 @@ import lombok.Data;
 public class RestApiError {
 
 	   private HttpStatus status;
+	   private HttpStatusCode httpStatus;
 	   private int statusCode;
 	   private String message;
 	   @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "dd-MM-yyyy hh:mm:ss")
@@ -32,6 +34,13 @@ public class RestApiError {
 	   RestApiError(HttpStatus status, int statusCode, String message) {
 	       this();
 	       this.status = status;
+	       this.message = message;
+	       this.statusCode = statusCode;
+	   }
+	   
+	   RestApiError(HttpStatusCode httpStatus, int statusCode, String message) {
+	       this();
+	       this.httpStatus = httpStatus;
 	       this.message = message;
 	       this.statusCode = statusCode;
 	   }

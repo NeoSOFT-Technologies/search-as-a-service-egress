@@ -1,6 +1,7 @@
 package com.searchservice.app.domain.service;
 
 import java.util.ArrayList;
+
 import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
@@ -21,10 +22,11 @@ import org.springframework.transaction.annotation.Transactional;
 
 import com.searchservice.app.domain.dto.SearchResponse;
 import com.searchservice.app.domain.port.api.AdvSearchServicePort;
+import com.searchservice.app.domain.utils.HttpStatusCode;
 import com.searchservice.app.domain.utils.SearchUtil;
 import com.searchservice.app.infrastructure.adaptor.SearchClientAdapter;
 import com.searchservice.app.infrastructure.adaptor.SearchResult;
-import com.searchservice.app.rest.errors.OperationNotAllowedException;
+import com.searchservice.app.rest.errors.CustomException;
 
 
 @Service
@@ -78,9 +80,7 @@ public class AdvSearchService implements AdvSearchServicePort {
 		// VALIDATE queryField
 		boolean isQueryFieldValidated = SearchUtil.checkIfNameIsAlphaNumeric(queryField.trim()) || queryField.trim().equals("*");
 		if(!isQueryFieldValidated)
-			throw new OperationNotAllowedException(
-					406, 
-					"Query-field validation unsuccessful. Query-field entry can only be in alphanumeric format");
+			throw new CustomException(HttpStatusCode.INVALID_QUERY_FIELD.getCode(),HttpStatusCode.INVALID_QUERY_FIELD,HttpStatusCode.OPERATION_NOT_ALLOWED.getMessage());
 		// VALIDATE queryField & searchTerm
 		boolean isQueryFieldMultivalued = SearchUtil.isQueryFieldMultivalued(
 				queryField, 
@@ -100,7 +100,7 @@ public class AdvSearchService implements AdvSearchServicePort {
 		query.set(PAGE_SIZE, pageSize);
 		SortClause sortClause = new SortClause(tag, order);
 		query.setSort(sortClause);
-		searchResponseDTO = processSearchQuery(client, query, validSchemaColumns);
+		searchResponseDTO = processSearchQuery(tableName, client, query, validSchemaColumns);
 		
 		return searchResponseDTO;
 	}
@@ -122,13 +122,13 @@ public class AdvSearchService implements AdvSearchServicePort {
 		query.set(PAGE_SIZE, pageSize);
 		SortClause sortClause = new SortClause(tag, order);
 		query.setSort(sortClause);
-		searchResponseDTO = processSearchQuery(client, query, validSchemaColumns);		
+		searchResponseDTO = processSearchQuery(tableName,client, query, validSchemaColumns);		
 		return searchResponseDTO;
 	}
 	
 	
 	// Auxiliary methods
-	public SearchResponse processSearchQuery(SolrClient client, SolrQuery query, List<String> validSchemaColumns) {
+	public SearchResponse processSearchQuery(String tableName, SolrClient client, SolrQuery query, List<String> validSchemaColumns) {
 		try {
 			searchResponseDTO = new SearchResponse();
 			searchResult = new SearchResult();					
@@ -157,13 +157,15 @@ public class AdvSearchService implements AdvSearchServicePort {
 			return searchResponseDTO;
 		}
 		catch(Exception e) {
-			searchResponseDTO.setStatusCode(400);
+			searchResponseDTO.setStatusCode(HttpStatusCode.BAD_REQUEST_EXCEPTION.getCode());
 			searchResponseDTO.setStatus(HttpStatus.BAD_REQUEST);
-			if(e.getMessage().contains("Cannot parse")) {				
-				searchResponseDTO.setMessage("Couldn't parse the search query. Please provide query in correct format");
+			if(e.getMessage().contains("Cannot parse")) {
+				searchResponseDTO.setStatusCode(HttpStatusCode.INVALID_QUERY_FORMAT.getCode());
+				searchResponseDTO.setMessage(HttpStatusCode.INVALID_QUERY_FORMAT.getMessage() + " Please provide query in correct format");
 			}else if(e.getMessage().contains("404 Not Found")) {
-				searchResponseDTO.setStatusCode(403);
-				searchResponseDTO.setMessage("Resource not found");
+				searchResponseDTO.setStatusCode(HttpStatusCode.TABLE_NOT_FOUND.getCode());
+				searchResponseDTO.setMessage("Table " +tableName.split("_")[0]+" Having TenantID: "+
+						tableName.split("_")[1]+" "+ HttpStatusCode.TABLE_NOT_FOUND.getMessage());
 			} else
 				searchResponseDTO.setMessage(FAILURE_MSG);
 		}

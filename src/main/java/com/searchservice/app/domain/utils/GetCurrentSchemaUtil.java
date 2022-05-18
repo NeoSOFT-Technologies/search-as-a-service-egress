@@ -1,5 +1,6 @@
 package com.searchservice.app.domain.utils;
 
+import com.searchservice.app.rest.errors.CustomException;
 import com.squareup.okhttp.*;
 import lombok.Data;
 import lombok.NoArgsConstructor;
@@ -16,65 +17,45 @@ import java.util.List;
 @NoArgsConstructor
 public class GetCurrentSchemaUtil {
 	
-	private String userName;
-	private String password;
-	private String baseIngresstokenUrl;
 	private final Logger log = LoggerFactory.getLogger(GetCurrentSchemaUtil.class);	
 	private static final String MICROSERVICE_INTERACT_ISSUE = "Couldn't interact with Ingress microservice to retrieve current schema details!";
 	private String baseIngressMicroserviceUrl;
 	private String tableName;
 	private int tenantId;
-	public GetCurrentSchemaUtilResponse get() {
+	public GetCurrentSchemaUtilResponse get(String tokenHeaderForIngress) {
 
-		String ingressServiceToken = getIngressToken();
-		if (!ingressServiceToken.isBlank()) {
 			OkHttpClient client = new OkHttpClient();
 			String url = baseIngressMicroserviceUrl + "/" + tableName + "?tenantId=" + tenantId;
 			log.debug("GET table");
-			Request request = new Request.Builder().url(url).addHeader("Authorization", "Bearer " + ingressServiceToken)
+			Request request = new Request.Builder().url(url).addHeader("Authorization", tokenHeaderForIngress)
 					.build();
-
 			try {
 				Response response = client.newCall(request).execute();
-				return new GetCurrentSchemaUtilResponse(true, "Table Retrieved Successfully!",
-						response.body().string());
-
+				String responseBody = response.body().string();
+				if(!checkIsRequestValid(responseBody)) {
+					return new GetCurrentSchemaUtilResponse(true, "Table Retrieved Successfully!",responseBody);
+				}else {
+					log.error(MICROSERVICE_INTERACT_ISSUE);
+					return new GetCurrentSchemaUtilResponse(false, "Ingress Miscroservice Authorization Failed!!", "");
+				}
 			} catch (IOException e) {
-
 				log.error(MICROSERVICE_INTERACT_ISSUE);
 				return new GetCurrentSchemaUtilResponse(false, "Table could not be retrieved! IOException.", "");
 
 			}
-		} else {
-			log.error(MICROSERVICE_INTERACT_ISSUE);
-			return new GetCurrentSchemaUtilResponse(false, "Ingress Miscroservice Authorization Failed!!", "");
-		}
-
-	}
-
+	} 
 	
-	public String getIngressToken() {
-		OkHttpClient client = new OkHttpClient();
-		String json = "{\"userName\":\""+userName+"\",\"password\":\""+password+"\"}";
-		RequestBody body = RequestBody.create(
-		MediaType.parse("application/json"), json);
-		String ingressToken = "";
-		String url = baseIngresstokenUrl;
-		log.debug("GET Ingress Token");
-		
-		try {
-			Request request = new Request.Builder().url(url).post(body).build();
-			Response response = client.newCall(request).execute();
-			String requestData = response.body().string();
-			 JSONObject responseObject = new JSONObject(requestData);
-			 ingressToken = responseObject.getString("token");
-			 log.debug("Token Successfully Retrieved From Ingress Microservice");
-		} catch (Exception e) {
-			log.error(MICROSERVICE_INTERACT_ISSUE, e);
+	public boolean checkIsRequestValid(String response) {
+		JSONObject responseObject = new JSONObject(response);
+		boolean isRequestValid = false;
+		if(responseObject.has("Unauthorized")) {
+			isRequestValid = true;
+		}else if(responseObject.has("statusCode") && responseObject.getInt("statusCode") == HttpStatusCode.UNDER_DELETION_PROCESS.getCode()) {
+			throw new CustomException(HttpStatusCode.UNDER_DELETION_PROCESS.getCode(),
+					HttpStatusCode.UNDER_DELETION_PROCESS, responseObject.getString("message"));
 		}
-		return ingressToken;
+		return isRequestValid;
 	}
-    
 
 	@Data
 	public static class GetCurrentSchemaUtilResponse {

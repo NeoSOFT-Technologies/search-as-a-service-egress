@@ -1,12 +1,17 @@
 package com.searchservice.app;
 
-import org.keycloak.adapters.springboot.KeycloakSpringBootConfigResolver;
+
 import org.springframework.boot.SpringApplication;
+
 import org.springframework.boot.autoconfigure.SpringBootApplication;
+import org.springframework.cache.annotation.EnableCaching;
 import org.springframework.context.annotation.Bean;
+import org.springframework.scheduling.annotation.EnableScheduling;
 import org.springframework.web.client.RestTemplate;
 
 @SpringBootApplication(scanBasePackages={"com.searchservice.app"})
+@EnableCaching
+@EnableScheduling
 public class SearchServiceApplication {
 
 	public static void main(String[] args) {
@@ -18,10 +23,5 @@ public class SearchServiceApplication {
 		return new RestTemplate();
 	}
 	
-	// For Keycloak @START
-			@Bean
-		    public KeycloakSpringBootConfigResolver keycloakConfigResolver() {
-		        return new KeycloakSpringBootConfigResolver();
-		    }
-		// For Keycloak @END
+	
 }

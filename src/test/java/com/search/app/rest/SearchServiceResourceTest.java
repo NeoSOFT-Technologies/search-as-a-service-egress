@@ -15,6 +15,7 @@ import com.searchservice.app.IntegrationTest;
 import com.searchservice.app.domain.dto.SearchResponse;
 import com.searchservice.app.domain.dto.logger.Loggers;
 import com.searchservice.app.domain.service.SearchService;
+import com.searchservice.app.domain.utils.HttpStatusCode;
 
 
 @IntegrationTest
@@ -82,7 +83,7 @@ class SearchServiceResourceTest {
 
 	public void setMockitoBadResponseForService() {
 		SearchResponse responseDTO = new SearchResponse(statusCode, message);
-		responseDTO.setStatusCode(400);
+		responseDTO.setStatusCode(HttpStatusCode.BAD_REQUEST_EXCEPTION.getCode());
 		Mockito.when(searchservice.searchQuery(Mockito.anyInt(), Mockito.anyString(), Mockito.anyString(), Mockito.anyString(),Mockito.anyString(), Mockito.anyString(), Mockito.anyString())).thenReturn(responseDTO);
 		Mockito.when(searchservice.searchField(Mockito.anyInt(), Mockito.anyString(), Mockito.anyString(), Mockito.anyString(),Mockito.anyString(), Mockito.anyString(), Mockito.anyString(), Mockito.anyString())).thenReturn(responseDTO);
 			}
