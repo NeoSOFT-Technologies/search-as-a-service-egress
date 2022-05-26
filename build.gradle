@@ -9,7 +9,7 @@ plugins {
 
 group = 'com.searchservice.egress'
 version = '0.0.1-SNAPSHOT'
-sourceCompatibility = '1.8'
+sourceCompatibility = '11'
 
 apply from: "gradle/docker.gradle"
 apply from: "gradle/sonar.gradle"
@@ -91,23 +91,20 @@ dependencies {
 	testCompileOnly 'org.projectlombok:lombok:1.18.22'
 	testAnnotationProcessor 'org.projectlombok:lombok:1.18.22'
 	
-	// https://mvnrepository.com/artifact/joda-time/joda-time
+	//Date-time util
 	implementation group: 'joda-time', name: 'joda-time', version: '2.10.13'
 	
-
 	//JSON
 	implementation group: 'org.json', name: 'json', version: '20200518'
-
+	implementation group: 'org.jboss.logging', name: 'jboss-logging', version: '3.5.0.Final'
+	
 	//RabbitMQ
 	implementation "org.springframework.boot:spring-boot-starter-amqp"
 	testImplementation group: 'org.springframework.amqp', name: 'spring-rabbit-test', version: '1.6.0.RELEASE'
 
 	// Rate Limiter
-	// https://mvnrepository.com/artifact/io.github.resilience4j/resilience4j-spring-boot2
 	implementation group: 'io.github.resilience4j', name: 'resilience4j-spring-boot2', version: '1.5.0'
-	// https://mvnrepository.com/artifact/org.springframework.boot/spring-boot-starter-aop
 	implementation group: 'org.springframework.boot', name: 'spring-boot-starter-aop', version: '2.5.4'
-	// https://mvnrepository.com/artifact/com.squareup.okhttp/okhttp
 	implementation group: 'com.squareup.okhttp', name: 'okhttp', version: '2.7.5'
 	
 	// Spring Security
@@ -120,8 +117,13 @@ dependencies {
 	
     //Memcache 
 	implementation group: 'net.spy', name: 'spymemcached', version: '2.12.3'
-	
-	implementation group: 'org.jboss.logging', name: 'jboss-logging', version: '3.5.0.Final'
+		
+	//Token decoder
+	implementation group: 'commons-codec', name: 'commons-codec', version: '1.15'
+  
+  	//Static Mocks
+	testImplementation group: 'org.mockito', name: 'mockito-inline', version: '3.8.0'
+  
 }
 
 

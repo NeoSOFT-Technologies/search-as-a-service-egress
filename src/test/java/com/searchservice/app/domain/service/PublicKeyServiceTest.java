@@ -1,5 +1,9 @@
-package com.searchservice.app;
+package com.searchservice.app.domain.service;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+
+import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.TestInstance;
 import org.junit.jupiter.api.TestInstance.Lifecycle;
@@ -19,11 +23,8 @@ import org.springframework.test.context.junit.jupiter.SpringExtension;
 import org.springframework.test.util.ReflectionTestUtils;
 import org.springframework.web.client.HttpClientErrorException;
 import org.springframework.web.client.RestTemplate;
-import com.searchservice.app.config.AuthConfigProperties;
-import com.searchservice.app.domain.service.PublicKeyService;
 
-import static org.junit.jupiter.api.Assertions.*;
-import org.junit.jupiter.api.BeforeAll;
+import com.searchservice.app.config.AuthConfigProperties;
 
 
 @ExtendWith(MockitoExtension.class)
@@ -73,11 +74,11 @@ class PublicKeyServiceTest {
 	@Test
 	void publicKeyServiceTest() {
 		setPublicKeyResponse();
-		assertEquals("Public-Key-Test",publicKeyService.retirevePublicKey(authConfigProperties.getRealmName()));
+		assertEquals("Public-Key-Test",publicKeyService.retrievePublicKey(authConfigProperties.getRealmName()));
 		assertTrue(publicKeyService.checkIfPublicKeyExistsInCache());
 		
 		setErrorResponse();
-		assertEquals("",publicKeyService.retirevePublicKey(authConfigProperties.getRealmName()));
+		assertEquals("",publicKeyService.retrievePublicKey(authConfigProperties.getRealmName()));
 		
 	}
 }

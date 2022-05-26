@@ -1,7 +1,6 @@
 package com.searchservice.app.config.security;
 
 import org.springframework.beans.factory.annotation.Autowired;
-
 import org.springframework.context.annotation.Configuration;
 import org.springframework.security.config.annotation.method.configuration.EnableGlobalMethodSecurity;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
@@ -12,7 +11,7 @@ import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 
 import com.searchservice.app.config.AuthConfigProperties;
-import com.searchservice.app.domain.service.JwtTokenFilterService;
+import com.searchservice.app.domain.filter.JwtTokenAuthorizationFilter;
 import com.searchservice.app.domain.service.PublicKeyService;
 
 @Configuration
@@ -42,7 +41,9 @@ public class SecurityConfiguration extends WebSecurityConfigurerAdapter{
                 .sessionCreationPolicy(SessionCreationPolicy.STATELESS)
                 .and();
         
-        // Add JWT token filter
-       http = http.addFilterBefore(new JwtTokenFilterService(authConfigProperties, publicKeyService), UsernamePasswordAuthenticationFilter.class);
+		// Add JWT token filter
+		http.addFilterBefore(new JwtTokenAuthorizationFilter(authConfigProperties, publicKeyService),
+				UsernamePasswordAuthenticationFilter.class);
+
     }
 }

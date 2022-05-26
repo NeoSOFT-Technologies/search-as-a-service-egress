@@ -1,9 +1,11 @@
-package com.searchservice.app;
+package com.searchservice.app.domain.service;
 
 
 import static org.junit.Assert.assertEquals;
+
 import java.util.ArrayList;
 import java.util.List;
+
 import org.json.JSONArray;
 import org.json.JSONObject;
 import org.junit.jupiter.api.BeforeEach;
@@ -16,17 +18,14 @@ import org.mockito.junit.MockitoJUnitRunner;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
+
+import com.searchservice.app.IntegrationTest;
 import com.searchservice.app.domain.dto.IngressSchemaResponse;
 import com.searchservice.app.domain.dto.SearchResponse;
-import com.searchservice.app.domain.dto.logger.Loggers;
 import com.searchservice.app.domain.port.api.TableServicePort;
-import com.searchservice.app.domain.service.AdvSearchService;
-import com.searchservice.app.domain.service.SearchService;
-import com.searchservice.app.domain.service.TableService;
-import com.searchservice.app.domain.utils.HttpStatusCode;
-import com.searchservice.app.domain.utils.LoggerUtils;
 import com.searchservice.app.infrastructure.adaptor.SearchClientAdapter;
 import com.searchservice.app.rest.errors.CustomException;
+import com.searchservice.app.rest.errors.HttpStatusCode;
 
 @IntegrationTest
 @AutoConfigureMockMvc
@@ -47,7 +46,6 @@ class SearchServiceTest {
 	String order = "asc";
 	String searchQueryfield = "category";
 	String queryFieldSearchTerm = "shubham";
-	private SearchResponse responseDTO = new SearchResponse();
 
 	String jarray = "{\r\n" + "\"schema\" :[\r\n" + "  {\r\n" + "    \"id\" : 1,\r\n"
 			+ "    \"name\" : \"The Lightning Thief\",\r\n" + "    \"author\" : \"Rick Riordan\"\r\n" + "  }\r\n"
@@ -63,25 +61,15 @@ class SearchServiceTest {
 	SearchService search;
 
 	@MockBean
-	LoggerUtils loggerUtils;
-
-	@MockBean
 	TableService tableService;
 	
 	
 	SearchClientAdapter searchClientAdapter= new SearchClientAdapter();
 
-	Loggers loggersDTO = new Loggers();
-
 	@SuppressWarnings("deprecation")
 	@BeforeEach
 	void setUp() throws Exception {
 		MockitoAnnotations.initMocks(this);
-		String timestamp = LoggerUtils.utcTime().toString();
-		loggersDTO.setNameofmethod("nameofCurrMethod");
-		loggersDTO.setTimestamp(timestamp);
-		loggersDTO.setServicename("servicename");
-		loggersDTO.setUsername("username");
 
 		searchClientAdapter.getSearchClient( searchQueryfield, tableName);
 		searchClientAdapter.getSearchClientAdapter(searchQueryfield, tableName);		

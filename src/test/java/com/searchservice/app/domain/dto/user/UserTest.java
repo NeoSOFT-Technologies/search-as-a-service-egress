@@ -7,13 +7,13 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.boot.test.mock.mockito.MockBean;
 
- class UserDTOTest {
-	private final Logger logger = LoggerFactory.getLogger(UserDTO.class); 
+ class UserTest {
+	private final Logger logger = LoggerFactory.getLogger(User.class); 
 	 @MockBean
-	UserDTO userDTO=new UserDTO("testing","admin");
-	UserDTO userDTO1=new UserDTO("no","123");
-	UserDTO userDTO3=new UserDTO();
-	UserDTO userDTO4=new UserDTO();
+	User userDTO=new User("testing","admin");
+	User userDTO1=new User("no","123");
+	User userDTO3=new User();
+	User userDTO4=new User();
 	@Test
 	void testUserDTO()
 	{

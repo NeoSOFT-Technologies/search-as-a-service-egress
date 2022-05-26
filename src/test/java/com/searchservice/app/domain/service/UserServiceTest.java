@@ -1,4 +1,4 @@
-package com.searchservice.app;
+package com.searchservice.app.domain.service;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
@@ -26,10 +26,8 @@ import org.springframework.web.client.HttpClientErrorException;
 import org.springframework.web.client.RestTemplate;
 
 import com.searchservice.app.domain.dto.Response;
-
-import com.searchservice.app.domain.dto.user.UserDTO;
-import com.searchservice.app.domain.service.UserService;
-import com.searchservice.app.domain.utils.HttpStatusCode;
+import com.searchservice.app.domain.dto.user.User;
+import com.searchservice.app.rest.errors.HttpStatusCode;
 
 
 @ExtendWith(MockitoExtension.class)
@@ -47,7 +45,7 @@ import com.searchservice.app.domain.utils.HttpStatusCode;
 	@Value("${base-token-url}")
 	private String baseTokenUrl;
 	
-	private UserDTO userDTO;
+	private User userDTO;
 	
 	String expectedTokenJson = "{\"access_token\":\"Valid-Token\",\"expires_in\":600,\"refresh_expires_in\":1800,"
 			+ "\"refresh_token\":\"Refresh-Token\",\"token_type\":"
@@ -64,19 +62,19 @@ import com.searchservice.app.domain.utils.HttpStatusCode;
 	
 	@BeforeAll
 	public void setUp() {
-		userDTO = new UserDTO();
+		userDTO = new User();
 		ReflectionTestUtils.setField(userService,"baseTokenUrl",baseTokenUrl);
 		headers.setAccept(Arrays.asList(MediaType.APPLICATION_JSON));
 	}
 	
 	public void setMockitoSuccessResponse() {
-		HttpEntity<UserDTO> request = new HttpEntity<>(userDTO,headers);
+		HttpEntity<User> request = new HttpEntity<>(userDTO,headers);
 		Mockito.when(this.restTemplate.postForEntity(baseTokenUrl, request, String.class)).
 		thenReturn(new ResponseEntity<String>(expectedTokenJson, HttpStatus.OK));
 	}
 	
 	public void setMockitoBadResponse(boolean isError) {
-		HttpEntity<UserDTO> request = new HttpEntity<>(userDTO,headers);
+		HttpEntity<User> request = new HttpEntity<>(userDTO,headers);
 		if(isError) {
 		    Mockito.when(this.restTemplate.postForEntity(baseTokenUrl, request, String.class)).
 		    thenReturn(new ResponseEntity<String>(expectedErrorJson, HttpStatus.OK));
@@ -87,7 +85,7 @@ import com.searchservice.app.domain.utils.HttpStatusCode;
 	}
 	
 	public void setMockitoExceptionResponse() {
-		HttpEntity<UserDTO> request = new HttpEntity<>(userDTO,headers);
+		HttpEntity<User> request = new HttpEntity<>(userDTO,headers);
 		Mockito.when(this.restTemplate.postForEntity(baseTokenUrl, request, String.class)).
 		thenThrow(new HttpClientErrorException(HttpStatus.INTERNAL_SERVER_ERROR));
 		

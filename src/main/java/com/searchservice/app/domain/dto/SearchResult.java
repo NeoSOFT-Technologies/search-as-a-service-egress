@@ -1,4 +1,4 @@
-package com.searchservice.app.infrastructure.adaptor;
+package com.searchservice.app.domain.dto;
 
 import java.util.List;
 import java.util.Map;

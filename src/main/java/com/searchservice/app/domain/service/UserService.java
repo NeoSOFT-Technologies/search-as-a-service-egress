@@ -16,9 +16,9 @@ import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestTemplate;
 
 import com.searchservice.app.domain.dto.Response;
-import com.searchservice.app.domain.dto.user.UserDTO;
+import com.searchservice.app.domain.dto.user.User;
 import com.searchservice.app.domain.port.api.UserServicePort;
-import com.searchservice.app.domain.utils.HttpStatusCode;
+import com.searchservice.app.rest.errors.HttpStatusCode;
 
 
 @Service
@@ -36,14 +36,14 @@ public class UserService implements UserServicePort{
 	private String baseTokenUrl;
 	
 	@Override
-	public Response getToken(UserDTO user) {
+	public Response getToken(User user) {
 		if (user.getUsername().isBlank() || user.getUsername().isEmpty() || user.getPassword().isBlank() || user.getPassword().isEmpty()) {
 			return createResponse(ERROR, "username and password must bot be blank.", 
 					HttpStatusCode.BAD_REQUEST_EXCEPTION.getCode());
 		}
 		HttpHeaders headers = new HttpHeaders();
 	    headers.setAccept(Arrays.asList(MediaType.APPLICATION_JSON));
-	    HttpEntity<UserDTO> request = new HttpEntity<>(user,headers);
+	    HttpEntity<User> request = new HttpEntity<>(user,headers);
 	    ResponseEntity<String> response = new ResponseEntity<>(HttpStatus.OK);
 	    try {
 			response = restTemplate.postForEntity(baseTokenUrl, request, String.class);

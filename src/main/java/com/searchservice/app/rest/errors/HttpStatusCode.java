@@ -1,4 +1,4 @@
-package com.searchservice.app.domain.utils;
+package com.searchservice.app.rest.errors;
 
 public enum HttpStatusCode {
 
