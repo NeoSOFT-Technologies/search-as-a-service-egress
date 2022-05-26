@@ -1,4 +1,4 @@
-package com.search.app.rest;
+package com.searchservice.app.rest;
 
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
@@ -15,7 +15,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.searchservice.app.IntegrationTest;
 
 import com.searchservice.app.domain.dto.Response;
-import com.searchservice.app.domain.dto.user.UserDTO;
+import com.searchservice.app.domain.dto.user.User;
 import com.searchservice.app.domain.service.UserService;
 import com.searchservice.app.domain.utils.HttpStatusCode;
 
@@ -47,7 +47,7 @@ class UserResourceTest {
 	@Test
 	void getTokenTest() throws Exception{
 		
-		UserDTO user = new UserDTO("test","123");
+		User user = new User("test","123");
 		setMockitoSuccessResponse();
 		restMockMvc.perform(MockMvcRequestBuilders.post("/user/token")
 				.contentType(MediaType.APPLICATION_JSON).content(mapper.writeValueAsBytes(user)))

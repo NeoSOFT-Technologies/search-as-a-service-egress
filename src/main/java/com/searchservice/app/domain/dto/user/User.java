@@ -7,12 +7,12 @@ import lombok.NoArgsConstructor;
 @Data
 @NoArgsConstructor
 @EqualsAndHashCode
-public class UserDTO {
+public class User {
 	
 	private String username;
 	private String password;
 
-	public UserDTO(String username, String password) {
+	public User(String username, String password) {
 		this.username = username;
 		this.password = password;
 	}

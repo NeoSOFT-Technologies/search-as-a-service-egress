@@ -17,10 +17,10 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.searchservice.app.domain.dto.SearchResponse;
+import com.searchservice.app.domain.dto.SearchResult;
 import com.searchservice.app.domain.port.api.SearchServicePort;
 import com.searchservice.app.domain.service.SearchService;
 import com.searchservice.app.domain.utils.SearchUtil;
-import com.searchservice.app.infrastructure.adaptor.SearchResult;
 
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.security.SecurityRequirement;

@@ -1,7 +1,6 @@
 package com.searchservice.app.domain.service;
 
 import java.util.ArrayList;
-
 import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
@@ -21,11 +20,11 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import com.searchservice.app.domain.dto.SearchResponse;
+import com.searchservice.app.domain.dto.SearchResult;
 import com.searchservice.app.domain.port.api.AdvSearchServicePort;
 import com.searchservice.app.domain.utils.HttpStatusCode;
 import com.searchservice.app.domain.utils.SearchUtil;
 import com.searchservice.app.infrastructure.adaptor.SearchClientAdapter;
-import com.searchservice.app.infrastructure.adaptor.SearchResult;
 import com.searchservice.app.rest.errors.CustomException;
 
 

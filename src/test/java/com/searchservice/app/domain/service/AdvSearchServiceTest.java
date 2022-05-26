@@ -1,7 +1,8 @@
-package com.searchservice.app;
+package com.searchservice.app.domain.service;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.mockito.Mockito.when;
+
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -33,15 +34,12 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.test.context.TestPropertySource;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
+
 import com.searchservice.app.domain.dto.SearchResponse;
-import com.searchservice.app.domain.dto.logger.Loggers;
+import com.searchservice.app.domain.dto.SearchResult;
 import com.searchservice.app.domain.port.api.SearchServicePort;
-import com.searchservice.app.domain.service.AdvSearchService;
-import com.searchservice.app.domain.service.TableService;
 import com.searchservice.app.domain.utils.HttpStatusCode;
-import com.searchservice.app.domain.utils.LoggerUtils;
 import com.searchservice.app.infrastructure.adaptor.SearchClientAdapter;
-import com.searchservice.app.infrastructure.adaptor.SearchResult;
 import com.searchservice.app.rest.errors.CustomException;
 
 
@@ -97,7 +95,6 @@ String json = "{\r\n"
 	@Mock
 	SolrClient solrClient;
 
-	Loggers loggersDTO = new Loggers();
 	Map<String, Object> id = new HashMap<String, Object>() {
 		private static final long serialVersionUID = 1L;
 
@@ -115,11 +112,6 @@ String json = "{\r\n"
 	@BeforeEach
 	void setUp() throws SolrServerException, IOException {
 		MockitoAnnotations.initMocks(this);
-		String timestamp = LoggerUtils.utcTime().toString();
-		loggersDTO.setNameofmethod("nameofCurrMethod");
-		loggersDTO.setTimestamp(timestamp);
-		loggersDTO.setServicename("servicename");
-		loggersDTO.setUsername("username");	
 		
 		when(solrAPIAdapterMock.getSearchClient(Mockito.any(), Mockito.any())).thenReturn(solrClient);
 

@@ -19,7 +19,7 @@ import org.joda.time.DateTimeZone;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.context.annotation.Configuration;
-import com.searchservice.app.domain.dto.user.UserDTO;
+import com.searchservice.app.domain.dto.user.User;
 
 @Aspect
 @Configuration
@@ -29,13 +29,13 @@ public class AspectConfig {
       private static final String STARTED_EXECUTION ="Started Request of Service Name : {},UserName : {}, CorrelationId : {}, IpAddress : {}, MethodName : {}, TimeStamp : {}, Parameters :{}";
       private static final String SUCCESSFUL_EXECUTION="Successfully Requested of Service Name : {},UserName : {}, CorrelationId : {}, IpAddress : {}, MethodName : {}, TimeStamp : {}, Parameters :{}";
       private static final String CORRELATION_ID_LOG_VAR_NAME="CID";
-      private static UserDTO user;
+      private static User user;
       private static String ip;
      
       //Added Condition for Null User
       @Before(value="execution(* com.searchservice.app.rest.UserResource.*(..))")
       public static Object logStatementForRest(JoinPoint joinPoint) {
-    	user =(UserDTO) joinPoint.getArgs()[0];
+    	user =(User) joinPoint.getArgs()[0];
     	try {
     		ip=InetAddress.getLocalHost().getHostAddress();
     	}
