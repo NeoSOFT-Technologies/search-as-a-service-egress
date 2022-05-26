@@ -13,11 +13,10 @@ import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.searchservice.app.IntegrationTest;
-
 import com.searchservice.app.domain.dto.Response;
 import com.searchservice.app.domain.dto.user.User;
 import com.searchservice.app.domain.service.UserService;
-import com.searchservice.app.domain.utils.HttpStatusCode;
+import com.searchservice.app.rest.errors.HttpStatusCode;
 
 @IntegrationTest
 @AutoConfigureMockMvc(addFilters = false)

@@ -23,9 +23,9 @@ import com.searchservice.app.IntegrationTest;
 import com.searchservice.app.domain.dto.IngressSchemaResponse;
 import com.searchservice.app.domain.dto.SearchResponse;
 import com.searchservice.app.domain.port.api.TableServicePort;
-import com.searchservice.app.domain.utils.HttpStatusCode;
 import com.searchservice.app.infrastructure.adaptor.SearchClientAdapter;
 import com.searchservice.app.rest.errors.CustomException;
+import com.searchservice.app.rest.errors.HttpStatusCode;
 
 @IntegrationTest
 @AutoConfigureMockMvc

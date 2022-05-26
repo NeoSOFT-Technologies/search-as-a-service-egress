@@ -22,10 +22,10 @@ import org.springframework.transaction.annotation.Transactional;
 import com.searchservice.app.domain.dto.SearchResponse;
 import com.searchservice.app.domain.dto.SearchResult;
 import com.searchservice.app.domain.port.api.AdvSearchServicePort;
-import com.searchservice.app.domain.utils.HttpStatusCode;
 import com.searchservice.app.domain.utils.SearchUtil;
 import com.searchservice.app.infrastructure.adaptor.SearchClientAdapter;
 import com.searchservice.app.rest.errors.CustomException;
+import com.searchservice.app.rest.errors.HttpStatusCode;
 
 
 @Service

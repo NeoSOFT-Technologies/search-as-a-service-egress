@@ -38,9 +38,9 @@ import org.springframework.test.context.junit.jupiter.SpringExtension;
 import com.searchservice.app.domain.dto.SearchResponse;
 import com.searchservice.app.domain.dto.SearchResult;
 import com.searchservice.app.domain.port.api.SearchServicePort;
-import com.searchservice.app.domain.utils.HttpStatusCode;
 import com.searchservice.app.infrastructure.adaptor.SearchClientAdapter;
 import com.searchservice.app.rest.errors.CustomException;
+import com.searchservice.app.rest.errors.HttpStatusCode;
 
 
 @ExtendWith(MockitoExtension.class)

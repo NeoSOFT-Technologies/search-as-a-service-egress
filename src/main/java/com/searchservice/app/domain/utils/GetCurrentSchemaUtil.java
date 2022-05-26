@@ -1,16 +1,22 @@
 package com.searchservice.app.domain.utils;
 
-import com.searchservice.app.rest.errors.CustomException;
-import com.squareup.okhttp.*;
-import lombok.Data;
-import lombok.NoArgsConstructor;
+import java.io.IOException;
+import java.util.ArrayList;
+import java.util.List;
+
 import org.json.JSONArray;
 import org.json.JSONObject;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import java.io.IOException;
-import java.util.ArrayList;
-import java.util.List;
+
+import com.searchservice.app.rest.errors.CustomException;
+import com.searchservice.app.rest.errors.HttpStatusCode;
+import com.squareup.okhttp.OkHttpClient;
+import com.squareup.okhttp.Request;
+import com.squareup.okhttp.Response;
+
+import lombok.Data;
+import lombok.NoArgsConstructor;
 
 
 @Data

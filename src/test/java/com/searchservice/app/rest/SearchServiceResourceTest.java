@@ -1,13 +1,16 @@
 package com.searchservice.app.rest;
 
+import static org.mockito.Mockito.when;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 import org.junit.jupiter.api.Test;
+import org.mockito.MockedStatic;
 import org.mockito.Mockito;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.mock.mockito.MockBean;
+import org.springframework.http.HttpHeaders;
 import org.springframework.http.MediaType;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
@@ -15,12 +18,17 @@ import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
 import com.searchservice.app.IntegrationTest;
 import com.searchservice.app.domain.dto.SearchResponse;
 import com.searchservice.app.domain.service.SearchService;
-import com.searchservice.app.domain.utils.HttpStatusCode;
+import com.searchservice.app.domain.service.security.KeycloakUserPermission;
+import com.searchservice.app.domain.utils.security.SecurityUtil;
+import com.searchservice.app.rest.errors.HttpStatusCode;
 
 @IntegrationTest
-@AutoConfigureMockMvc(addFilters = false)
+@AutoConfigureMockMvc	//(addFilters = false)
 class SearchServiceResourceTest {
 
+	@Value("${custom-mock.jwt-token}")
+	private String accessToken;
+	
 	@Value("${base-url.api-endpoint.home}")
 	private String apiEndpoint;
 
@@ -56,6 +64,9 @@ class SearchServiceResourceTest {
 	@MockBean
 	SearchService searchservice;
 
+	@MockBean(name = "keycloakAuthService")
+	private KeycloakUserPermission keycloakUserPermission;
+	
 	public void setMockitoSucccessResponseForService() {
 		SearchResponse responseDTO = new SearchResponse(statusCode, message);
 		responseDTO.setStatusCode(200);
@@ -78,40 +89,91 @@ class SearchServiceResourceTest {
 				Mockito.anyString())).thenReturn(responseDTO);
 	}
 
+	public void mockPreAuthorizedService() {
+		when(keycloakUserPermission.isViewPermissionEnabled()).thenReturn(true);
+		when(keycloakUserPermission.isCreatePermissionEnabled()).thenReturn(true);
+		when(keycloakUserPermission.isEditPermissionEnabled()).thenReturn(true);
+		when(keycloakUserPermission.isDeletePermissionEnabled()).thenReturn(true);
+	}
+	
 	@Test
-	void testsearchRecordsViaQuery() throws Exception {
-		setMockitoSucccessResponseForService();
-		restAMockMvc
-				.perform(MockMvcRequestBuilders.get(apiEndpoint + "/query/" + tableName + "/?tenantId=" + tenantId)
-						.contentType(MediaType.APPLICATION_PROBLEM_JSON).content(inputString))
-				.andExpect(status().isOk());
+	void testSearchRecordsViaQuery() throws Exception {
+		try (MockedStatic<SecurityUtil> mockedUtility = Mockito.mockStatic(SecurityUtil.class)) {
+			mockedUtility.when(
+					() -> SecurityUtil.validate(Mockito.anyString(), Mockito.anyString()))
+			.thenReturn(true);
+			mockedUtility.when(
+					() -> SecurityUtil.getTokenFromRequestHeader(
+							Mockito.any(), Mockito.any(), Mockito.any()))
+			.thenReturn(accessToken);
+		
+			setMockitoSucccessResponseForService();
+			restAMockMvc
+					.perform(MockMvcRequestBuilders.get(apiEndpoint + "/query/" + tableName + "/?tenantId=" + tenantId)
+							.header(HttpHeaders.AUTHORIZATION, "Bearer " + accessToken)
+							.contentType(MediaType.APPLICATION_PROBLEM_JSON).content(inputString))
+					.andExpect(status().isOk());
+		}
 	}
 
 	@Test
-	void testsearchRecordsViaQueryFields() throws Exception {
-		setMockitoSucccessResponseForService();
-		restAMockMvc
-				.perform(MockMvcRequestBuilders.get(apiEndpoint + "/" + tableName + "/?tenantId=" + tenantId)
-						.contentType(MediaType.APPLICATION_PROBLEM_JSON).content(inputString))
-				.andExpect(status().isOk());
+	void testSearchRecordsViaQueryFields() throws Exception {
+		try (MockedStatic<SecurityUtil> mockedUtility = Mockito.mockStatic(SecurityUtil.class)) {
+			mockedUtility.when(
+					() -> SecurityUtil.validate(Mockito.anyString(), Mockito.anyString()))
+			.thenReturn(true);
+			mockedUtility.when(
+					() -> SecurityUtil.getTokenFromRequestHeader(
+							Mockito.any(), Mockito.any(), Mockito.any()))
+			.thenReturn(accessToken);
+		
+			setMockitoSucccessResponseForService();
+			restAMockMvc
+					.perform(MockMvcRequestBuilders.get(apiEndpoint + "/" + tableName + "/?tenantId=" + tenantId)
+							.header(HttpHeaders.AUTHORIZATION, "Bearer " + accessToken)
+							.contentType(MediaType.APPLICATION_PROBLEM_JSON).content(inputString))
+					.andExpect(status().isOk());
+		}
 	}
 
 	@Test
-	void testbadsearchRecordsViaQuery() throws Exception {
-		setMockitoBadResponseForService();
-		restAMockMvc
-				.perform(MockMvcRequestBuilders.get(apiEndpoint + "/query/" + tableName + "/?tenantId=" + tenantId)
-						.contentType(MediaType.APPLICATION_PROBLEM_JSON).content(inputString))
-				.andExpect(status().isBadRequest());
+	void testBadSearchRecordsViaQuery() throws Exception {
+		try (MockedStatic<SecurityUtil> mockedUtility = Mockito.mockStatic(SecurityUtil.class)) {
+			mockedUtility.when(
+					() -> SecurityUtil.validate(Mockito.anyString(), Mockito.anyString()))
+			.thenReturn(true);
+			mockedUtility.when(
+					() -> SecurityUtil.getTokenFromRequestHeader(
+							Mockito.any(), Mockito.any(), Mockito.any()))
+			.thenReturn(accessToken);
+		
+			setMockitoBadResponseForService();
+			restAMockMvc
+					.perform(MockMvcRequestBuilders.get(apiEndpoint + "/query/" + tableName + "/?tenantId=" + tenantId)
+							.header(HttpHeaders.AUTHORIZATION, "Bearer " + accessToken)
+							.contentType(MediaType.APPLICATION_PROBLEM_JSON).content(inputString))
+					.andExpect(status().isBadRequest());
+		}
 	}
 
 	@Test
-	void testbadsearchRecordsViaQueryFields() throws Exception {
-		setMockitoBadResponseForService();
-		restAMockMvc
-				.perform(MockMvcRequestBuilders.get(apiEndpoint + "/" + tableName + "/?tenantId=" + tenantId)
-						.contentType(MediaType.APPLICATION_PROBLEM_JSON).content(inputString))
-				.andExpect(status().isBadRequest());
+	void testBadSearchRecordsViaQueryFields() throws Exception {
+		try (MockedStatic<SecurityUtil> mockedUtility = Mockito.mockStatic(SecurityUtil.class)) {
+			mockedUtility.when(
+					() -> SecurityUtil.validate(Mockito.anyString(), Mockito.anyString()))
+			.thenReturn(true);
+			mockedUtility.when(
+					() -> SecurityUtil.getTokenFromRequestHeader(
+							Mockito.any(), Mockito.any(), Mockito.any()))
+			.thenReturn(accessToken);
+		
+			setMockitoBadResponseForService();
+			restAMockMvc
+					.perform(MockMvcRequestBuilders.get(apiEndpoint + "/" + tableName + "/?tenantId=" + tenantId)
+							.header(HttpHeaders.AUTHORIZATION, "Bearer " + accessToken)
+							.contentType(MediaType.APPLICATION_PROBLEM_JSON).content(inputString))
+					.andExpect(status().isBadRequest());
+		}
 
 	}
 

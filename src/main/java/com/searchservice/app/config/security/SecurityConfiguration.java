@@ -41,7 +41,9 @@ public class SecurityConfiguration extends WebSecurityConfigurerAdapter{
                 .sessionCreationPolicy(SessionCreationPolicy.STATELESS)
                 .and();
         
-        // Add JWT token filter
-       http = http.addFilterBefore(new JwtTokenAuthorizationFilter(authConfigProperties, publicKeyService), UsernamePasswordAuthenticationFilter.class);
+		// Add JWT token filter
+		http.addFilterBefore(new JwtTokenAuthorizationFilter(authConfigProperties, publicKeyService),
+				UsernamePasswordAuthenticationFilter.class);
+
     }
 }

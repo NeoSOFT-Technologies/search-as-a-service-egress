@@ -13,8 +13,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import com.searchservice.app.config.UserPermissionConfigProperties;
-import com.searchservice.app.domain.utils.HttpStatusCode;
 import com.searchservice.app.rest.errors.CustomException;
+import com.searchservice.app.rest.errors.HttpStatusCode;
 
 @Service
 public class KeycloakPermissionManagementService {
@@ -50,7 +50,7 @@ public class KeycloakPermissionManagementService {
 		JSONObject tokenPayload = getDecodedTokenPayloadJson(token);
 		List<String> permissions = getActiveUserPermissions(tokenPayload);
 
-		return permissions.contains(KeycloakPermissionsConstants.p1);
+		return permissions.contains(KeycloakPermissionsConstants.P1);
 	}
 
 	public boolean isCreatePermissionGranted(String token) {
@@ -58,7 +58,7 @@ public class KeycloakPermissionManagementService {
 		JSONObject tokenPayload = getDecodedTokenPayloadJson(token);
 		List<String> permissions = getActiveUserPermissions(tokenPayload);
 
-		return permissions.contains(KeycloakPermissionsConstants.p2);
+		return permissions.contains(KeycloakPermissionsConstants.P2);
 	}
 
 	public boolean isEditPermissionGranted(String token) {
@@ -66,7 +66,7 @@ public class KeycloakPermissionManagementService {
 		JSONObject tokenPayload = getDecodedTokenPayloadJson(token);
 		List<String> permissions = getActiveUserPermissions(tokenPayload);
 
-		return permissions.contains(KeycloakPermissionsConstants.p3);
+		return permissions.contains(KeycloakPermissionsConstants.P3);
 	}
 
 	public boolean isDeletePermissionGranted(String token) {
@@ -74,37 +74,37 @@ public class KeycloakPermissionManagementService {
 		JSONObject tokenPayload = getDecodedTokenPayloadJson(token);
 		List<String> permissions = getActiveUserPermissions(tokenPayload);
 
-		return permissions.contains(KeycloakPermissionsConstants.p4);
+		return permissions.contains(KeycloakPermissionsConstants.P4);
 	}
-	
 	
 	public void validateAndSetActiveUserAuthorities(String token) {
 		/**
 		 *  Verify and validate active user's authorities and keep info in cache
 		 */
+		
 		JSONObject tokenPayload = getDecodedTokenPayloadJson(token);
 		List<String> permissions = getActiveUserPermissions(tokenPayload);
 
 		// Set View Permission
 		keycloakUserPermission.setViewPermissionEnabled(
 				userPermissionConfigProperties.getView(), 
-				permissions.contains(KeycloakPermissionsConstants.p1));
-
+				permissions.contains(KeycloakPermissionsConstants.P1));
+		
 		// Set Create Permission
 		keycloakUserPermission.setCreatePermissionEnabled(
 				userPermissionConfigProperties.getCreate(), 
-				permissions.contains(KeycloakPermissionsConstants.p2));
-
+				permissions.contains(KeycloakPermissionsConstants.P2));
+		
 		// Set Edit Permission
 		keycloakUserPermission.setEditPermissionEnabled(
 				userPermissionConfigProperties.getEdit(), 
-				permissions.contains(KeycloakPermissionsConstants.p3));
-
+				permissions.contains(KeycloakPermissionsConstants.P3));
+		
 		// Set Delete Permission
 		keycloakUserPermission.setDeletePermissionEnabled(
 				userPermissionConfigProperties.getDelete(), 
-				permissions.contains(KeycloakPermissionsConstants.p4));
-
+				permissions.contains(KeycloakPermissionsConstants.P4));
+		
 	}
 
 }

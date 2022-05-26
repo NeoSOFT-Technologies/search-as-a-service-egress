@@ -13,9 +13,9 @@ import org.slf4j.LoggerFactory;
 import org.springframework.boot.test.mock.mockito.MockBean;
 
 import com.searchservice.app.domain.utils.GetCurrentSchemaUtil;
-import com.searchservice.app.domain.utils.HttpStatusCode;
-import com.searchservice.app.rest.errors.CustomException;
 import com.searchservice.app.domain.utils.GetCurrentSchemaUtil.GetCurrentSchemaUtilResponse;
+import com.searchservice.app.rest.errors.CustomException;
+import com.searchservice.app.rest.errors.HttpStatusCode;
 import com.squareup.okhttp.OkHttpClient;
 
 

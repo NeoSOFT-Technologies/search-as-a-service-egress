@@ -27,7 +27,7 @@ import org.springframework.web.client.RestTemplate;
 
 import com.searchservice.app.domain.dto.Response;
 import com.searchservice.app.domain.dto.user.User;
-import com.searchservice.app.domain.utils.HttpStatusCode;
+import com.searchservice.app.rest.errors.HttpStatusCode;
 
 
 @ExtendWith(MockitoExtension.class)

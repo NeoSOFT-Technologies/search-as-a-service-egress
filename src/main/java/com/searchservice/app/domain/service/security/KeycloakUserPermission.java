@@ -13,8 +13,8 @@ import org.springframework.lang.Nullable;
 import org.springframework.stereotype.Service;
 
 import com.searchservice.app.config.UserPermissionConfigProperties;
-import com.searchservice.app.domain.utils.HttpStatusCode;
 import com.searchservice.app.rest.errors.CustomException;
+import com.searchservice.app.rest.errors.HttpStatusCode;
 
 import lombok.AllArgsConstructor;
 import lombok.NoArgsConstructor;
@@ -43,7 +43,7 @@ public class KeycloakUserPermission {
 	private boolean isCreatePermissionEnabled;
 	private boolean isEditPermissionEnabled;
 	private boolean isDeletePermissionEnabled;
-	
+
 	
 	public boolean isViewPermissionEnabled() {
 		if(checkIfUserPermissionExistsInCache(userPermissionConfigProperties.getView())) {
@@ -52,7 +52,7 @@ public class KeycloakUserPermission {
 		}
 		return isViewPermissionEnabled;
 	}
-	@Cacheable(cacheNames = USER_PERMISSIONS, key = "#authority")
+	@Cacheable(cacheNames = USER_PERMISSIONS, key = "#authority", condition = "#authority!=null")
 	public boolean setViewPermissionEnabled(String authority, boolean viewPermission) {
 		this.isViewPermissionEnabled = viewPermission;
 		return viewPermission;
@@ -78,7 +78,7 @@ public class KeycloakUserPermission {
 		}
 		return isEditPermissionEnabled;
 	}
-	@Cacheable(cacheNames = {USER_PERMISSIONS}, key = "#authority")
+	@Cacheable(cacheNames = {USER_PERMISSIONS}, key = "#authority", condition = "#authority!=null")
 	public boolean setEditPermissionEnabled(String authority, boolean editPermission) {
 		this.isEditPermissionEnabled = editPermission;
 		return editPermission;
@@ -91,7 +91,7 @@ public class KeycloakUserPermission {
 		}
 		return isDeletePermissionEnabled;
 	}
-	@Cacheable(cacheNames = {USER_PERMISSIONS}, key = "#authority")
+	@Cacheable(cacheNames = {USER_PERMISSIONS}, key = "#authority", condition = "#authority!=null")
 	public boolean setDeletePermissionEnabled(String authority, boolean deletePermission) {
 		this.isDeletePermissionEnabled = deletePermission;
 		return deletePermission;
@@ -100,20 +100,34 @@ public class KeycloakUserPermission {
 	
 	public boolean getUserPermissionFromCache(String permission) {
 	    cache = cacheManager.getCache(userPermissionConfigProperties.getKey());
-	    Optional<ValueWrapper> permissionValueWrapper = Optional.ofNullable(cache.get(permission));
-	    if(permissionValueWrapper.isEmpty() || permissionValueWrapper.get().get() == null)
+	    if(cache == null)
 	    	throw new CustomException(
 	    			HttpStatusCode.NULL_POINTER_EXCEPTION.getCode(), 
 	    			HttpStatusCode.NULL_POINTER_EXCEPTION, 
 	    			HttpStatusCode.NULL_POINTER_EXCEPTION.getMessage());
-	    else
-	    	return (Boolean)permissionValueWrapper.get().get();
+	    else {
+		    Optional<ValueWrapper> permissionValueWrapper = Optional.ofNullable(cache.get(permission));
+
+		    if(permissionValueWrapper.isEmpty() || permissionValueWrapper.get().get() == null)
+		    	throw new CustomException(
+		    			HttpStatusCode.NULL_POINTER_EXCEPTION.getCode(), 
+		    			HttpStatusCode.NULL_POINTER_EXCEPTION, 
+		    			HttpStatusCode.NULL_POINTER_EXCEPTION.getMessage());
+		    else
+		    	return (boolean)permissionValueWrapper.get().get();
+	    }
 	}
 	
 	public boolean checkIfUserPermissionExistsInCache(String permission) {
-		cache = cacheManager.getCache(userPermissionConfigProperties.getKey());
-		
-	    return (cache.get(permission)!=null);
+	    cache = cacheManager.getCache(userPermissionConfigProperties.getKey());
+	    if(cache == null)
+	    	throw new CustomException(
+	    			HttpStatusCode.NULL_POINTER_EXCEPTION.getCode(), 
+	    			HttpStatusCode.NULL_POINTER_EXCEPTION, 
+	    			HttpStatusCode.NULL_POINTER_EXCEPTION.getMessage());
+	    else {
+	    	return (cache.get(permission)!=null);
+	    }
 	}
 	
 }
