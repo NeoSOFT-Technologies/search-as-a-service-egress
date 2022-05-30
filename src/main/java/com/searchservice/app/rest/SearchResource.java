@@ -52,7 +52,7 @@ public class SearchResource {
 			@RequestParam(defaultValue = "5") String pageSize, @RequestParam(defaultValue = "id") String orderBy,
 			@RequestParam(defaultValue = "asc") String order) {
 		logger.debug("REST call for records-search in the given table");
-
+		
 		// Validate inputs
 		SearchUtil.validateInputs(startRecord, pageSize, order);
 		tableName = tableName + "_" + tenantId;

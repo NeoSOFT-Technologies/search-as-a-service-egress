@@ -87,7 +87,6 @@ public class AdvSearchService implements AdvSearchServicePort {
 					queryField, 
 					currentTableSchema);
 		
-		
 		// Set up query
 		StringBuilder queryString = new StringBuilder();
 		if(!isQueryFieldMultivalued) {			

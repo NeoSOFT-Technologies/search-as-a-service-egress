@@ -25,7 +25,6 @@ public class RestControllerAdvice {
 	public ResponseEntity<Object> handleGenericException(CustomException exception) {
 
 		return new ResponseEntity<>(new RestApiErrorHandling(
-
 				exception.getExceptionCode(), exception.getStatus(), exception.getExceptionMessage()),
 				HttpStatus.BAD_REQUEST);
 	}
@@ -34,12 +33,18 @@ public class RestControllerAdvice {
 	public ResponseEntity<Object> handleUncaughtException(Exception exception) {
 		log.error("Uncaught Error Occured: {}", exception.getMessage());
 		
-		if(exception.getMessage().toLowerCase().contains("access is denied"))
+		if(exception.getMessage() != null && exception.getMessage().toLowerCase().contains("access is denied")) {
 			return frameRestApiException(
 					new RestApiError(
 							HttpStatus.FORBIDDEN, 
 							exception.getMessage()));
-		
+		} else if(exception.getMessage() == null)
+			return new ResponseEntity<>(new RestApiErrorHandling(
+					HttpStatusCode.NULL_POINTER_EXCEPTION.getCode(), 
+					HttpStatusCode.NULL_POINTER_EXCEPTION, 
+					HttpStatusCode.NULL_POINTER_EXCEPTION.getMessage()),
+					HttpStatus.BAD_REQUEST);
+
 		return frameRestApiException(
 				new RestApiError(
 						HttpStatus.BAD_REQUEST, 
