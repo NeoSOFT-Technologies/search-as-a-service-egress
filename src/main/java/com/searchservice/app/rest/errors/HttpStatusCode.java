@@ -10,6 +10,8 @@ public enum HttpStatusCode {
 	
 	TABLE_NOT_FOUND(108, "does not exist"), 
 	
+	JSON_PARSE_EXCEPTION(114, "JSON parse error occurred"), 
+	
 	INVALID_TYPE(115, "{} must be of type {}"), 
 	
 	INVALID_FIELD_VALUE(116, "Value for field : {} is not expected as : {}"), 
