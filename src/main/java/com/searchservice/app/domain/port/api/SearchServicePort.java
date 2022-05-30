@@ -12,5 +12,4 @@ public interface SearchServicePort {
 	SearchResponse searchField(int tenantId, String tableName, String queryField, String queryFieldSearchTerm,
 			String startRecord, String pageSize, String sortTag, String sortOrder);
 	
-	
 }

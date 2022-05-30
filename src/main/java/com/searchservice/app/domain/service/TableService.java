@@ -29,6 +29,8 @@ import com.searchservice.app.infrastructure.adaptor.SearchClientAdapter;
 @Transactional
 public class TableService implements TableServicePort {
 
+	private static final String MICROSERVICE_INTERACT_ISSUE = "Couldn't interact with Ingress microservice to retrieve current schema details";
+	
 	private final Logger logger = LoggerFactory.getLogger(TableService.class);
 
 	@Value("${base-microservice-url}")
@@ -50,7 +52,7 @@ public class TableService implements TableServicePort {
 		logger.debug("Get current table schema from Ingress microservice");
 
 		GetCurrentSchemaUtil getCurrentSchema = extracted(tableName, tenantId);
-		GetCurrentSchemaUtil.GetCurrentSchemaUtilResponse response = getCurrentSchema.get(getTokenHeaderForIngress(request));
+		GetCurrentSchemaUtil.GetCurrentSchemaUtilResponse response = getCurrentSchema.getTable(getTokenHeaderForIngress(request));
 
 		String responseString = response.getResponseString();
 
@@ -61,15 +63,18 @@ public class TableService implements TableServicePort {
 	public IngressSchemaResponse getCurrentTableSchema(String tableName, int tenantId) {
 		logger.debug("Get current table schema from Ingress microservice");
 		GetCurrentSchemaUtil getCurrentSchema = extracted(tableName, tenantId);
-		GetCurrentSchemaUtil.GetCurrentSchemaUtilResponse response = getCurrentSchema.get(getTokenHeaderForIngress(request));
+		GetCurrentSchemaUtil.GetCurrentSchemaUtilResponse response = getCurrentSchema.getTable(getTokenHeaderForIngress(request));
 
 		String responseString = response.getResponseString();
+		if(responseString.isEmpty())
+			response.setMessage(MICROSERVICE_INTERACT_ISSUE);
+
 		JSONArray jsonArray = getCurrentSchema.getCurrentSchemaDetails(responseString);
+
 		return new IngressSchemaResponse(jsonArray, response.getMessage());
 	}
 
 	private GetCurrentSchemaUtil extracted(String tableName, int clientId) {
-
 		getCurrentSchemaUtil.setBaseIngressMicroserviceUrl(baseIngressMicroserviceUrl + getTableUrl);
 		getCurrentSchemaUtil.setTableName(tableName);
 		getCurrentSchemaUtil.setTenantId(clientId);
