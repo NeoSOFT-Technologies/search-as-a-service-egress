@@ -70,29 +70,10 @@ public class SearchService implements SearchServicePort {
 			throw new CustomException(HttpStatusCode.NULL_POINTER_EXCEPTION.getCode(), 
 					HttpStatusCode.NULL_POINTER_EXCEPTION, HttpStatusCode.NULL_POINTER_EXCEPTION.getMessage());
 		
-		if(isMicroserviceDown && searchResponseDTO.getStatusCode() == 200) {
-			if(!currentTableSchemaResponse.getMessage().isEmpty())
-				searchResponseDTO.setMessage(
-						searchResponseDTO.getMessage()
-						+". "+currentTableSchemaResponse.getMessage()+VERIFICATION_INCOMPLETE_MESSAGE);
-			else
-				searchResponseDTO.setMessage(
-						searchResponseDTO.getMessage()
-						+". "+INGRESS_MICROSERVICE_INTERACT+VERIFICATION_INCOMPLETE_MESSAGE);
-			return searchResponseDTO;
-		} else if (searchResponseDTO.getStatusCode() == 200) {
-			searchResponseDTO.setStatus(HttpStatus.OK);
-			return searchResponseDTO;
-		} else if (searchResponseDTO.getStatusCode() == HttpStatusCode.REQUEST_FORBIDDEN.getCode()) {
-			throw new CustomException(HttpStatusCode.BAD_REQUEST_EXCEPTION.getCode(), HttpStatusCode.BAD_REQUEST_EXCEPTION, HttpStatusCode.BAD_REQUEST_EXCEPTION.getMessage());
-		} else if (searchResponseDTO.getStatusCode() == HttpStatusCode.SERVER_UNAVAILABLE.getCode()) {
-			return searchResponseDTO;
-		} else {
-			throw new CustomException(searchResponseDTO.getStatusCode(), HttpStatusCode.getHttpStatus(searchResponseDTO.getStatusCode()),
-					searchResponseDTO.getMessage());
-		}
+		return prepareSearchResponse(isMicroserviceDown, currentTableSchemaResponse);
 
 	}
+
 
 	@Override
 	public SearchResponse searchField(int tenantId, String tableName, String queryField, String queryFieldSearchTerm,
@@ -117,6 +98,12 @@ public class SearchService implements SearchServicePort {
 			throw new CustomException(HttpStatusCode.NULL_POINTER_EXCEPTION.getCode(), 
 					HttpStatusCode.NULL_POINTER_EXCEPTION, HttpStatusCode.NULL_POINTER_EXCEPTION.getMessage());
 		
+		return prepareSearchResponse(isMicroserviceDown, currentTableSchemaResponse);
+
+	}
+	
+	
+	private SearchResponse prepareSearchResponse(boolean isMicroserviceDown, IngressSchemaResponse currentTableSchemaResponse) {
 		if(isMicroserviceDown && searchResponseDTO.getStatusCode() == 200) {
 			if(!currentTableSchemaResponse.getMessage().isEmpty())
 				searchResponseDTO.setMessage(
@@ -125,7 +112,7 @@ public class SearchService implements SearchServicePort {
 			else
 				searchResponseDTO.setMessage(
 						searchResponseDTO.getMessage()
-						+INGRESS_MICROSERVICE_INTERACT+VERIFICATION_INCOMPLETE_MESSAGE);
+						+". "+INGRESS_MICROSERVICE_INTERACT+VERIFICATION_INCOMPLETE_MESSAGE);
 			return searchResponseDTO;
 		} else if (searchResponseDTO.getStatusCode() == 200) {
 			searchResponseDTO.setStatus(HttpStatus.OK);
@@ -138,7 +125,6 @@ public class SearchService implements SearchServicePort {
 			throw new CustomException(searchResponseDTO.getStatusCode(), HttpStatusCode.getHttpStatus(searchResponseDTO.getStatusCode()),
 					searchResponseDTO.getMessage());
 		}
-
 	}
 
 }

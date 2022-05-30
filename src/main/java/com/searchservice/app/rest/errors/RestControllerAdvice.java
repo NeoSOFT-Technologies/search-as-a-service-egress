@@ -74,51 +74,9 @@ public class RestControllerAdvice {
 							String.format(HttpStatusCode.UNRECOGNIZED_FIELD.getMessage(), fieldName)),
 					HttpStatus.BAD_REQUEST);
 		} else if (exception.getCause() instanceof InvalidFormatException) {
-			InvalidFormatException ex = (InvalidFormatException) exception.getCause();
-			if (ex.getPath() != null && !ex.getPath().isEmpty()) {
-				JsonMappingException.Reference path = ex.getPath().get(ex.getPath().size() - 1);
-				fieldName = (null != path) ? path.getFieldName() : "";
-			}
-			String value = (null != ex.getValue()) ? ex.getValue().toString() : "";
-
-			if(!fieldName.isEmpty() && !value.isEmpty())
-				return new ResponseEntity<>(
-						new RestApiErrorHandling(
-								HttpStatusCode.INVALID_FIELD_VALUE.getCode(),
-								HttpStatusCode.INVALID_FIELD_VALUE,
-								String.format(HttpStatusCode.INVALID_FIELD_VALUE.getMessage(), fieldName, value)),
-						HttpStatus.BAD_REQUEST);
-			else
-				return frameRestApiException(
-						new RestApiError(HttpStatus.EXPECTATION_FAILED, "Invalid input format"));
-
+			return handleInvalidFormatException(exception, fieldName);
 		} else if (exception.getCause() instanceof JsonMappingException) {
-
-			JsonMappingException jsonMappingException = (JsonMappingException)exception.getCause();
-			if(jsonMappingException.getCause() instanceof JsonParseException) {
-				return new ResponseEntity<>(
-						new RestApiErrorHandling(
-								HttpStatusCode.JSON_PARSE_EXCEPTION.getCode(), 
-								HttpStatusCode.JSON_PARSE_EXCEPTION, 
-								HttpStatusCode.JSON_PARSE_EXCEPTION.getMessage() +". Check the input json format/value and try again"), 
-						HttpStatus.BAD_REQUEST);
-			} else {
-
-				CustomException customException = (CustomException)jsonMappingException.getCause();
-				if(jsonMappingException.getCause() instanceof CustomException) {
-					
-					return new ResponseEntity<>(
-							new RestApiErrorHandling(
-									customException.getExceptionCode(), 
-									customException.getStatus(), 
-									HttpStatusCode.INVALID_JSON_INPUT.getMessage() +" : "+ customException.getExceptionMessage()), 
-							HttpStatus.BAD_REQUEST);
-				} else {
-					return new ResponseEntity<>(new RestApiErrorHandling(
-							HttpStatusCode.INVALID_JSON_INPUT.getCode(), HttpStatusCode.INVALID_JSON_INPUT,
-							HttpStatusCode.INVALID_JSON_INPUT.getMessage()), HttpStatus.BAD_REQUEST);
-				}
-			}
+			return handleJsonMappingException(exception);
 		} else {
 			return new ResponseEntity<>(new RestApiErrorHandling(
 					HttpStatusCode.INVALID_JSON_INPUT.getCode(), HttpStatusCode.INVALID_JSON_INPUT,
@@ -148,4 +106,54 @@ public class RestControllerAdvice {
 						String.format(HttpStatusCode.INVALID_TYPE.getMessage(), fieldName, requiredType)),
 				HttpStatus.BAD_REQUEST);
 	}
+
+	// Utility methods
+	private ResponseEntity<Object> handleInvalidFormatException(HttpMessageNotReadableException exception, String fieldName) {
+		InvalidFormatException ex = (InvalidFormatException) exception.getCause();
+		if (ex.getPath() != null && !ex.getPath().isEmpty()) {
+			JsonMappingException.Reference path = ex.getPath().get(ex.getPath().size() - 1);
+			fieldName = (null != path) ? path.getFieldName() : "";
+		}
+		String value = (null != ex.getValue()) ? ex.getValue().toString() : "";
+
+		if(!fieldName.isEmpty() && !value.isEmpty())
+			return new ResponseEntity<>(
+					new RestApiErrorHandling(
+							HttpStatusCode.INVALID_FIELD_VALUE.getCode(),
+							HttpStatusCode.INVALID_FIELD_VALUE,
+							String.format(HttpStatusCode.INVALID_FIELD_VALUE.getMessage(), fieldName, value)),
+					HttpStatus.BAD_REQUEST);
+		else
+			return frameRestApiException(
+					new RestApiError(HttpStatus.EXPECTATION_FAILED, "Invalid input format"));
+	}
+
+	private ResponseEntity<Object> handleJsonMappingException(HttpMessageNotReadableException exception) {
+		JsonMappingException jsonMappingException = (JsonMappingException)exception.getCause();
+		if(jsonMappingException.getCause() instanceof JsonParseException) {
+			return new ResponseEntity<>(
+					new RestApiErrorHandling(
+							HttpStatusCode.JSON_PARSE_EXCEPTION.getCode(), 
+							HttpStatusCode.JSON_PARSE_EXCEPTION, 
+							HttpStatusCode.JSON_PARSE_EXCEPTION.getMessage() +". Check the input json format/value and try again"), 
+					HttpStatus.BAD_REQUEST);
+		} else {
+
+			CustomException customException = (CustomException)jsonMappingException.getCause();
+			if(jsonMappingException.getCause() instanceof CustomException) {
+				
+				return new ResponseEntity<>(
+						new RestApiErrorHandling(
+								customException.getExceptionCode(), 
+								customException.getStatus(), 
+								HttpStatusCode.INVALID_JSON_INPUT.getMessage() +" : "+ customException.getExceptionMessage()), 
+						HttpStatus.BAD_REQUEST);
+			} else {
+				return new ResponseEntity<>(new RestApiErrorHandling(
+						HttpStatusCode.INVALID_JSON_INPUT.getCode(), HttpStatusCode.INVALID_JSON_INPUT,
+						HttpStatusCode.INVALID_JSON_INPUT.getMessage()), HttpStatus.BAD_REQUEST);
+			}
+		}
+	}
+	
 }
