@@ -53,6 +53,7 @@ public class GetCurrentSchemaUtil {
 				Response response = client.newCall(request).execute();
 				String responseBody = response.body().string();
 				if(!checkIsRequestValid(responseBody)) {
+					log.info("Table Retrieved Successfully");
 					return new GetCurrentSchemaUtilResponse(true, "Table Retrieved Successfully!",responseBody);
 				}else {
 					log.error(MICROSERVICE_INTERACT_ISSUE);

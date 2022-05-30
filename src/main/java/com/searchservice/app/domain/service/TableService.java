@@ -51,7 +51,7 @@ public class TableService implements TableServicePort {
 	public List<String> getCurrentTableSchemaColumns(String tableName, int tenantId) {
 		logger.debug("Get current table schema from Ingress microservice");
 
-		GetCurrentSchemaUtil getCurrentSchema = extracted(tableName, tenantId);
+		GetCurrentSchemaUtil getCurrentSchema = getCurrentSchemaUtilSetter(tableName, tenantId);
 		GetCurrentSchemaUtil.GetCurrentSchemaUtilResponse response = getCurrentSchema.getTable(getTokenHeaderForIngress(request));
 
 		String responseString = response.getResponseString();
@@ -62,7 +62,7 @@ public class TableService implements TableServicePort {
 	@Override
 	public IngressSchemaResponse getCurrentTableSchema(String tableName, int tenantId) {
 		logger.debug("Get current table schema from Ingress microservice");
-		GetCurrentSchemaUtil getCurrentSchema = extracted(tableName, tenantId);
+		GetCurrentSchemaUtil getCurrentSchema = getCurrentSchemaUtilSetter(tableName, tenantId);
 		GetCurrentSchemaUtil.GetCurrentSchemaUtilResponse response = getCurrentSchema.getTable(getTokenHeaderForIngress(request));
 
 		String responseString = response.getResponseString();
@@ -74,7 +74,7 @@ public class TableService implements TableServicePort {
 		return new IngressSchemaResponse(jsonArray, response.getMessage());
 	}
 
-	private GetCurrentSchemaUtil extracted(String tableName, int clientId) {
+	private GetCurrentSchemaUtil getCurrentSchemaUtilSetter(String tableName, int clientId) {
 		getCurrentSchemaUtil.setBaseIngressMicroserviceUrl(baseIngressMicroserviceUrl + getTableUrl);
 		getCurrentSchemaUtil.setTableName(tableName);
 		getCurrentSchemaUtil.setTenantId(clientId);

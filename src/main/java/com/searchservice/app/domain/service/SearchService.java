@@ -22,6 +22,8 @@ import com.searchservice.app.rest.errors.HttpStatusCode;
 @Service
 @Transactional
 public class SearchService implements SearchServicePort {
+	private static final String INGRESS_MICROSERVICE_INTERACT = "Couldn't interact with Ingress microservice";
+
 	private static final String VERIFICATION_INCOMPLETE_MESSAGE = ", so 'multiValue' query-field verification incomplete";
 
 	private final Logger logger = LoggerFactory.getLogger(SearchService.class);
@@ -52,8 +54,10 @@ public class SearchService implements SearchServicePort {
 				.getCurrentTableSchemaColumns(tableName.split("_")[0], tenantId);
 		IngressSchemaResponse currentTableSchemaResponse = tableService.getCurrentTableSchema(tableName.split("_")[0], tenantId);
 		JSONArray currentTableSchema = currentTableSchemaResponse.getJsonArray();
-		if (currentTableSchema == null || currentTableSchema.isEmpty())
+		
+		if (currentTableSchema == null || currentTableSchema.isEmpty()) {
 			isMicroserviceDown = true;
+		}
 
 		// Search documents
 		searchResponseDTO = searchRecordsServicePort.setUpSelectQuerySearchViaQuery(
@@ -74,7 +78,7 @@ public class SearchService implements SearchServicePort {
 			else
 				searchResponseDTO.setMessage(
 						searchResponseDTO.getMessage()
-						+". Couldn't interact with Ingress microservice"+VERIFICATION_INCOMPLETE_MESSAGE);
+						+". "+INGRESS_MICROSERVICE_INTERACT+VERIFICATION_INCOMPLETE_MESSAGE);
 			return searchResponseDTO;
 		} else if (searchResponseDTO.getStatusCode() == 200) {
 			searchResponseDTO.setStatus(HttpStatus.OK);
@@ -121,7 +125,7 @@ public class SearchService implements SearchServicePort {
 			else
 				searchResponseDTO.setMessage(
 						searchResponseDTO.getMessage()
-						+". Couldn't interact with Ingress microservice"+VERIFICATION_INCOMPLETE_MESSAGE);
+						+INGRESS_MICROSERVICE_INTERACT+VERIFICATION_INCOMPLETE_MESSAGE);
 			return searchResponseDTO;
 		} else if (searchResponseDTO.getStatusCode() == 200) {
 			searchResponseDTO.setStatus(HttpStatus.OK);
