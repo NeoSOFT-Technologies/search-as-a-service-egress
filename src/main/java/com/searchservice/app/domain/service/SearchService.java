@@ -65,6 +65,7 @@ public class SearchService implements SearchServicePort {
 		if (searchResponseDTO == null)
 			throw new CustomException(HttpStatusCode.NULL_POINTER_EXCEPTION.getCode(), 
 					HttpStatusCode.NULL_POINTER_EXCEPTION, HttpStatusCode.NULL_POINTER_EXCEPTION.getMessage());
+		
 		if(isMicroserviceDown && searchResponseDTO.getStatusCode() == 200) {
 			if(!currentTableSchemaResponse.getMessage().isEmpty())
 				searchResponseDTO.setMessage(
@@ -73,7 +74,7 @@ public class SearchService implements SearchServicePort {
 			else
 				searchResponseDTO.setMessage(
 						searchResponseDTO.getMessage()
-						+". Couldn't interact with Ingress microservice, so 'multiValue' query-field verification incomplete");
+						+". Couldn't interact with Ingress microservice"+VERIFICATION_INCOMPLETE_MESSAGE);
 			return searchResponseDTO;
 		} else if (searchResponseDTO.getStatusCode() == 200) {
 			searchResponseDTO.setStatus(HttpStatus.OK);
@@ -111,15 +112,16 @@ public class SearchService implements SearchServicePort {
 		if (searchResponseDTO == null)
 			throw new CustomException(HttpStatusCode.NULL_POINTER_EXCEPTION.getCode(), 
 					HttpStatusCode.NULL_POINTER_EXCEPTION, HttpStatusCode.NULL_POINTER_EXCEPTION.getMessage());
+		
 		if(isMicroserviceDown && searchResponseDTO.getStatusCode() == 200) {
 			if(!currentTableSchemaResponse.getMessage().isEmpty())
 				searchResponseDTO.setMessage(
 						searchResponseDTO.getMessage()
-						+". "+currentTableSchemaResponse.getMessage()+", so 'multiValue' query-field verification incomplete; will be treated as single-valued for now");
+						+". "+currentTableSchemaResponse.getMessage()+VERIFICATION_INCOMPLETE_MESSAGE);
 			else
 				searchResponseDTO.setMessage(
 						searchResponseDTO.getMessage()
-						+". Couldn't interact with Ingress microservice, so 'multiValue' query-field verification incomplete; will be treated as single-valued for now");
+						+". Couldn't interact with Ingress microservice"+VERIFICATION_INCOMPLETE_MESSAGE);
 			return searchResponseDTO;
 		} else if (searchResponseDTO.getStatusCode() == 200) {
 			searchResponseDTO.setStatus(HttpStatus.OK);
