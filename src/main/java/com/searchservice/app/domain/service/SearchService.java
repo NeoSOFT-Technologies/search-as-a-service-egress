@@ -22,6 +22,10 @@ import com.searchservice.app.rest.errors.HttpStatusCode;
 @Service
 @Transactional
 public class SearchService implements SearchServicePort {
+	private static final String INGRESS_MICROSERVICE_INTERACT = "Couldn't interact with Ingress microservice";
+
+	private static final String VERIFICATION_INCOMPLETE_MESSAGE = ", so 'multiValue' query-field verification incomplete";
+
 	private final Logger logger = LoggerFactory.getLogger(SearchService.class);
 
 	ZonedDateTime utc = ZonedDateTime.now(ZoneOffset.UTC);
@@ -39,35 +43,37 @@ public class SearchService implements SearchServicePort {
 	}
 
 
-
 	@Override
 	public SearchResponse searchQuery(int tenantId, String tableName, String searchQuery, String startRecord,
 			String pageSize, String sortTag, String sortOrder) {
 		logger.debug("Query search for the given table");
 
-
-
 		// Get Current Table Schema (communicating with SAAS Microservice)
-		List<String> currentListOfColumnsOfTableSchema = tableService.getCurrentTableSchemaColumns(tableName.split("_")[0], tenantId);
+		boolean isMicroserviceDown = false;
+		List<String> currentListOfColumnsOfTableSchema = tableService
+				.getCurrentTableSchemaColumns(tableName.split("_")[0], tenantId);
+		IngressSchemaResponse currentTableSchemaResponse = tableService.getCurrentTableSchema(tableName.split("_")[0], tenantId);
+		JSONArray currentTableSchema = currentTableSchemaResponse.getJsonArray();
+		
+		if (currentTableSchema == null || currentTableSchema.isEmpty()) {
+			isMicroserviceDown = true;
+		}
+
+		// Search documents
 		searchResponseDTO = searchRecordsServicePort.setUpSelectQuerySearchViaQuery(
 				currentListOfColumnsOfTableSchema, 
 				tableName, 
 				searchQuery, 
 				startRecord, pageSize, sortTag, sortOrder);
 
+		if (searchResponseDTO == null)
+			throw new CustomException(HttpStatusCode.NULL_POINTER_EXCEPTION.getCode(), 
+					HttpStatusCode.NULL_POINTER_EXCEPTION, HttpStatusCode.NULL_POINTER_EXCEPTION.getMessage());
+		
+		return prepareSearchResponse(isMicroserviceDown, currentTableSchemaResponse);
 
-		if (searchResponseDTO == null) {
-			throw new CustomException(HttpStatusCode.NULL_POINTER_EXCEPTION.getCode(),HttpStatusCode.NULL_POINTER_EXCEPTION, 
-					HttpStatusCode.NULL_POINTER_EXCEPTION.getMessage());
-		} else if (searchResponseDTO.getStatusCode() == 200) {
-			return searchResponseDTO;
-		} else if (searchResponseDTO.getStatusCode() == HttpStatusCode.SERVER_UNAVAILABLE.getCode()) {
-			return searchResponseDTO;
-		} else {
-			throw new CustomException(searchResponseDTO.getStatusCode(), HttpStatusCode.getHttpStatus(searchResponseDTO.getStatusCode()),
-					searchResponseDTO.getMessage());
-		}
 	}
+
 
 	@Override
 	public SearchResponse searchField(int tenantId, String tableName, String queryField, String queryFieldSearchTerm,
@@ -80,7 +86,7 @@ public class SearchService implements SearchServicePort {
 				.getCurrentTableSchemaColumns(tableName.split("_")[0], tenantId);
 		IngressSchemaResponse currentTableSchemaResponse = tableService.getCurrentTableSchema(tableName.split("_")[0], tenantId);
 		JSONArray currentTableSchema = currentTableSchemaResponse.getJsonArray();
-		if (currentTableSchema.isEmpty())
+		if (currentTableSchema == null || currentTableSchema.isEmpty())
 			isMicroserviceDown = true;
 
 		// Search documents
@@ -88,20 +94,27 @@ public class SearchService implements SearchServicePort {
 				currentListOfColumnsOfTableSchema, currentTableSchema, tableName, queryField, queryFieldSearchTerm,
 				startRecord, pageSize, sortTag, sortOrder);
 
+		if (searchResponseDTO == null)
+			throw new CustomException(HttpStatusCode.NULL_POINTER_EXCEPTION.getCode(), 
+					HttpStatusCode.NULL_POINTER_EXCEPTION, HttpStatusCode.NULL_POINTER_EXCEPTION.getMessage());
+		
+		return prepareSearchResponse(isMicroserviceDown, currentTableSchemaResponse);
+
+	}
+	
+	
+	private SearchResponse prepareSearchResponse(boolean isMicroserviceDown, IngressSchemaResponse currentTableSchemaResponse) {
 		if(isMicroserviceDown && searchResponseDTO.getStatusCode() == 200) {
 			if(!currentTableSchemaResponse.getMessage().isEmpty())
 				searchResponseDTO.setMessage(
 						searchResponseDTO.getMessage()
-						+". "+currentTableSchemaResponse.getMessage()+", so 'multiValue' query-field verification incomplete; will be treated as single-valued for now");
+						+". "+currentTableSchemaResponse.getMessage()+VERIFICATION_INCOMPLETE_MESSAGE);
 			else
 				searchResponseDTO.setMessage(
 						searchResponseDTO.getMessage()
-						+". Couldn't interact with Ingress microservice, so 'multiValue' query-field verification incomplete; will be treated as single-valued for now");
-		}	
-		if (searchResponseDTO == null)
-			throw new CustomException(HttpStatusCode.NULL_POINTER_EXCEPTION.getCode(), 
-					HttpStatusCode.NULL_POINTER_EXCEPTION, HttpStatusCode.NULL_POINTER_EXCEPTION.getMessage());
-		else if (searchResponseDTO.getStatusCode() == 200) {
+						+". "+INGRESS_MICROSERVICE_INTERACT+VERIFICATION_INCOMPLETE_MESSAGE);
+			return searchResponseDTO;
+		} else if (searchResponseDTO.getStatusCode() == 200) {
 			searchResponseDTO.setStatus(HttpStatus.OK);
 			return searchResponseDTO;
 		} else if (searchResponseDTO.getStatusCode() == HttpStatusCode.REQUEST_FORBIDDEN.getCode()) {
@@ -112,7 +125,6 @@ public class SearchService implements SearchServicePort {
 			throw new CustomException(searchResponseDTO.getStatusCode(), HttpStatusCode.getHttpStatus(searchResponseDTO.getStatusCode()),
 					searchResponseDTO.getMessage());
 		}
-
 	}
 
 }

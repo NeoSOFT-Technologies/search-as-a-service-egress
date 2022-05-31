@@ -24,11 +24,25 @@ import lombok.NoArgsConstructor;
 public class GetCurrentSchemaUtil {
 	
 	private final Logger log = LoggerFactory.getLogger(GetCurrentSchemaUtil.class);	
-	private static final String MICROSERVICE_INTERACT_ISSUE = "Couldn't interact with Ingress microservice to retrieve current schema details!";
+	private static final String MICROSERVICE_INTERACT_ISSUE = "Couldn't interact with Ingress microservice to retrieve current schema details";
 	private String baseIngressMicroserviceUrl;
 	private String tableName;
 	private int tenantId;
-	public GetCurrentSchemaUtilResponse get(String tokenHeaderForIngress) {
+	
+	@Data
+	public static class GetCurrentSchemaUtilResponse {
+		boolean isTableRetrieved;
+		String message;
+		String responseString;
+
+		public GetCurrentSchemaUtilResponse(boolean isTableRetrieved, String message, String responseString) {
+			this.isTableRetrieved = isTableRetrieved;
+			this.message = message;
+			this.responseString = responseString;
+		}
+	}
+	
+	public GetCurrentSchemaUtilResponse getTable(String tokenHeaderForIngress) {
 
 			OkHttpClient client = new OkHttpClient();
 			String url = baseIngressMicroserviceUrl + "/" + tableName + "?tenantId=" + tenantId;
@@ -39,6 +53,7 @@ public class GetCurrentSchemaUtil {
 				Response response = client.newCall(request).execute();
 				String responseBody = response.body().string();
 				if(!checkIsRequestValid(responseBody)) {
+					log.info("Table Retrieved Successfully");
 					return new GetCurrentSchemaUtilResponse(true, "Table Retrieved Successfully!",responseBody);
 				}else {
 					log.error(MICROSERVICE_INTERACT_ISSUE);
@@ -61,19 +76,6 @@ public class GetCurrentSchemaUtil {
 					HttpStatusCode.UNDER_DELETION_PROCESS, responseObject.getString("message"));
 		}
 		return isRequestValid;
-	}
-
-	@Data
-	public static class GetCurrentSchemaUtilResponse {
-		boolean isTableRetrieved;
-		String message;
-		String responseString;
-
-		public GetCurrentSchemaUtilResponse(boolean isTableRetrieved, String message, String responseString) {
-			this.isTableRetrieved = isTableRetrieved;
-			this.message = message;
-			this.responseString = responseString;
-		}
 	}
 
 	public List<String> getCurrentSchemaColumns(String response) {
@@ -105,9 +107,9 @@ public class GetCurrentSchemaUtil {
 			return (JSONArray) data.get("columns");
 
 		} catch (Exception err) {
-			log.error(err.toString());
+			log.error("JSON parse error: {}", err.toString());
 		}
-		return new JSONArray();
+		return null;
 	}
 	
 }

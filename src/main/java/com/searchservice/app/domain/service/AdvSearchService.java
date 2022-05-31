@@ -80,10 +80,12 @@ public class AdvSearchService implements AdvSearchServicePort {
 		boolean isQueryFieldValidated = SearchUtil.checkIfNameIsAlphaNumeric(queryField.trim()) || queryField.trim().equals("*");
 		if(!isQueryFieldValidated)
 			throw new CustomException(HttpStatusCode.INVALID_QUERY_FIELD.getCode(),HttpStatusCode.INVALID_QUERY_FIELD,HttpStatusCode.OPERATION_NOT_ALLOWED.getMessage());
-		// VALIDATE queryField & searchTerm
-		boolean isQueryFieldMultivalued = SearchUtil.isQueryFieldMultivalued(
-				queryField, 
-				currentTableSchema);
+		// VALIDATE queryField & searchTerm for multiValue
+		boolean isQueryFieldMultivalued = false;
+		if(currentTableSchema != null)
+			isQueryFieldMultivalued = SearchUtil.isQueryFieldMultivalued(
+					queryField, 
+					currentTableSchema);
 		
 		// Set up query
 		StringBuilder queryString = new StringBuilder();

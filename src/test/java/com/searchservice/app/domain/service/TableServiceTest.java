@@ -79,7 +79,7 @@ class TableServiceTest {
 	public void setMockitoSucccessResponseForService() {
 		getCurrentSchemaUtilResponse = new GetCurrentSchemaUtilResponse(true, message, "book");
 		JSONArray jarray = jobj.getJSONArray("books");
-		Mockito.when(getCurrentSchemaUtil.get(Mockito.anyString())).thenReturn(getCurrentSchemaUtilResponse);
+		Mockito.when(getCurrentSchemaUtil.getTable(Mockito.anyString())).thenReturn(getCurrentSchemaUtilResponse);
 		Mockito.when(getCurrentSchemaUtil.getCurrentSchemaColumns(Mockito.any()))
 				.thenReturn(new LinkedList<>(List.of("book")));
 		Mockito.when(getCurrentSchemaUtil.getCurrentSchemaDetails(Mockito.any())).thenReturn(jarray);
