@@ -1,4 +1,5 @@
 FROM gradle:jdk11 AS TEMP_BUILD_IMAGE
+ENV JAVA_HOME=/opt/java/openjdk
 ENV APP_HOME=/usr/app/
 WORKDIR $APP_HOME
 COPY build.gradle settings.gradle $APP_HOME
