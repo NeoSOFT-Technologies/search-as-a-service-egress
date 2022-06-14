@@ -127,7 +127,7 @@ basic-auth:
   
 #================================================================
 #Sync with soft delete schema in microservice
-base-microservice-url: http://0.0.0.0:8083
+base-microservice-url: http://search-as-service-service:8083
 microservice-url:
   get-table: /api/v1/manage/table
   user-token: /user/token
