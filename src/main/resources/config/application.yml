@@ -133,8 +133,12 @@ basic-auth:
 
 
 #================================================================
-#Sync with soft delete schema in microservice
-base-microservice-url: http://ssi-container:8083
+#Ingress microservice communication config
+base-microservice-url: http://search-as-service-service:8083
+#localhost communication: http://localhost:8083
+#docker-container communication: http://ssi-container:8083
+#codex-kubernetes communication: http://search-as-service-service:8083
+
 microservice-url:
   get-table: /api/v1/manage/table
   user-token: /user/token
