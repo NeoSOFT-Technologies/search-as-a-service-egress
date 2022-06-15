@@ -55,10 +55,15 @@ public class SearchService implements SearchServicePort {
 		IngressSchemaResponse currentTableSchemaResponse = tableService.getCurrentTableSchema(tableName.split("_")[0], tenantId);
 		JSONArray currentTableSchema = currentTableSchemaResponse.getJsonArray();
 		
-		if (currentTableSchema == null || currentTableSchema.isEmpty()) {
-			isMicroserviceDown = true;
+		if (currentTableSchema == null || currentTableSchema.isEmpty()) 
+		{
+		
+				throw new CustomException(HttpStatusCode.SERVER_UNAVAILABLE.getCode(), 
+					HttpStatusCode.SERVER_UNAVAILABLE, INGRESS_MICROSERVICE_INTERACT);
 		}
-
+			
+		else
+		{
 		// Search documents
 		searchResponseDTO = searchRecordsServicePort.setUpSelectQuerySearchViaQuery(
 				currentListOfColumnsOfTableSchema, 
@@ -70,8 +75,11 @@ public class SearchService implements SearchServicePort {
 			throw new CustomException(HttpStatusCode.NULL_POINTER_EXCEPTION.getCode(), 
 					HttpStatusCode.NULL_POINTER_EXCEPTION, HttpStatusCode.NULL_POINTER_EXCEPTION.getMessage());
 		
+		
+		}
+			
+		
 		return prepareSearchResponse(isMicroserviceDown, currentTableSchemaResponse);
-
 	}
 
 
@@ -87,8 +95,14 @@ public class SearchService implements SearchServicePort {
 		IngressSchemaResponse currentTableSchemaResponse = tableService.getCurrentTableSchema(tableName.split("_")[0], tenantId);
 		JSONArray currentTableSchema = currentTableSchemaResponse.getJsonArray();
 		if (currentTableSchema == null || currentTableSchema.isEmpty())
-			isMicroserviceDown = true;
-
+		{
+			
+				throw new CustomException(HttpStatusCode.SERVER_UNAVAILABLE.getCode(), 
+					HttpStatusCode.SERVER_UNAVAILABLE, INGRESS_MICROSERVICE_INTERACT);
+		}
+		
+		else
+		{
 		// Search documents
 		searchResponseDTO = searchRecordsServicePort.setUpSelectQuerySearchViaQueryField(
 				currentListOfColumnsOfTableSchema, currentTableSchema, tableName, queryField, queryFieldSearchTerm,
@@ -98,8 +112,10 @@ public class SearchService implements SearchServicePort {
 			throw new CustomException(HttpStatusCode.NULL_POINTER_EXCEPTION.getCode(), 
 					HttpStatusCode.NULL_POINTER_EXCEPTION, HttpStatusCode.NULL_POINTER_EXCEPTION.getMessage());
 		
+	
+		}
+			
 		return prepareSearchResponse(isMicroserviceDown, currentTableSchemaResponse);
-
 	}
 	
 	
