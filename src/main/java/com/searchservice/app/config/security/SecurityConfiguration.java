@@ -10,21 +10,21 @@ import org.springframework.security.config.annotation.web.configuration.WebSecur
 import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 
-import com.searchservice.app.config.AuthConfigProperties;
 import com.searchservice.app.domain.filter.JwtTokenAuthorizationFilter;
 import com.searchservice.app.domain.service.PublicKeyService;
+import com.searchservice.app.domain.service.security.KeycloakPermissionManagementService;
 
 @Configuration
 @EnableWebSecurity
 @EnableGlobalMethodSecurity(prePostEnabled = true)
 public class SecurityConfiguration extends WebSecurityConfigurerAdapter{
-	
-	@Autowired 
-	AuthConfigProperties authConfigProperties;
-	
+
 	@Autowired
 	private PublicKeyService publicKeyService;
 
+	@Autowired
+	private KeycloakPermissionManagementService kpmService;
+	
     @Override
 	public void configure(WebSecurity web) throws Exception {
     	web.ignoring().antMatchers("/user/token").antMatchers("/v3/api-docs/**").antMatchers("/swagger-ui/**").antMatchers("/test/**");
@@ -42,7 +42,7 @@ public class SecurityConfiguration extends WebSecurityConfigurerAdapter{
                 .and();
         
 		// Add JWT token filter
-		http.addFilterBefore(new JwtTokenAuthorizationFilter(authConfigProperties, publicKeyService),
+		http.addFilterBefore(new JwtTokenAuthorizationFilter(kpmService, publicKeyService),
 				UsernamePasswordAuthenticationFilter.class);
 
     }

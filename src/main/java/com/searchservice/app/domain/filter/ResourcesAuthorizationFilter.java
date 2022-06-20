@@ -23,6 +23,7 @@ public class ResourcesAuthorizationFilter extends OncePerRequestFilter {
 	private final Logger log = LoggerFactory.getLogger(ResourcesAuthorizationFilter.class);
 	
 	private ObjectMapper mapper = new ObjectMapper();
+	
 	@Autowired
 	private KeycloakPermissionManagementService keycloakPermissionManagementService;
 	
@@ -44,7 +45,8 @@ public class ResourcesAuthorizationFilter extends OncePerRequestFilter {
 		log.info("[JwtTokenFilterService][doFilterInternal] Token Value : {}", token);
 
 		keycloakPermissionManagementService.validateAndSetActiveUserAuthorities(token);
-
+		keycloakPermissionManagementService.getRealmNameFromToken(token);
+		
 		chain.doFilter(request, response);
 
 	}
