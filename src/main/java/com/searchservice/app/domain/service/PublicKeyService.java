@@ -53,8 +53,8 @@ public class PublicKeyService implements PublicKeyServicePort{
 		
 		try {
 			log.debug("Obtaining Public Key Value For Realm: {}",realmName);
-			ResponseEntity<String> result = restTemplate.getForEntity(authConfigProperties.getKeyUrl()
-					+ realmName, String.class);
+			ResponseEntity<String> result = restTemplate.getForEntity(
+					authConfigProperties.getKeyUrl() + realmName, String.class);
 			JSONObject obj = new JSONObject(result.getBody());
 			if (obj.has("public_key")) {
 				publicKey = obj.getString("public_key");
@@ -72,13 +72,11 @@ public class PublicKeyService implements PublicKeyServicePort{
 		boolean isPublicKeyPresent = false;
 		String realmName = authConfigProperties.getRealmName();
 	    cache = cacheManager.getCache("${cache-name}");
-	    if(cache!=null && cache.get(authConfigProperties.getRealmName())!=null) {
+	    if(cache!=null && cache.get(realmName)!=null) {
 				log.debug("Public Key Found in Cache For Realm: {}",realmName);
 				updatePublicKey(realmName);
 				isPublicKeyPresent = true;
 	    }
 		return isPublicKeyPresent;
 	}
-	
-	
 }

@@ -2,6 +2,7 @@ package com.searchservice.app.rest.errors;
 
 public enum HttpStatusCode {
 
+	// With Custom Error Status Code
 	INVALID_JSON_INPUT(105,"invalid json input or json format"),
 	
 	UNRECOGNIZED_FIELD(106,"Unrecognized Field : {}"), 
@@ -20,6 +21,11 @@ public enum HttpStatusCode {
 	
 	INVALID_QUERY_FIELD(118, "Query-field validation unsuccessful. Query-field entry can only be in alphanumeric format"), 
     
+	SAAS_SERVER_ERROR(119, "This feature is currently down. Try again later"), 
+	
+	INVALID_CREDENTIALS(121, "Invalid credentials provided"), 
+	
+	// With Primitive Error Status Code
 	BAD_REQUEST_EXCEPTION(400,"Bad Request call made. "), 
     
 	REQUEST_FORBIDDEN(403, "requested resource is forbidden"),

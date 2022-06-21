@@ -115,7 +115,7 @@ import com.searchservice.app.rest.errors.HttpStatusCode;
 		userDTO.setPassword(password+"p0");
 		setMockitoExceptionResponse();
 		Response tokenResponse = userService.getToken(userDTO);
-		assertEquals(HttpStatusCode.BAD_REQUEST_EXCEPTION.getCode(), tokenResponse.getStatusCode());
+		assertEquals(HttpStatusCode.SAAS_SERVER_ERROR.getCode(), tokenResponse.getStatusCode());
 		 
 	}
 	

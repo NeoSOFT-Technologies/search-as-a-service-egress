@@ -70,7 +70,7 @@ public class SearchService implements SearchServicePort {
 			throw new CustomException(HttpStatusCode.NULL_POINTER_EXCEPTION.getCode(), 
 					HttpStatusCode.NULL_POINTER_EXCEPTION, HttpStatusCode.NULL_POINTER_EXCEPTION.getMessage());
 		
-		return prepareSearchResponse(isMicroserviceDown, currentTableSchemaResponse);
+		return prepareSearchResponse(true, isMicroserviceDown, currentTableSchemaResponse);
 
 	}
 
@@ -98,22 +98,20 @@ public class SearchService implements SearchServicePort {
 			throw new CustomException(HttpStatusCode.NULL_POINTER_EXCEPTION.getCode(), 
 					HttpStatusCode.NULL_POINTER_EXCEPTION, HttpStatusCode.NULL_POINTER_EXCEPTION.getMessage());
 		
-		return prepareSearchResponse(isMicroserviceDown, currentTableSchemaResponse);
+		return prepareSearchResponse(false, isMicroserviceDown, currentTableSchemaResponse);
 
 	}
 	
 	
-	private SearchResponse prepareSearchResponse(boolean isMicroserviceDown, IngressSchemaResponse currentTableSchemaResponse) {
+	private SearchResponse prepareSearchResponse(
+			boolean isQueryBuilderSearch, 
+			boolean isMicroserviceDown, 
+			IngressSchemaResponse currentTableSchemaResponse) {
 		if(isMicroserviceDown && searchResponseDTO.getStatusCode() == 200) {
-			if(!currentTableSchemaResponse.getMessage().isEmpty())
-				searchResponseDTO.setMessage(
-						searchResponseDTO.getMessage()
-						+". "+currentTableSchemaResponse.getMessage()+VERIFICATION_INCOMPLETE_MESSAGE);
-			else
-				searchResponseDTO.setMessage(
-						searchResponseDTO.getMessage()
-						+". "+INGRESS_MICROSERVICE_INTERACT+VERIFICATION_INCOMPLETE_MESSAGE);
+			prepareResponseMessage(isQueryBuilderSearch, currentTableSchemaResponse.getMessage().isEmpty(), currentTableSchemaResponse);
+
 			return searchResponseDTO;
+			
 		} else if (searchResponseDTO.getStatusCode() == 200) {
 			searchResponseDTO.setStatus(HttpStatus.OK);
 			return searchResponseDTO;
@@ -125,6 +123,31 @@ public class SearchService implements SearchServicePort {
 			throw new CustomException(searchResponseDTO.getStatusCode(), HttpStatusCode.getHttpStatus(searchResponseDTO.getStatusCode()),
 					searchResponseDTO.getMessage());
 		}
+	}
+	
+	private SearchResponse prepareResponseMessage(
+			boolean isQueryBuilderSearch, boolean isSchemaResponseEmpty, 
+			IngressSchemaResponse currentTableSchemaResponse) {
+		if(!isSchemaResponseEmpty) {
+			if(isQueryBuilderSearch)
+				searchResponseDTO.setMessage(
+						searchResponseDTO.getMessage()
+						+". "+currentTableSchemaResponse.getMessage());
+			else
+				searchResponseDTO.setMessage(
+						searchResponseDTO.getMessage()
+						+". "+currentTableSchemaResponse.getMessage() + VERIFICATION_INCOMPLETE_MESSAGE);
+		} else {
+			if(isQueryBuilderSearch)
+				searchResponseDTO.setMessage(
+						searchResponseDTO.getMessage() +". "+ INGRESS_MICROSERVICE_INTERACT);
+			else
+				searchResponseDTO.setMessage(
+						searchResponseDTO.getMessage()
+						+". "+INGRESS_MICROSERVICE_INTERACT + VERIFICATION_INCOMPLETE_MESSAGE);
+		}
+		
+		return searchResponseDTO;
 	}
 
 }
