@@ -14,12 +14,13 @@ import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestTemplate;
+import org.springframework.web.client.HttpClientErrorException.NotFound;
+import org.springframework.web.client.HttpClientErrorException.Unauthorized;
 
 import com.searchservice.app.domain.dto.Response;
-import com.searchservice.app.domain.dto.user.UserDTO;
+import com.searchservice.app.domain.dto.user.User;
 import com.searchservice.app.domain.port.api.UserServicePort;
-import com.searchservice.app.domain.utils.HttpStatusCode;
-
+import com.searchservice.app.rest.errors.HttpStatusCode;
 
 @Service
 public class UserService implements UserServicePort{
@@ -28,7 +29,6 @@ public class UserService implements UserServicePort{
 
 	private final Logger log = LoggerFactory.getLogger(UserService.class);
 	
-	
 	@Autowired
 	RestTemplate restTemplate;
 	
@@ -36,20 +36,35 @@ public class UserService implements UserServicePort{
 	private String baseTokenUrl;
 	
 	@Override
-	public Response getToken(UserDTO user) {
+	public Response getToken(User user) {
 		if (user.getUsername().isBlank() || user.getUsername().isEmpty() || user.getPassword().isBlank() || user.getPassword().isEmpty()) {
 			return createResponse(ERROR, "username and password must bot be blank.", 
 					HttpStatusCode.BAD_REQUEST_EXCEPTION.getCode());
 		}
 		HttpHeaders headers = new HttpHeaders();
 	    headers.setAccept(Arrays.asList(MediaType.APPLICATION_JSON));
-	    HttpEntity<UserDTO> request = new HttpEntity<>(user,headers);
+	    HttpEntity<User> request = new HttpEntity<>(user,headers);
 	    ResponseEntity<String> response = new ResponseEntity<>(HttpStatus.OK);
 	    try {
 			response = restTemplate.postForEntity(baseTokenUrl, request, String.class);
+		} catch (NotFound e) {
+			log.error("Invalid credentials provided");
+			return createResponse(
+					null, 
+					HttpStatusCode.INVALID_CREDENTIALS.getMessage(), 
+					HttpStatusCode.INVALID_CREDENTIALS.getCode());
+		} catch (Unauthorized e) {
+			log.error("Unauthorized access attempt");
+			return createResponse(
+					null, 
+					HttpStatus.UNAUTHORIZED.getReasonPhrase(), 
+					HttpStatus.UNAUTHORIZED.value());
 		} catch (Exception e) {
-			log.error("Something went wrong while getting token");
-			return createResponse(null, "Invalid credentials", HttpStatusCode.BAD_REQUEST_EXCEPTION.getCode());
+			log.error("Something Went Wrong While Obtaining Token Value", e);
+			return createResponse(
+					null, 
+					HttpStatusCode.SAAS_SERVER_ERROR.getMessage(), 
+					HttpStatusCode.SAAS_SERVER_ERROR.getCode());
 		}
 		JSONObject obj = new JSONObject(response.getBody());
 		if (obj.has("access_token")) {

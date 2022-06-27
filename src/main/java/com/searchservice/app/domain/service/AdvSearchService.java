@@ -1,7 +1,6 @@
 package com.searchservice.app.domain.service;
 
 import java.util.ArrayList;
-
 import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
@@ -21,12 +20,12 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import com.searchservice.app.domain.dto.SearchResponse;
+import com.searchservice.app.domain.dto.SearchResult;
 import com.searchservice.app.domain.port.api.AdvSearchServicePort;
-import com.searchservice.app.domain.utils.HttpStatusCode;
 import com.searchservice.app.domain.utils.SearchUtil;
 import com.searchservice.app.infrastructure.adaptor.SearchClientAdapter;
-import com.searchservice.app.infrastructure.adaptor.SearchResult;
 import com.searchservice.app.rest.errors.CustomException;
+import com.searchservice.app.rest.errors.HttpStatusCode;
 
 
 @Service
@@ -81,10 +80,12 @@ public class AdvSearchService implements AdvSearchServicePort {
 		boolean isQueryFieldValidated = SearchUtil.checkIfNameIsAlphaNumeric(queryField.trim()) || queryField.trim().equals("*");
 		if(!isQueryFieldValidated)
 			throw new CustomException(HttpStatusCode.INVALID_QUERY_FIELD.getCode(),HttpStatusCode.INVALID_QUERY_FIELD,HttpStatusCode.OPERATION_NOT_ALLOWED.getMessage());
-		// VALIDATE queryField & searchTerm
-		boolean isQueryFieldMultivalued = SearchUtil.isQueryFieldMultivalued(
-				queryField, 
-				currentTableSchema);
+		// VALIDATE queryField & searchTerm for multiValue
+		boolean isQueryFieldMultivalued = false;
+		if(currentTableSchema != null)
+			isQueryFieldMultivalued = SearchUtil.isQueryFieldMultivalued(
+					queryField, 
+					currentTableSchema);
 		
 		// Set up query
 		StringBuilder queryString = new StringBuilder();
