@@ -1,8 +1,8 @@
 package com.searchservice.app.domain.port.api;
 
 import com.searchservice.app.domain.dto.Response;
-import com.searchservice.app.domain.dto.user.UserDTO;
+import com.searchservice.app.domain.dto.user.User;
 
 public interface UserServicePort {
-	Response getToken(UserDTO user);
+	Response getToken(User user);
 }

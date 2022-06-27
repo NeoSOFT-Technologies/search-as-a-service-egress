@@ -13,9 +13,9 @@ import org.slf4j.LoggerFactory;
 import org.springframework.boot.test.mock.mockito.MockBean;
 
 import com.searchservice.app.domain.utils.GetCurrentSchemaUtil;
-import com.searchservice.app.domain.utils.HttpStatusCode;
-import com.searchservice.app.rest.errors.CustomException;
 import com.searchservice.app.domain.utils.GetCurrentSchemaUtil.GetCurrentSchemaUtilResponse;
+import com.searchservice.app.rest.errors.CustomException;
+import com.searchservice.app.rest.errors.HttpStatusCode;
 import com.squareup.okhttp.OkHttpClient;
 
 
@@ -76,9 +76,8 @@ import com.squareup.okhttp.OkHttpClient;
 	@Test
 	void testgetCurrentSchemaDetailsException()
 	{
-		int expectedSizeDetailsException =0;
 		JSONArray schemaDetails  = schemaUtil.getCurrentSchemaDetails("");
-		assertEquals(expectedSizeDetailsException, schemaDetails.length());
+		assertEquals(null, schemaDetails);
 	}
 	
 	@Test
@@ -86,7 +85,7 @@ import com.squareup.okhttp.OkHttpClient;
 		schemaUtil.setBaseIngressMicroserviceUrl("http:local:8081");
 		schemaUtil.setTableName("TestTable");
 		schemaUtil.setTenantId(101);
-		assertEquals(false,schemaUtil.get("").isTableRetrieved());
+		assertEquals(false,schemaUtil.getTable("").isTableRetrieved());
 	}
 	
 	@Test

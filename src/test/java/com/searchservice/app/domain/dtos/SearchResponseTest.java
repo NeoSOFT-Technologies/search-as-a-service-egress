@@ -6,7 +6,7 @@ import org.eclipse.jetty.http.HttpStatus;
 import org.junit.jupiter.api.Test;
 
 import com.searchservice.app.domain.dto.SearchResponse;
-import com.searchservice.app.infrastructure.adaptor.SearchResult;
+import com.searchservice.app.domain.dto.SearchResult;
 
  class SearchResponseTest {
 
